@@ -16,7 +16,12 @@ spring:
       database: post_service
       uri: mongodb+srv://admin:123@springbootwithmongodb.xffyyfw.mongodb.net/
 
-management:
-  tracing:
-    sampling:
-      probability: 1.0
+springdoc:
+  packages-to-scan:
+    com.trvankiet.app
+  api-docs:
+    path: /v3/api-docs/post-service
+#management:
+#  tracing:
+#    sampling:
+#      probability: 1.0
