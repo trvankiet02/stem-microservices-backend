@@ -20,9 +20,14 @@ spring:
     hibernate:
       ddl-auto: update
     database: sql_server
-    database-platform: org.hibernate.dialect.SQLServer2012Dialect
+    database-platform: org.hibernate.dialect.SQLServerDialect
 
-management:
-  tracing:
-    sampling:
-      probability: 1.0
+springdoc:
+  packages-to-scan:
+    com.trvankiet.app
+  api-docs:
+    path: /v3/api-docs/user-service
+#management:
+#  tracing:
+#    sampling:
+#      probability: 1.0

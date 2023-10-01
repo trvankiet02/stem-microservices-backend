@@ -18,7 +18,7 @@ import java.util.Date;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Data
-abstract public class AbstractMappedEntity implements Serializable {
+public abstract class AbstractMappedEntity implements Serializable {
 
 	@CreatedDate
 	@JsonFormat(shape = Shape.STRING)
