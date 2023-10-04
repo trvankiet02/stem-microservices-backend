@@ -1,11 +1,13 @@
 package com.trvankiet.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.trvankiet.app.constant.TokenType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -18,9 +20,9 @@ import java.util.Date;
 public class Token extends AbstractMappedEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "token_id", unique = true, nullable = false, updatable = false)
-    private Integer tokenId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "token_id")
+    private String tokenId;
 
     @Column(name = "token")
     private String token;
@@ -29,8 +31,13 @@ public class Token extends AbstractMappedEntity implements Serializable {
     @Column(name = "type")
     private TokenType type;
 
+    private Boolean expired;
+
+    private Boolean revoked;
+
     @Column(name = "expired_at")
-    private Date expiredAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime expiredAt;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

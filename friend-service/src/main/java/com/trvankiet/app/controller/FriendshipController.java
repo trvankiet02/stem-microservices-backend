@@ -24,8 +24,8 @@ public class FriendshipController {
     @GetMapping
     public String test() {
         log.info("*** Test ***");
-        log.info("####1 {} 1####", userServiceClient.test());
-        log.info("####2 {} 2####", restTemplate.getForObject("http://user-service/api/v1/user", String.class));
+        //log.info("####1 {} 1####", userServiceClient.test());
+        //log.info("####2 {} 2####", restTemplate.getForObject("http://user-service/api/v1/user", String.class));
         return "userServiceClient.test()";
     }
 }

@@ -1,0 +1,34 @@
+package com.trvankiet.app.dto;
+
+import com.trvankiet.app.constant.Gender;
+import com.trvankiet.app.entity.Credential;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.Date;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
+public class UserDto implements Serializable {
+
+    private String userId;
+    private String firstName;
+    private String lastName;
+    private String profileImageUrl;
+    private String coverImageUrl;
+    private String email;
+    private String phone;
+    private Date dob;
+    private Gender gender;
+    private String about;
+    private String address;
+    private Credential credential;
+
+}

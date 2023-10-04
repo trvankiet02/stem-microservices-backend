@@ -18,11 +18,10 @@ import java.util.List;
 @Data
 @Builder
 public class Credential extends AbstractMappedEntity implements Serializable {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "credential_id", unique = true, nullable = false, updatable = false)
-    private Integer credentialId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "credential_id")
+    private String credentialId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "provider")
