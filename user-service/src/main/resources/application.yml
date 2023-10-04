@@ -1,17 +1,6 @@
 spring:
   application:
     name: user-service
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: tranvankiet2002@gmail.com
-    password: rscbevlhjdhnwcsr
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
   config:
     import: optional:configserver:http://localhost:8888/
 
