@@ -36,7 +36,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final CredentialRepository credentialRepository;
-    private final JwtService jwtService;
 
     @Override
     public <S extends User> S save(S entity) {
@@ -109,7 +108,7 @@ public class UserServiceImpl implements UserService {
                     throw new TokenException("Token is expired");
                 else {
                     Token verificationToken = tokenRepository.findByToken(token).orElseThrow(() -> new TokenException("Token is invalid"));
-                    Credential credential = credentialRepository.findByUsername(verificationToken.getCredential().getCredentialId()).orElseThrow(() -> new UserNotFoundException("User is not found"));
+                    Credential credential = credentialRepository.findById(verificationToken.getCredential().getCredentialId()).orElseThrow(() -> new UserNotFoundException("User is not found"));
                     try {
                         User user = credential.getUser();
                         user.setFirstName(userInfoRequest.getFirstName());

@@ -1,10 +1,14 @@
 package com.trvankiet.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.trvankiet.app.constant.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,8 +17,8 @@ import java.util.Date;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {"credential"})
 @Data
+@EqualsAndHashCode(callSuper = true, exclude = {"credential"})
 @Builder
 public class User extends AbstractMappedEntity implements Serializable {
 
@@ -55,6 +59,9 @@ public class User extends AbstractMappedEntity implements Serializable {
     @Column(name = "address")
     private String address;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
+    @ToString.Exclude
+    @JsonBackReference
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Credential credential;
+
 }

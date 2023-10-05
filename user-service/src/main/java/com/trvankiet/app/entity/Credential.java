@@ -1,10 +1,13 @@
 package com.trvankiet.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.trvankiet.app.constant.Provider;
 import com.trvankiet.app.constant.RoleBasedAuthority;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,8 +17,8 @@ import java.util.List;
 @Table(name = "credentials")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {"token"})
 @Data
+@EqualsAndHashCode(callSuper = true, exclude = {"token", "user"})
 @Builder
 public class Credential extends AbstractMappedEntity implements Serializable {
     @Id
@@ -55,12 +58,15 @@ public class Credential extends AbstractMappedEntity implements Serializable {
     @Column(name = "locked_reason")
     private String lockedReason;
 
+    @ToString.Exclude
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "credential")
+    @OneToMany(mappedBy = "credential")
     private List<Token> token;
 
+    @ToString.Exclude
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
+
 }

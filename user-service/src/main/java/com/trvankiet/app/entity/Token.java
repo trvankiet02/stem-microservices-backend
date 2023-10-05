@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.trvankiet.app.constant.TokenType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -14,8 +16,8 @@ import java.util.Date;
 @Table(name = "tokens")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {})
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 public class Token extends AbstractMappedEntity implements Serializable {
 
@@ -24,7 +26,7 @@ public class Token extends AbstractMappedEntity implements Serializable {
     @Column(name = "token_id")
     private String tokenId;
 
-    @Column(name = "token")
+    @Column(name = "token", unique = true)
     private String token;
 
     @Enumerated(EnumType.STRING)
@@ -39,8 +41,10 @@ public class Token extends AbstractMappedEntity implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime expiredAt;
 
+    @ToString.Exclude
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "credential_id", referencedColumnName = "credential_id")
     private Credential credential;
+
 }
