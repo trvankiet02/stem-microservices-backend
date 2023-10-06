@@ -28,20 +28,8 @@ public class UserController {
     }
     @PostMapping("/verify")
     public ResponseEntity<GenericResponse> initUserInfo(@RequestParam final String token,
-        @RequestBody @Valid final UserInfoRequest userInfoRequest, BindingResult bindingResult) {
+        @RequestBody @Valid final UserInfoRequest userInfoRequest) {
         log.info("UserController Post, ResponseEntity<GenericResponse>, initUserInfo");
-        if (bindingResult.hasErrors()) {
-            String errorMessage = Objects.requireNonNull(
-                    bindingResult.getFieldError()).getDefaultMessage();
-
-            return ResponseEntity.status(500)
-                    .body(new GenericResponse(
-                            false,
-                            errorMessage,
-                            null,
-                            HttpStatus.INTERNAL_SERVER_ERROR.value()
-                    ));
-        }
         return userService.initCredentialInfo(token, userInfoRequest);
     }
 

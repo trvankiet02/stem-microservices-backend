@@ -1,5 +1,6 @@
 package com.trvankiet.app.exception;
 
+import com.google.gson.JsonParseException;
 import com.trvankiet.app.constant.GenericResponse;
 import com.trvankiet.app.exception.wrapper.MyFeignException;
 import feign.FeignException;
@@ -30,13 +31,13 @@ public class ApiExceptionHandler {
         log.info("ApiExceptionHandler, ResponseEntity<GenericResponse>, handleValidationException");
         final var badRequest = HttpStatus.BAD_REQUEST;
 
-        return new ResponseEntity<>(
-                GenericResponse.builder()
+        return ResponseEntity.status(badRequest)
+                .body(GenericResponse.builder()
                         .success(false)
                         .message(Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage())
                         .result(null)
                         .statusCode(badRequest.value())
-                        .build(), badRequest);
+                        .build());
     }
 
     @ExceptionHandler(value = {
@@ -47,13 +48,13 @@ public class ApiExceptionHandler {
         log.info("ApiExceptionHandler, ResponseEntity<GenericResponse>, handleApiRequestException");
         final var badRequest = HttpStatus.BAD_REQUEST;
 
-        return new ResponseEntity<>(
-                GenericResponse.builder()
+        return ResponseEntity.status(badRequest)
+                .body(GenericResponse.builder()
                         .success(false)
                         .message(e.getMessage())
                         .result(null)
                         .statusCode(badRequest.value())
-                        .build(), badRequest);
+                        .build());
     }
 
 }

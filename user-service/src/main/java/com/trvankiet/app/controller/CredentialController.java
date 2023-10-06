@@ -47,4 +47,5 @@ public class CredentialController {
         log.info("CredentialController Get, ResponseEntity<CredentialDto>, verify");
         return credentialService.verify(token);
     }
+
 }

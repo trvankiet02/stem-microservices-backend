@@ -5,7 +5,9 @@ import com.trvankiet.app.business.auth.model.request.RegisterRequest;
 import com.trvankiet.app.business.auth.service.AuthenticationService;
 import com.trvankiet.app.business.user.model.CredentialDto;
 import com.trvankiet.app.business.user.model.UserDetailsImpl;
+import com.trvankiet.app.business.user.model.request.TokenRequest;
 import com.trvankiet.app.business.user.service.CredentialClientService;
+import com.trvankiet.app.business.user.service.TokenClientService;
 import com.trvankiet.app.constant.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +27,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
+
     private final CredentialClientService credentialClientService;
-    private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+    private final TokenClientService tokenClientService;
 
     @Override
     public ResponseEntity<GenericResponse> register(RegisterRequest registerRequest) {
@@ -61,5 +63,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public ResponseEntity<GenericResponse> verify(String token) {
         log.info("AuthenticationServiceImpl, ResponseEntity<GenericResponse>, verify");
         return credentialClientService.verify(token);
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> refreshAccessToken(TokenRequest tokenRequest) {
+        log.info("AuthenticationServiceImpl, ResponseEntity<GenericResponse>, refreshAccessToken");
+        return tokenClientService.refreshAccessToken(tokenRequest);
     }
 }

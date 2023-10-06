@@ -38,4 +38,6 @@ public interface TokenService {
     void revokeRefreshToken(String credentialId);
 
     ResponseEntity<GenericResponse> refreshAccessToken(TokenRequest tokenRequest);
+
+    ResponseEntity<GenericResponse> resetPassword(String email);
 }

@@ -5,18 +5,23 @@ import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
+import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
+import com.trvankiet.app.service.EmailService;
 import com.trvankiet.app.service.TokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,8 +32,9 @@ import java.util.stream.Collectors;
 public class TokenServiceImpl implements TokenService {
 
     private final TokenRepository tokenRepository;
-
     private final CredentialRepository credentialRepository;
+    private final JwtService jwtService;
+    private final EmailService emailService;
 
 
     @Override
@@ -113,6 +119,61 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public ResponseEntity<GenericResponse> refreshAccessToken(TokenRequest tokenRequest) {
-        return null;
+        String refreshToken = tokenRequest.getRefreshToken();
+        String userId = jwtService.extractCredentialId(refreshToken);
+        Optional<Credential> optionalCredential = credentialRepository.findById(userId);
+        if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
+            if (jwtService.validateToken(refreshToken, optionalCredential.get())) {
+                String newAccessToken = jwtService.generateAccessToken(optionalCredential.get());
+                Map<String, String> resultMap = new HashMap<>();
+                resultMap.put("accessToken", newAccessToken);
+                resultMap.put("refreshToken", refreshToken);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(GenericResponse.builder()
+                                .success(true)
+                                .message("Refresh access token successfully!")
+                                .result(resultMap)
+                                .statusCode(HttpStatus.OK.value())
+                                .build());
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(GenericResponse.builder()
+                                .success(false)
+                                .message("Refresh token is expired!")
+                                .result(null)
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .build());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(GenericResponse.builder()
+                        .success(false)
+                        .message("Unauthorized. Please login again!")
+                        .result(null)
+                        .statusCode(HttpStatus.UNAUTHORIZED.value())
+                        .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> resetPassword(String email) {
+        Optional<Credential> optionalCredential = credentialRepository.findByUsername(email);
+        if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
+            Credential credential = optionalCredential.get();
+            emailService.sendResetPasswordEmail(credential);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GenericResponse.builder()
+                            .success(true)
+                            .message("Reset password email sent successfully!")
+                            .result(null)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(GenericResponse.builder()
+                        .success(false)
+                        .message("Invalid user!")
+                        .result(null)
+                        .statusCode(HttpStatus.NOT_FOUND.value())
+                        .build());
     }
 }

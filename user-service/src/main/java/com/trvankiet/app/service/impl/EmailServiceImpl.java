@@ -8,6 +8,7 @@ import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.service.CredentialService;
 import com.trvankiet.app.service.EmailService;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +27,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
-    private final CredentialRepository credentialRepository;
     private final TokenRepository tokenRepository;
     @Override
     @Async
     public void sendVerificationEmail(Credential credential) {
+        log.info("EmailServiceImpl, void, sendVerificationEmail, credential");
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -57,9 +58,43 @@ public class EmailServiceImpl implements EmailService {
                     .toList();
             tokenRepository.deleteAll(existingEmailVerificationToken);
             tokenRepository.save(verificationToken);
-
         } catch (Exception e) {
             log.error("Error when sending verification email: ", e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendResetPasswordEmail(Credential credential) {
+        log.info("EmailServiceImpl, void, sendResetPasswordEmail, credential");
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(10);
+            Token resetPasswordToken = Token.builder()
+                    .token(UUID.randomUUID().toString())
+                    .type(TokenType.RESET_PASSWORD_TOKEN)
+                    .revoked(false)
+                    .expired(false)
+                    .expiredAt(expirationTime)
+                    .credential(credential)
+                    .build();
+
+            helper.setTo(credential.getUsername());
+            String mailContent = "<p>Click <a href=\"http://localhost:8080/api/auth/reset-password?token=" + resetPasswordToken.getToken() + "\">here</a> to verify your email</p>";
+            helper.setText(mailContent, true);
+            helper.setSubject("The reset password token for your account");
+            mailSender.send(message);
+
+            List<Token> existingResetPasswordToken = tokenRepository.findByCredential(credential)
+                    .stream()
+                    .filter(token -> token.getType().equals(TokenType.RESET_PASSWORD_TOKEN))
+                    .toList();
+            tokenRepository.deleteAll(existingResetPasswordToken);
+            tokenRepository.save(resetPasswordToken);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

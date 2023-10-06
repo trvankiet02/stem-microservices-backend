@@ -1,4 +1,4 @@
-package com.trvankiet.app.dto.request;
+package com.trvankiet.app.business.user.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

@@ -4,6 +4,7 @@ import com.trvankiet.app.business.auth.model.request.LoginRequest;
 import com.trvankiet.app.business.auth.model.request.RegisterRequest;
 import com.trvankiet.app.business.user.model.CredentialDto;
 import com.trvankiet.app.constant.GenericResponse;
+import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CredentialClientService {
 
     @PostMapping("/register")
-    ResponseEntity<GenericResponse> register(RegisterRequest registerRequest);
+    ResponseEntity<GenericResponse> register(@Valid RegisterRequest registerRequest);
 
     @PostMapping("/login")
-    ResponseEntity<GenericResponse> login(LoginRequest loginRequest);
+    ResponseEntity<GenericResponse> login(@Valid LoginRequest loginRequest);
 
     @GetMapping("/")
     CredentialDto findByUsername(@RequestParam String username);

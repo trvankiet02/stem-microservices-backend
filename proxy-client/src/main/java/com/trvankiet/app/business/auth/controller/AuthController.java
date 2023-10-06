@@ -4,6 +4,7 @@ import com.trvankiet.app.business.auth.model.request.LoginRequest;
 import com.trvankiet.app.business.auth.model.request.RegisterRequest;
 import com.trvankiet.app.business.auth.service.AuthenticationService;
 import com.trvankiet.app.business.user.model.CredentialDto;
+import com.trvankiet.app.business.user.model.request.TokenRequest;
 import com.trvankiet.app.constant.GenericResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,5 +68,10 @@ public class AuthController {
     public ResponseEntity<GenericResponse> verify(@RequestParam("token") String token){
         log.info("AuthenticationController, ResponseEntity<GenericResponse>, verify");
         return authenticationService.verify(token);
+    }
+
+    @PostMapping("/refresh-access-token")
+    public ResponseEntity<GenericResponse> refreshAccessToken(@RequestBody @Valid TokenRequest tokenRequest) {
+        return authenticationService.refreshAccessToken(tokenRequest);
     }
 }
