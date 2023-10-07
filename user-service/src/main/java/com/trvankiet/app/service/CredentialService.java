@@ -3,6 +3,7 @@ package com.trvankiet.app.service;
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.request.LoginRequest;
 import com.trvankiet.app.dto.request.RegisterRequest;
+import com.trvankiet.app.dto.request.ResetPasswordRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
 import org.springframework.data.domain.Example;
@@ -48,4 +49,8 @@ public interface CredentialService {
     ResponseEntity<GenericResponse> login(LoginRequest loginRequest);
 
     ResponseEntity<GenericResponse> verify(String token);
+
+    ResponseEntity<GenericResponse> verifyResetPassword(String token);
+
+    ResponseEntity<GenericResponse> resetPassword(String token, ResetPasswordRequest resetPasswordRequest);
 }

@@ -1,7 +1,8 @@
-package com.trvankiet.app.business.user.service;
+package com.trvankiet.app.business.user.service.client;
 
 import com.trvankiet.app.business.auth.model.request.LoginRequest;
 import com.trvankiet.app.business.auth.model.request.RegisterRequest;
+import com.trvankiet.app.business.auth.model.request.ResetPasswordRequest;
 import com.trvankiet.app.business.user.model.CredentialDto;
 import com.trvankiet.app.constant.GenericResponse;
 import jakarta.validation.Valid;
@@ -29,4 +30,10 @@ public interface CredentialClientService {
 
     @GetMapping("/verify")
     ResponseEntity<GenericResponse> verify(@RequestParam String token);
+
+    @GetMapping("/reset-password")
+    ResponseEntity<GenericResponse> verifyResetPassword(@RequestParam String token);
+
+    @PostMapping("/reset-password")
+    ResponseEntity<GenericResponse> resetPassword(@RequestParam String token,@Valid @RequestParam ResetPasswordRequest resetPasswordRequest);
 }

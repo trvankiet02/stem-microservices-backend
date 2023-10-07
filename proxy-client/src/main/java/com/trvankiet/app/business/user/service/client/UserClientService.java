@@ -1,4 +1,4 @@
-package com.trvankiet.app.business.user.service;
+package com.trvankiet.app.business.user.service.client;
 
 import com.trvankiet.app.business.user.model.request.UserInfoRequest;
 import com.trvankiet.app.constant.GenericResponse;

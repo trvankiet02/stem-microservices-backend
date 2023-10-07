@@ -2,14 +2,13 @@ package com.trvankiet.app.business.auth.service.impl;
 
 import com.trvankiet.app.business.auth.model.request.LoginRequest;
 import com.trvankiet.app.business.auth.model.request.RegisterRequest;
+import com.trvankiet.app.business.auth.model.request.ResetPasswordRequest;
 import com.trvankiet.app.business.auth.service.AuthenticationService;
 import com.trvankiet.app.business.user.model.CredentialDto;
-import com.trvankiet.app.business.user.model.UserDetailsImpl;
 import com.trvankiet.app.business.user.model.request.TokenRequest;
-import com.trvankiet.app.business.user.service.CredentialClientService;
-import com.trvankiet.app.business.user.service.TokenClientService;
+import com.trvankiet.app.business.user.service.client.CredentialClientService;
+import com.trvankiet.app.business.user.service.client.TokenClientService;
 import com.trvankiet.app.constant.GenericResponse;
-import com.trvankiet.app.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Objects;
 
@@ -69,5 +67,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public ResponseEntity<GenericResponse> refreshAccessToken(TokenRequest tokenRequest) {
         log.info("AuthenticationServiceImpl, ResponseEntity<GenericResponse>, refreshAccessToken");
         return tokenClientService.refreshAccessToken(tokenRequest);
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> verifyResetPassword(String token) {
+        log.info("AuthenticationServiceImpl, ResponseEntity<GenericResponse>, verifyResetPassword");
+        return credentialClientService.verifyResetPassword(token);
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> resetPassword(String token, ResetPasswordRequest resetPasswordRequest) {
+        log.info("AuthenticationServiceImpl, ResponseEntity<GenericResponse>, resetPassword");
+        return credentialClientService.resetPassword(token, resetPasswordRequest);
     }
 }

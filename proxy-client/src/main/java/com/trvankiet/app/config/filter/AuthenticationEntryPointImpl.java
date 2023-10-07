@@ -1,4 +1,4 @@
-package com.trvankiet.app.business.auth.service;
+package com.trvankiet.app.config.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

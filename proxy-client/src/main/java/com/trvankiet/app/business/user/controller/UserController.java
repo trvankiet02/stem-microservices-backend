@@ -1,7 +1,7 @@
 package com.trvankiet.app.business.user.controller;
 
 import com.trvankiet.app.business.user.model.request.UserInfoRequest;
-import com.trvankiet.app.business.user.service.UserClientService;
+import com.trvankiet.app.business.user.service.client.UserClientService;
 import com.trvankiet.app.constant.GenericResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

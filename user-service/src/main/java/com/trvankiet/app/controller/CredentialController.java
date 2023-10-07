@@ -3,8 +3,10 @@ package com.trvankiet.app.controller;
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.request.LoginRequest;
 import com.trvankiet.app.dto.request.RegisterRequest;
+import com.trvankiet.app.dto.request.ResetPasswordRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.service.CredentialService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +48,19 @@ public class CredentialController {
     public ResponseEntity<GenericResponse> verify(@RequestParam final String token) {
         log.info("CredentialController Get, ResponseEntity<CredentialDto>, verify");
         return credentialService.verify(token);
+    }
+
+    @GetMapping("/reset-password")
+    public ResponseEntity<GenericResponse> verifyResetPassword(@RequestParam final String token) {
+        log.info("CredentialController Get, ResponseEntity<CredentialDto>, resetPassword");
+        return credentialService.verifyResetPassword(token);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<GenericResponse> resetPassword(@RequestParam final String token
+            , @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
+        log.info("CredentialController Post, ResponseEntity<CredentialDto>, resetPassword");
+        return credentialService.resetPassword(token, resetPasswordRequest);
     }
 
 }

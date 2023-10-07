@@ -2,6 +2,7 @@ package com.trvankiet.app.business.auth.controller;
 
 import com.trvankiet.app.business.auth.model.request.LoginRequest;
 import com.trvankiet.app.business.auth.model.request.RegisterRequest;
+import com.trvankiet.app.business.auth.model.request.ResetPasswordRequest;
 import com.trvankiet.app.business.auth.service.AuthenticationService;
 import com.trvankiet.app.business.user.model.CredentialDto;
 import com.trvankiet.app.business.user.model.request.TokenRequest;
@@ -25,42 +26,14 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<GenericResponse> register(@RequestBody @Valid RegisterRequest registerRequest
-    , BindingResult bindingResult) {
+    public ResponseEntity<GenericResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
         log.info("AuthenticationController, ResponseEntity<GenericResponse>, register");
-
-        if (bindingResult.hasErrors()) {
-            String errorMessage = Objects.requireNonNull(
-                    bindingResult.getFieldError()).getDefaultMessage();
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(GenericResponse.builder()
-                            .success(false)
-                            .message(errorMessage)
-                            .result(null)
-                            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .build(
-                    ));
-        }
         return authenticationService.register(registerRequest);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<GenericResponse> login(@RequestBody @Valid LoginRequest loginRequest
-    , BindingResult bindingResult){
+    public ResponseEntity<GenericResponse> login(@RequestBody @Valid LoginRequest loginRequest){
         log.info("AuthenticationController, ResponseEntity<GenericResponse>, login");
-        if (bindingResult.hasErrors()) {
-            String errorMessage = Objects.requireNonNull(
-                    bindingResult.getFieldError()).getDefaultMessage();
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new GenericResponse(
-                            false,
-                            errorMessage,
-                            null,
-                            HttpStatus.INTERNAL_SERVER_ERROR.value()
-                    ));
-        }
         return authenticationService.login(loginRequest);
     }
 
@@ -72,6 +45,20 @@ public class AuthController {
 
     @PostMapping("/refresh-access-token")
     public ResponseEntity<GenericResponse> refreshAccessToken(@RequestBody @Valid TokenRequest tokenRequest) {
+        log.info("AuthenticationController, ResponseEntity<GenericResponse>, refreshAccessToken");
         return authenticationService.refreshAccessToken(tokenRequest);
+    }
+
+    @GetMapping("/reset-password")
+    public ResponseEntity<GenericResponse> verifyResetPassword(@RequestParam final String token) {
+        log.info("AuthenticationController, ResponseEntity<GenericResponse>, getResetPassword");
+        return authenticationService.verifyResetPassword(token);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<GenericResponse> resetPassword(@RequestParam final String token
+            , @RequestParam final ResetPasswordRequest resetPasswordRequest) {
+        log.info("AuthenticationController, ResponseEntity<GenericResponse>, resetPassword");
+        return authenticationService.resetPassword(token, resetPasswordRequest);
     }
 }

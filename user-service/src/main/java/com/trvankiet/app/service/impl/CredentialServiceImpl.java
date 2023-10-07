@@ -4,8 +4,10 @@ import com.trvankiet.app.constant.Provider;
 import com.trvankiet.app.constant.RoleBasedAuthority;
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.dto.CredentialDto;
+import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.LoginRequest;
 import com.trvankiet.app.dto.request.RegisterRequest;
+import com.trvankiet.app.dto.request.ResetPasswordRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
@@ -253,6 +255,100 @@ public class CredentialServiceImpl implements CredentialService {
                                 .statusCode(HttpStatus.OK.value())
                                 .build());
                     }
+                }
+            }
+        }
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> verifyResetPassword(String token) {
+        log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, verifyResetPassword");
+        Optional<Token> optionalToken = tokenService.findByToken(token);
+        if (optionalToken.isEmpty()){
+            throw new TokenException("Token is invalid");
+        } else {
+            if (!optionalToken.get().getType().equals(TokenType.RESET_PASSWORD_TOKEN)){
+                throw new TokenException("Token is invalid");
+            } else {
+                if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now())){
+                    throw new TokenException("Token is expired");
+                } else {
+                    if (optionalToken.get().getCredential().getIsEnabled())
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(GenericResponse.builder()
+                                .success(false)
+                                .message("Account is not verified")
+                                .result(null)
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .build());
+                    User user = optionalToken.get().getCredential().getUser();
+                    UserDto userDto = UserDto.builder()
+                            .firstName(user.getFirstName())
+                            .lastName(user.getLastName())
+                            .profileImageUrl(user.getProfileImageUrl())
+                            .email(user.getEmail())
+                            .build();
+                    return ResponseEntity.ok()
+                            .body(GenericResponse.builder()
+                            .success(true)
+                            .message("Verify token successfully")
+                            .result(userDto)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
+                }
+            }
+        }
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> resetPassword(String token, ResetPasswordRequest resetPasswordRequest) {
+        log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, resetPassword");
+        if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(GenericResponse.builder()
+                    .success(false)
+                    .message("Password and confirm password must be the same")
+                    .result(null)
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
+        Optional<Token> optionalToken = tokenService.findByToken(token);
+        if (optionalToken.isEmpty()){
+            throw new TokenException("Token is invalid");
+        } else {
+            if (!optionalToken.get().getType().equals(TokenType.RESET_PASSWORD_TOKEN)){
+                throw new TokenException("Token is invalid");
+            } else {
+                if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now())){
+                    throw new TokenException("Token is expired");
+                } else {
+                    if (optionalToken.get().getCredential().getIsEnabled())
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(GenericResponse.builder()
+                                        .success(false)
+                                        .message("Account is not verified")
+                                        .result(null)
+                                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                                        .build());
+                    if (resetPasswordRequest.getPassword().length() < 8 || resetPasswordRequest.getPassword().length() > 32)
+                        throw new PasswordStrongException("Password must be between 8 and 32 characters long");
+
+                    Credential credential = optionalToken.get().getCredential();
+                    credential.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+                    credentialRepository.save(credential);
+
+                    Token resetPasswordToken = optionalToken.get();
+                    resetPasswordToken.setExpired(true);
+                    resetPasswordToken.setRevoked(true);
+                    tokenService.save(resetPasswordToken);
+
+                    return ResponseEntity.ok()
+                            .body(GenericResponse.builder()
+                            .success(true)
+                            .message("Reset password successfully")
+                            .result(null)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
                 }
             }
         }
