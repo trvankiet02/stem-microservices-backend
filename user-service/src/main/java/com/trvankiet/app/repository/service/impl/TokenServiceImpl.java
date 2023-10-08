@@ -1,6 +1,7 @@
-package com.trvankiet.app.service.impl;
+package com.trvankiet.app.repository.service.impl;
 
 import com.trvankiet.app.constant.TokenType;
+import com.trvankiet.app.dto.request.EmailRequest;
 import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
@@ -8,8 +9,8 @@ import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
-import com.trvankiet.app.service.EmailService;
-import com.trvankiet.app.service.TokenService;
+import com.trvankiet.app.repository.service.EmailService;
+import com.trvankiet.app.repository.service.TokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -155,7 +155,8 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> resetPassword(String email) {
+    public ResponseEntity<GenericResponse> resetPassword(EmailRequest emailRequest) {
+        String email = emailRequest.getEmail();
         Optional<Credential> optionalCredential = credentialRepository.findByUsername(email);
         if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
             Credential credential = optionalCredential.get();

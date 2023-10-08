@@ -1,4 +1,4 @@
-package com.trvankiet.app.service.impl;
+package com.trvankiet.app.repository.service.impl;
 
 import com.trvankiet.app.constant.Gender;
 import com.trvankiet.app.constant.TokenType;
@@ -9,11 +9,10 @@ import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.exception.wrapper.TokenException;
 import com.trvankiet.app.exception.wrapper.UserNotFoundException;
-import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.repository.UserRepository;
-import com.trvankiet.app.service.UserService;
+import com.trvankiet.app.repository.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +116,14 @@ public class UserServiceImpl implements UserService {
                         user.setPhone(userInfoRequest.getPhone());
                         user.setGender(Gender.valueOf(userInfoRequest.getGender()));
                         userRepository.save(user);
+
+                        credential.setIsEnabled(true);
+                        credentialRepository.save(credential);
+
+                        verificationToken.setRevoked(true);
+                        verificationToken.setExpired(true);
+                        tokenRepository.save(verificationToken);
+
                         return ResponseEntity.ok(
                                 GenericResponse.builder()
                                 .success(true)

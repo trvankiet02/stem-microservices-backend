@@ -1,4 +1,4 @@
-package com.trvankiet.app.service;
+package com.trvankiet.app.repository.service;
 
 import com.trvankiet.app.entity.Credential;
 

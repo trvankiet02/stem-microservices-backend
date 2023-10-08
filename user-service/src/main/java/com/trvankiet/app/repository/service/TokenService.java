@@ -1,5 +1,6 @@
-package com.trvankiet.app.service;
+package com.trvankiet.app.repository.service;
 
+import com.trvankiet.app.dto.request.EmailRequest;
 import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Token;
@@ -39,5 +40,5 @@ public interface TokenService {
 
     ResponseEntity<GenericResponse> refreshAccessToken(TokenRequest tokenRequest);
 
-    ResponseEntity<GenericResponse> resetPassword(String email);
+    ResponseEntity<GenericResponse> resetPassword(EmailRequest emailRequest);
 }

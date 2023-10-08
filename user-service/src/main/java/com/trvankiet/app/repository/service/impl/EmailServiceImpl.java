@@ -1,13 +1,10 @@
-package com.trvankiet.app.service.impl;
+package com.trvankiet.app.repository.service.impl;
 
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
-import com.trvankiet.app.exception.wrapper.UserNotFoundException;
-import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
-import com.trvankiet.app.service.CredentialService;
-import com.trvankiet.app.service.EmailService;
+import com.trvankiet.app.repository.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,7 +43,7 @@ public class EmailServiceImpl implements EmailService {
                     .build();
 
             helper.setTo(credential.getUsername());
-            String mailContent = "<p>Click <a href=\"http://localhost:8080/api/auth/verify?token=" + verificationToken.getToken() + "\">here</a> to verify your email</p>";
+            String mailContent = "<p>Click <a href=\"http://localhost:3000/api/verify/" + verificationToken.getToken() + "\">here</a> to verify your email</p>";
             helper.setText(mailContent, true);
             helper.setSubject("The verification token for your account");
             mailSender.send(message);
@@ -82,7 +78,7 @@ public class EmailServiceImpl implements EmailService {
                     .build();
 
             helper.setTo(credential.getUsername());
-            String mailContent = "<p>Click <a href=\"http://localhost:8080/api/auth/reset-password?token=" + resetPasswordToken.getToken() + "\">here</a> to verify your email</p>";
+            String mailContent = "<p>Click <a href=\"http://localhost:3000/forgot-password/" + resetPasswordToken.getToken() + "\">here</a> to verify your email</p>";
             helper.setText(mailContent, true);
             helper.setSubject("The reset password token for your account");
             mailSender.send(message);

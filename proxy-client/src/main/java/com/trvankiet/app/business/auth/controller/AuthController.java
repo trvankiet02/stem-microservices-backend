@@ -57,7 +57,7 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<GenericResponse> resetPassword(@RequestParam final String token
-            , @RequestParam final ResetPasswordRequest resetPasswordRequest) {
+            , @RequestBody final ResetPasswordRequest resetPasswordRequest) {
         log.info("AuthenticationController, ResponseEntity<GenericResponse>, resetPassword");
         return authenticationService.resetPassword(token, resetPasswordRequest);
     }

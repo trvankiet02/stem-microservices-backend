@@ -1,4 +1,4 @@
-package com.trvankiet.app.service.impl;
+package com.trvankiet.app.repository.service.impl;
 
 import com.trvankiet.app.constant.Provider;
 import com.trvankiet.app.constant.RoleBasedAuthority;
@@ -19,9 +19,9 @@ import com.trvankiet.app.exception.wrapper.UserNotFoundException;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.UserRepository;
-import com.trvankiet.app.service.CredentialService;
-import com.trvankiet.app.service.EmailService;
-import com.trvankiet.app.service.TokenService;
+import com.trvankiet.app.repository.service.CredentialService;
+import com.trvankiet.app.repository.service.TokenService;
+import com.trvankiet.app.repository.service.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -239,18 +239,9 @@ public class CredentialServiceImpl implements CredentialService {
                     if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now())){
                         throw new TokenException("Token is expired");
                     } else {
-                        Token verificationToken = optionalToken.get();
-                        verificationToken.setExpired(true);
-                        verificationToken.setRevoked(true);
-                        tokenService.save(verificationToken);
-
-                        Credential credential = verificationToken.getCredential();
-                        credential.setIsEnabled(true);
-                        credentialRepository.save(credential);
-
                         return ResponseEntity.ok().body(GenericResponse.builder()
                                 .success(true)
-                                .message("Account verified successfully")
+                                .message("Account is in verifying process")
                                 .result(null)
                                 .statusCode(HttpStatus.OK.value())
                                 .build());
@@ -273,7 +264,7 @@ public class CredentialServiceImpl implements CredentialService {
                 if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now())){
                     throw new TokenException("Token is expired");
                 } else {
-                    if (optionalToken.get().getCredential().getIsEnabled())
+                    if (!optionalToken.get().getCredential().getIsEnabled())
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(GenericResponse.builder()
                                 .success(false)
@@ -322,7 +313,7 @@ public class CredentialServiceImpl implements CredentialService {
                 if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now())){
                     throw new TokenException("Token is expired");
                 } else {
-                    if (optionalToken.get().getCredential().getIsEnabled())
+                    if (!optionalToken.get().getCredential().getIsEnabled())
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(GenericResponse.builder()
                                         .success(false)

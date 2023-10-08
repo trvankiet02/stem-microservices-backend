@@ -1,4 +1,4 @@
-package com.trvankiet.app.service;
+package com.trvankiet.app.repository.service;
 
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.request.LoginRequest;

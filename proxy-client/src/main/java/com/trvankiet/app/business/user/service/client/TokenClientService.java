@@ -1,5 +1,6 @@
 package com.trvankiet.app.business.user.service.client;
 
+import com.trvankiet.app.business.user.model.request.EmailRequest;
 import com.trvankiet.app.business.user.model.request.TokenRequest;
 import com.trvankiet.app.constant.GenericResponse;
 import jakarta.validation.Valid;
@@ -13,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface TokenClientService {
 
     @PostMapping("/refresh-access-token")
-    ResponseEntity<GenericResponse> refreshAccessToken(@RequestBody @Valid TokenRequest tokenRequest);
+    ResponseEntity<GenericResponse> refreshAccessToken(@Valid @RequestBody TokenRequest tokenRequest);
 
     @PostMapping("reset-password")
-    ResponseEntity<GenericResponse> resetPassword(@RequestParam String email);
+    ResponseEntity<GenericResponse> resetPassword(@Valid @RequestBody EmailRequest emailRequest);
 }
