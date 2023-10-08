@@ -1,5 +1,4 @@
 package com.trvankiet.app.business.user.service.impl;
-
 import com.trvankiet.app.business.user.model.request.EmailRequest;
 import com.trvankiet.app.business.user.service.TokenService;
 import com.trvankiet.app.business.user.service.client.TokenClientService;

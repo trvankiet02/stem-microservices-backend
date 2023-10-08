@@ -2,6 +2,7 @@ package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.request.UserInfoRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
+<<<<<<< HEAD
 import com.trvankiet.app.repository.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
