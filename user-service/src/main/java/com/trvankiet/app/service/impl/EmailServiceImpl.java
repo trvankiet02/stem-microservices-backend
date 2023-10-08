@@ -47,7 +47,7 @@ public class EmailServiceImpl implements EmailService {
                     .build();
 
             helper.setTo(credential.getUsername());
-            String mailContent = "<p>Click <a href=\"http://localhost:8080/api/auth/verify?token=" + verificationToken.getToken() + "\">here</a> to verify your email</p>";
+            String mailContent = "<p>Click <a href=\"http://localhost:3000/verify/" + verificationToken.getToken() + "\">here</a> to verify your email</p>";
             helper.setText(mailContent, true);
             helper.setSubject("The verification token for your account");
             mailSender.send(message);

@@ -15,6 +15,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping(value = {"/api/v1/users"})
+@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {
