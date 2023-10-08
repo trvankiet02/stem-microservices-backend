@@ -12,7 +12,9 @@ import java.util.Date;
 @Builder
 public class UserInfoRequest {
 
+    @NotBlank(message = "First name is required")
     private String firstName;
+    @NotBlank(message = "Last name is required")
     private String lastName;
     private String phone;
     private Date dob;
