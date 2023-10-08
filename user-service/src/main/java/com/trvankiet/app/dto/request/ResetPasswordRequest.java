@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 @Builder
-public class ResetPasswordRequest implements Serializable {
+public class ResetPasswordRequest {
 
     @NotBlank(message = "Password is required")
     private String password;

@@ -1,5 +1,5 @@
 package com.trvankiet.app.business.user.service.impl;
-
+import com.trvankiet.app.business.user.model.request.EmailRequest;
 import com.trvankiet.app.business.user.service.TokenService;
 import com.trvankiet.app.business.user.service.client.TokenClientService;
 import com.trvankiet.app.constant.GenericResponse;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class TokenServiceImpl implements TokenService {
     private final TokenClientService tokenClientService;
     @Override
-    public ResponseEntity<GenericResponse> resetPassword(String email) {
-        return tokenClientService.resetPassword(email);
+    public ResponseEntity<GenericResponse> resetPassword(EmailRequest emailRequest) {
+        return tokenClientService.resetPassword(emailRequest);
     }
 }

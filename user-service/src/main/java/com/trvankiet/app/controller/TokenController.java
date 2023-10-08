@@ -1,12 +1,12 @@
 package com.trvankiet.app.controller;
 
+import com.trvankiet.app.dto.request.EmailRequest;
 import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.service.TokenService;
+import com.trvankiet.app.repository.service.TokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +24,8 @@ public class TokenController {
     }
 
     @PostMapping("reset-password")
-    public ResponseEntity<GenericResponse> resetPassword(@RequestParam final String email) {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestBody final EmailRequest emailRequest) {
         log.info("TokenController, Response<GenericResponse>, resetPassword");
-        return tokenService.resetPassword(email);
+        return tokenService.resetPassword(emailRequest);
     }
 }
