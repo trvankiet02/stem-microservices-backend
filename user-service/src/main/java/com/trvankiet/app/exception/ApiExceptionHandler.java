@@ -1,10 +1,9 @@
 package com.trvankiet.app.exception;
 
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.exception.wrapper.PasswordStrongException;
+import com.trvankiet.app.exception.wrapper.PasswordException;
 import com.trvankiet.app.exception.wrapper.TokenException;
-import com.trvankiet.app.exception.wrapper.UserNotEnabledException;
-import com.trvankiet.app.exception.wrapper.UserNotFoundException;
+import com.trvankiet.app.exception.wrapper.UserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @ControllerAdvice
@@ -42,9 +39,8 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-            UserNotFoundException.class,
-            PasswordStrongException.class,
-            UserNotEnabledException.class,
+            UserException.class,
+            PasswordException.class,
             TokenException.class
     })
     public <T extends RuntimeException> ResponseEntity<GenericResponse> handleApiRequestException(final T e) {

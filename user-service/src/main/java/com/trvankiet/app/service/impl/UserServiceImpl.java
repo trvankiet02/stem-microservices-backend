@@ -8,8 +8,7 @@ import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.exception.wrapper.TokenException;
-import com.trvankiet.app.exception.wrapper.UserNotFoundException;
-import com.trvankiet.app.jwt.service.JwtService;
+import com.trvankiet.app.exception.wrapper.UserException;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.repository.UserRepository;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -95,48 +95,58 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<GenericResponse> initCredentialInfo(String token, UserInfoRequest userInfoRequest) {
         log.info("UserServiceImpl, ResponseEntity<GenericResponse>, initCredentialInfo");
-        Optional<Token> optionalToken = tokenRepository.findByToken(token);
-        if (userInfoRequest.getDob().after(new Date()))
-            throw new IllegalArgumentException("Date of birth is invalid");
-        if (optionalToken.isEmpty())
-            throw new TokenException("Token is invalid");
-        else {
-            if (!optionalToken.get().getType().equals(TokenType.VERIFICATION_TOKEN)){
-                throw new TokenException("Token is not verification token");
-            } else {
-                if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now()))
-                    throw new TokenException("Token is expired");
-                else {
-                    Token verificationToken = tokenRepository.findByToken(token).orElseThrow(() -> new TokenException("Token is invalid"));
-                    Credential credential = credentialRepository.findById(verificationToken.getCredential().getCredentialId()).orElseThrow(() -> new UserNotFoundException("User is not found"));
-                    try {
-                        User user = credential.getUser();
-                        user.setFirstName(userInfoRequest.getFirstName());
-                        user.setLastName(userInfoRequest.getLastName());
-                        user.setDob(userInfoRequest.getDob());
-                        user.setPhone(userInfoRequest.getPhone());
-                        user.setGender(Gender.valueOf(userInfoRequest.getGender()));
-                        userRepository.save(user);
 
-                        credential.setIsEnabled(true);
-                        credentialRepository.save(credential);
+        Token verificationToken = validateAndRetrieveVerificationToken(token);
 
-                        verificationToken.setRevoked(true);
-                        verificationToken.setExpired(true);
-                        tokenRepository.save(verificationToken);
+        User user = verificationToken.getCredential().getUser();
+        user.setFirstName(userInfoRequest.getFirstName());
+        user.setLastName(userInfoRequest.getLastName());
+        user.setDob(userInfoRequest.getDob());
+        user.setPhone(userInfoRequest.getPhone());
 
-                        return ResponseEntity.ok(
-                                GenericResponse.builder()
-                                .success(true)
-                                .message("Init credential info successfully")
-                                .result(null)
-                                .statusCode(200)
-                                .build());
-                    } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("Invalid Gender");
-                    }
-                }
-            }
+        try {
+            user.setGender(Gender.valueOf(userInfoRequest.getGender()));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Giới tính không hợp lệ!");
         }
+
+        userRepository.save(user);
+
+        Credential credential = verificationToken.getCredential();
+        credential.setIsEnabled(true);
+        credentialRepository.save(credential);
+
+        verificationToken.setRevoked(true);
+        verificationToken.setExpired(true);
+        tokenRepository.save(verificationToken);
+
+        return ResponseEntity.ok(
+                GenericResponse.builder()
+                        .success(true)
+                        .message("Thông tin tài khoản đã được khởi tạo thành công!")
+                        .result(null)
+                        .statusCode(HttpStatus.OK.value())
+                        .build());
     }
+
+    private Token validateAndRetrieveVerificationToken(String token) {
+        Optional<Token> optionalToken = tokenRepository.findByToken(token);
+
+        if (optionalToken.isEmpty()) {
+            throw new TokenException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
+        }
+
+        Token verificationToken = optionalToken.get();
+
+        if (!verificationToken.getType().equals(TokenType.VERIFICATION_TOKEN)) {
+            throw new TokenException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
+        }
+
+        if (verificationToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new TokenException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
+        }
+
+        return verificationToken;
+    }
+
 }

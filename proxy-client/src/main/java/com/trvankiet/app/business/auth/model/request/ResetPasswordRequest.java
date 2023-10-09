@@ -14,9 +14,10 @@ import java.io.Serializable;
 @Builder
 public class ResetPasswordRequest {
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Mật khẩu không được để trống!")
     private String password;
-    @NotBlank(message = "Confirm password is required")
+
+    @NotBlank(message = "Xác nhận mật khẩu không được để trống!")
     private String confirmPassword;
 
 }

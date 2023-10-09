@@ -44,6 +44,12 @@ public class CredentialController {
         return credentialService.login(loginRequest);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<GenericResponse> logout(@RequestHeader("Authorization") final String authorizationHeader) {
+        log.info("CredentialController Post, ResponseEntity<CredentialDto>, logout");
+        return credentialService.logout(authorizationHeader);
+    }
+
     @GetMapping("/verify")
     public ResponseEntity<GenericResponse> verify(@RequestParam final String token) {
         log.info("CredentialController Get, ResponseEntity<CredentialDto>, verify");

@@ -6,6 +6,7 @@ import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
+import com.trvankiet.app.exception.wrapper.TokenException;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
@@ -100,6 +101,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void revokeRefreshToken(String credentialId) {
+        log.info("TokenServiceImpl, void, revokeRefreshToken");
         Optional<Credential> optionalCredential = credentialRepository.findById(credentialId);
         if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
             List<Token> refreshTokens = tokenRepository.findAll().stream()
@@ -121,39 +123,46 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public ResponseEntity<GenericResponse> refreshAccessToken(TokenRequest tokenRequest) {
         String refreshToken = tokenRequest.getRefreshToken();
-        String userId = jwtService.extractCredentialId(refreshToken);
-        Optional<Credential> optionalCredential = credentialRepository.findById(userId);
-        if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
-            if (jwtService.validateToken(refreshToken, optionalCredential.get())) {
-                String newAccessToken = jwtService.generateAccessToken(optionalCredential.get());
-                Map<String, String> resultMap = new HashMap<>();
-                resultMap.put("accessToken", newAccessToken);
-                resultMap.put("refreshToken", refreshToken);
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(GenericResponse.builder()
-                                .success(true)
-                                .message("Refresh access token successfully!")
-                                .result(resultMap)
-                                .statusCode(HttpStatus.OK.value())
-                                .build());
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(GenericResponse.builder()
-                                .success(false)
-                                .message("Refresh token is expired!")
-                                .result(null)
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .build());
-            }
+        Optional<Credential> optionalCredential = getValidCredentialFromRefreshToken(refreshToken);
+
+        if (optionalCredential.isPresent()) {
+            String newAccessToken = jwtService.generateAccessToken(optionalCredential.get());
+            Map<String, String> resultMap = new HashMap<>();
+            resultMap.put("accessToken", newAccessToken);
+            resultMap.put("refreshToken", refreshToken);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GenericResponse.builder()
+                            .success(true)
+                            .message("Làm mới token thành công!")
+                            .result(resultMap)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
         }
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(GenericResponse.builder()
                         .success(false)
-                        .message("Unauthorized. Please login again!")
+                        .message("Không xác thực! Vui lòng đăng nhập lại!")
                         .result(null)
                         .statusCode(HttpStatus.UNAUTHORIZED.value())
                         .build());
     }
+
+    private Optional<Credential> getValidCredentialFromRefreshToken(String refreshToken) {
+        String userId = jwtService.extractCredentialId(refreshToken);
+        Optional<Credential> optionalCredential = credentialRepository.findById(userId);
+
+        if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
+            if (jwtService.validateToken(refreshToken, optionalCredential.get())) {
+                return optionalCredential;
+            } else {
+                throw new TokenException("Refresh token đã hết hạn hoặc không chính xác!");
+            }
+        }
+
+        return Optional.empty();
+    }
+
 
     @Override
     public ResponseEntity<GenericResponse> resetPassword(EmailRequest emailRequest) {
@@ -165,7 +174,7 @@ public class TokenServiceImpl implements TokenService {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(GenericResponse.builder()
                             .success(true)
-                            .message("Reset password email sent successfully!")
+                            .message("Vui lòng kiểm tra email để đặt lại mật khẩu!")
                             .result(null)
                             .statusCode(HttpStatus.OK.value())
                             .build());
@@ -173,7 +182,7 @@ public class TokenServiceImpl implements TokenService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(GenericResponse.builder()
                         .success(false)
-                        .message("Invalid user!")
+                        .message("Tài khoản không tồn tại hoặc chưa được xác thực!")
                         .result(null)
                         .statusCode(HttpStatus.NOT_FOUND.value())
                         .build());

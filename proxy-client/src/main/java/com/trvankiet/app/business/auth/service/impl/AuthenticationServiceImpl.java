@@ -33,15 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public ResponseEntity<GenericResponse> register(RegisterRequest registerRequest) {
         log.info("AuthenticationServiceImpl, ResponseEntity<GenericResponse>, register");
-        ResponseEntity<GenericResponse> response = credentialClientService.register(registerRequest);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(GenericResponse.builder()
-                        .success(true)
-                        .message("User registered successfully")
-                        .result(Objects.requireNonNull(response.getBody()).getResult())
-                        .statusCode(HttpStatus.OK.value())
-                        .build());
+        return credentialClientService.register(registerRequest);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.trvankiet.app.dto.request;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class EmailRequest {
 
-    @Email(message = "Email should be valid")
+    @NotEmpty(message = "Email là bắt buộc!")
+    @Email(message = "Email không hợp lệ!")
     private String email;
+
 }

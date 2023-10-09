@@ -9,7 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class TokenRequest {
+
     private String accessToken;
-    @NotBlank(message = "Refresh token is required")
+
+    @NotBlank(message = "Refresh token là bắt buộc!")
     private String refreshToken;
+
 }

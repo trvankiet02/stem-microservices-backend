@@ -53,4 +53,6 @@ public interface CredentialService {
     ResponseEntity<GenericResponse> verifyResetPassword(String token);
 
     ResponseEntity<GenericResponse> resetPassword(String token, ResetPasswordRequest resetPasswordRequest);
+
+    ResponseEntity<GenericResponse> logout(String authorizationHeader);
 }

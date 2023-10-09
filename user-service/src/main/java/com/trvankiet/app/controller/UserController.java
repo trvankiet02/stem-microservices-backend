@@ -17,11 +17,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
-    public String findAllUser() {
-        log.info("UserController, String, findAllUser");
-        return "Hello World!";
-    }
     @PostMapping("/verify")
     public ResponseEntity<GenericResponse> initUserInfo(@RequestParam final String token,
         @RequestBody @Valid final UserInfoRequest userInfoRequest) {

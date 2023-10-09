@@ -5,19 +5,22 @@ import lombok.*;
 
 import java.util.Date;
 
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class UserInfoRequest {
 
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = "Tên là bắt buộc!")
     private String firstName;
-    @NotBlank(message = "Last name is required")
+
+    @NotBlank(message = "Họ là bắt buộc!")
     private String lastName;
+
     private String phone;
+
     private Date dob;
+
     private String gender;
 
 }

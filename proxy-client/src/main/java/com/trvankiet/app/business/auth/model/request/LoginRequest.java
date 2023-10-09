@@ -7,11 +7,11 @@ import lombok.Data;
 @Data
 public class LoginRequest {
 
-    @NotEmpty(message = "Email is required")
-    @Email(message = "Invalid email")
+    @NotEmpty(message = "Email là bắt buộc!")
+    @Email(message = "Email không hợp lệ!")
     private String email;
 
-    @NotEmpty(message = "Password is required")
+    @NotEmpty(message = "Mật khẩu là bắt buộc!")
     private String password;
 
 }

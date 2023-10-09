@@ -15,6 +15,7 @@ public class TokenServiceImpl implements TokenService {
     private final TokenClientService tokenClientService;
     @Override
     public ResponseEntity<GenericResponse> resetPassword(EmailRequest emailRequest) {
+        log.info("TokenServiceImpl, ResponseEntity<GenericResponse>, resetPassword");
         return tokenClientService.resetPassword(emailRequest);
     }
 }
