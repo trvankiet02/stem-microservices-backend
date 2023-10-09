@@ -273,7 +273,7 @@ public class CredentialServiceImpl implements CredentialService {
                 if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now())){
                     throw new TokenException("Token is expired");
                 } else {
-                    if (optionalToken.get().getCredential().getIsEnabled())
+                    if (!optionalToken.get().getCredential().getIsEnabled())
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(GenericResponse.builder()
                                 .success(false)
@@ -322,7 +322,7 @@ public class CredentialServiceImpl implements CredentialService {
                 if (optionalToken.get().getExpiredAt().isBefore(LocalDateTime.now())){
                     throw new TokenException("Token is expired");
                 } else {
-                    if (optionalToken.get().getCredential().getIsEnabled())
+                    if (!optionalToken.get().getCredential().getIsEnabled())
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(GenericResponse.builder()
                                         .success(false)

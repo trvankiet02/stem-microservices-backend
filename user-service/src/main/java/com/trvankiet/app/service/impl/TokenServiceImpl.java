@@ -1,6 +1,7 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.TokenType;
+import com.trvankiet.app.dto.request.EmailRequest;
 import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
@@ -155,7 +156,8 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> resetPassword(String email) {
+    public ResponseEntity<GenericResponse> resetPassword(EmailRequest emailRequest) {
+        String email = emailRequest.getEmail();
         Optional<Credential> optionalCredential = credentialRepository.findByUsername(email);
         if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
             Credential credential = optionalCredential.get();

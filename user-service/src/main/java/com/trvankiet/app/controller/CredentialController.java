@@ -5,7 +5,7 @@ import com.trvankiet.app.dto.request.LoginRequest;
 import com.trvankiet.app.dto.request.RegisterRequest;
 import com.trvankiet.app.dto.request.ResetPasswordRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.repository.service.CredentialService;
+import com.trvankiet.app.service.CredentialService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -117,6 +117,14 @@ public class UserServiceImpl implements UserService {
                         user.setPhone(userInfoRequest.getPhone());
                         user.setGender(Gender.valueOf(userInfoRequest.getGender()));
                         userRepository.save(user);
+
+                        credential.setIsEnabled(true);
+                        credentialRepository.save(credential);
+
+                        verificationToken.setRevoked(true);
+                        verificationToken.setExpired(true);
+                        tokenRepository.save(verificationToken);
+
                         return ResponseEntity.ok(
                                 GenericResponse.builder()
                                 .success(true)
