@@ -4,7 +4,6 @@ import com.trvankiet.app.constant.Provider;
 import com.trvankiet.app.constant.RoleBasedAuthority;
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.dto.CredentialDto;
-import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.LoginRequest;
 import com.trvankiet.app.dto.request.RegisterRequest;
 import com.trvankiet.app.dto.request.ResetPasswordRequest;
