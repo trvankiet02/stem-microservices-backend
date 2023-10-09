@@ -36,6 +36,7 @@
         <module>post-service</module>
         <module>group-service</module>
         <module>message-service</module>
+        <module>proxy-client</module>
     </modules>
 
     <dependencies>
@@ -47,6 +48,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
         </dependency>
     </dependencies>
 

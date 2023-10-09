@@ -1,24 +1,27 @@
 package com.trvankiet.app.controller;
 
-import com.trvankiet.app.service.UserService;
+import com.trvankiet.app.dto.request.UserInfoRequest;
+import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.repository.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = {"/api/v1/user-service/user"})
+@RequestMapping(value = {"/api/v1/users"})
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
-    public String getHome() {
-        log.info("*** String, UserController; getHome ***");
-        return "Hello World!";
+    @PostMapping("/verify")
+    public ResponseEntity<GenericResponse> initUserInfo(@RequestParam final String token,
+        @RequestBody @Valid final UserInfoRequest userInfoRequest) {
+        log.info("UserController Post, ResponseEntity<GenericResponse>, initUserInfo");
+        return userService.initCredentialInfo(token, userInfoRequest);
     }
 
 }

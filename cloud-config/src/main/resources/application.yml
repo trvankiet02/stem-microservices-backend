@@ -3,12 +3,13 @@ server:
 
 spring:
   profiles:
-    active: native
+    active: default
   application:
     name: cloud-config
   cloud:
     config:
       server:
-        native:
-          search-locations: classpath:/configurations
+        git:
+          uri: https://github.com/trvankiet02/cloud-config-server.git
+          basedir: /tmp/cloud-config-repo
 
