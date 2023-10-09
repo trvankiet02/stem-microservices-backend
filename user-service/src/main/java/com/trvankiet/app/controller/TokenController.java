@@ -3,7 +3,7 @@ package com.trvankiet.app.controller;
 import com.trvankiet.app.dto.request.EmailRequest;
 import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.service.TokenService;
+import com.trvankiet.app.repository.service.TokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
