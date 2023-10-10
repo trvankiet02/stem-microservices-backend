@@ -5,6 +5,7 @@ import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.service.EmailService;
+import com.trvankiet.app.util.RoleUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +27,7 @@ import java.util.UUID;
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final TokenRepository tokenRepository;
+    private final TemplateEngine templateEngine;
     @Override
     @Async
     public void sendVerificationEmail(Credential credential) {
@@ -42,9 +46,12 @@ public class EmailServiceImpl implements EmailService {
                     .credential(credential)
                     .build();
 
+            Context context = new Context();
+            context.setVariable("role", RoleUtil.getRoleName(credential.getRoleBasedAuthority().toString()));
+            context.setVariable("token", verificationToken.getToken());
+            String mailContent = templateEngine.process("verification-mail", context);
+
             helper.setTo(credential.getUsername());
-            String mailContent = "<p>Click vào <a href=\"http://localhost:3000/verify/" + verificationToken.getToken()
-                    + "\">đây</a> để xác thực tài khoản của bạn trước " + verificationToken.getExpiredAt().toString() +"</p>";
             helper.setText(mailContent, true);
             helper.setSubject("Liên kết xác thực cho tài khoản của bạn trên hệ thống STEM!");
             mailSender.send(message);
@@ -78,9 +85,11 @@ public class EmailServiceImpl implements EmailService {
                     .credential(credential)
                     .build();
 
+            Context context = new Context();
+            context.setVariable("token", resetPasswordToken.getToken());
+            String mailContent = templateEngine.process("reset-password-mail", context);
+
             helper.setTo(credential.getUsername());
-            String mailContent = "<p>Click vào <a href=\"http://localhost:3000/forgot-password/" + resetPasswordToken.getToken()
-                    + "\">đây</a> để thực hiện nhập mật khẩu mới của bạn trước " + resetPasswordToken.getExpiredAt().toString() + "</p>";
             helper.setText(mailContent, true);
             helper.setSubject("Liên kết đặt lại mật khẩu cho tài khoản của bạn trên hệ thống STEM!");
             mailSender.send(message);

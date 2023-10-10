@@ -168,7 +168,7 @@ public class CredentialServiceImpl implements CredentialService {
         return ResponseEntity.status(HttpStatus.OK).body(
                 GenericResponse.builder()
                         .success(true)
-                        .message("Tài khoản đã được tạo thành công!")
+                        .message("Tài khoản đã được tạo thành công! Vui lòng kiểm tra email để xác thực tài khoản!")
                         .result(null)
                         .statusCode(HttpStatus.OK.value())
                         .build()
@@ -251,10 +251,6 @@ public class CredentialServiceImpl implements CredentialService {
                 if (resetPasswordToken.getType().equals(TokenType.RESET_PASSWORD_TOKEN)
                         && TokenUtil.tokenIsNotExpiredAndRevoked(resetPasswordToken)
                         && !resetPasswordToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-                    resetPasswordToken.setExpired(true);
-                    resetPasswordToken.setRevoked(true);
-                    tokenService.save(resetPasswordToken);
-
                     return ResponseEntity.ok().body(GenericResponse.builder()
                             .success(true)
                             .message("Xác thực thành công! Mời bạn nhập mật khẩu mới!")
@@ -264,7 +260,13 @@ public class CredentialServiceImpl implements CredentialService {
                 }
             }
         }
-        throw new TokenException("Yêu cầu xác thực cho hành động quên mật khẩu đã hết hạn hoặc không hợp lệ!");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(GenericResponse.builder()
+                        .success(false)
+                        .message("Yêu cầu đã hết hạn hoặc không hợp lệ!")
+                        .result(null)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
     }
 
     @Override
