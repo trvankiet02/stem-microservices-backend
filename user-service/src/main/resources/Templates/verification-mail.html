@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-width: 250px;
+        }
+
+        .message {
+            margin-bottom: 15px; /* Reduced margin between paragraphs */
+        }
+
+        .otp {
+            text-align: center;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .verify-text {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .verify-link {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background-color: #2a9f16;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            max-width: 300px;
+            margin: 0 auto;
+            border: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img
+                class="logo"
+                src="https://img.freepik.com/premium-vector/colourful-stem-education-text-icon_1639-26302.jpg?w=1380"
+                alt="STEM | Education Social Network"
+                href="http://localhost:3000/home"
+        />
+    </div>
+    <div class="message">
+        <p>Chào bạn,</p>
+        <p>
+            Cảm ơn bạn đã đăng ký tài khoản trên hệ thống STEM. Chúng tôi rất hân
+            hạnh khi có được sự quan tâm của bạn đối với việc tham gia vào nền
+            tảng mạng xã hội học tập của chúng tôi với vai trò:
+        </p>
+    </div>
+    <div class="otp">
+        <span th:text="${role}"></span>
+    </div>
+    <div class="verify-text">
+        <p>
+            Vui lòng ấn vào nút bên dưới để tiến hành nhập các thông tin cần thiết
+            để hoàn tất quá trình đăng ký.
+        </p>
+        <p>Quá trình xác thực sẽ hết hạn sau <strong>10</strong> phút.</p>
+    </div>
+    <a th:href="@{'http://localhost:3000/verify/' + ${token}}">
+        <button class="verify-link">
+            GO TO VERIFY PAGE
+        </button>
+    </a>
+    <div class="footer">
+        <p>
+            Nếu bạn không thực hiện đăng ký tài khoản trên hệ thống STEM
+            <br/>Vui lòng bỏ qua email này
+        </p>
+        <p>Copyright &copy; 2023 STEM. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
