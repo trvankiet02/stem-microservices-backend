@@ -24,7 +24,6 @@ public class JwtUtilImpl implements JwtUtil {
 
 	private static final Long JWT_ACCESS_EXPIRATION = 3600000L;
 	private static final Long JWT_REFRESH_EXPIRATION = 604800000L;
-	private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 	private Key getSigningKey() {
 		return AppConstant.getSecretKey();
 	}
