@@ -46,13 +46,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 jwt = authorizationHeader.substring(7);
                 userId = jwtService.extractCredentialId(jwt);
-                log.info("userId: " + userId);
             }
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 final UserDetailsImpl userDetails = this.userDetailsService.loadUserById(userId);
-                log.info("userDetails: " + userDetails);
 
                 if (this.jwtService.validateToken(jwt, userDetails)) {
                     final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
