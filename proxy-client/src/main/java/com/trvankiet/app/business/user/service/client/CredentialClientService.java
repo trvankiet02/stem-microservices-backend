@@ -22,9 +22,6 @@ public interface CredentialClientService {
     @GetMapping("/")
     CredentialDto findByUsername(@RequestParam String username);
 
-    @GetMapping("/{id}")
-    CredentialDto findById(@PathVariable String id);
-
     @GetMapping("/verify")
     ResponseEntity<GenericResponse> verify(@RequestParam String token);
 

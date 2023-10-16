@@ -6,7 +6,9 @@ import com.trvankiet.app.jwt.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
+@Slf4j
 public class JwtUtilImpl implements JwtUtil {
 
 	private static final Long JWT_ACCESS_EXPIRATION = 3600000L;
@@ -29,7 +32,7 @@ public class JwtUtilImpl implements JwtUtil {
 	}
 	
 	@Override
-	public String extractCredentialId(final String token) {
+	public String extractUserId(final String token) {
 		return this.extractClaims(token, Claims::getSubject);
 	}
 	
@@ -59,13 +62,13 @@ public class JwtUtilImpl implements JwtUtil {
 	@Override
 	public String generateAccessToken(final Credential credential) {
 		final Map<String, Object> claims = new HashMap<>();
-		return this.createAccessToken(claims, credential.getCredentialId());
+		return this.createAccessToken(claims, credential.getUser().getUserId());
 	}
 
 	@Override
 	public String generateRefreshToken(Credential credential) {
 		final Map<String, Object> claims = new HashMap<>();
-		return this.createRefreshToken(claims, credential.getCredentialId());
+		return this.createRefreshToken(claims, credential.getUser().getUserId());
 	}
 
 	private String createAccessToken(final Map<String, Object> claims, final String subject) {
@@ -89,11 +92,16 @@ public class JwtUtilImpl implements JwtUtil {
 	}
 	
 	@Override
-	public Boolean validateToken(final String token, final Credential credential) {
-		final String credentialId = this.extractCredentialId(token);
-		return (
-				credentialId.equals(credential.getCredentialId()) && !isTokenExpired(token)
-		);
+	public Boolean validateToken(final String token) {
+		try {
+			Jwts.parserBuilder().setSigningKey(getSigningKey().getEncoded()).build().parseClaimsJws(token);
+			return !this.isTokenExpired(token);
+		} catch (UnsupportedJwtException ex) {
+			log.error("Unsupported JWT token");
+		} catch (IllegalArgumentException ex) {
+			log.error("JWT claims string is empty.");
+		}
+		return false;
 	}
 	
 	

@@ -26,7 +26,7 @@ public class Event implements Serializable {
     private String eventId;
 
     @Field(name = "author_id")
-    private Integer authorId;
+    private String authorId;
 
     @Field(name = "event_name")
     private String eventName;

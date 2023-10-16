@@ -8,11 +8,9 @@ import java.util.function.Function;
 
 public interface JwtUtil {
 	
-	String extractCredentialId(final String token);
+	String extractUserId(final String token);
 	Date extractExpiration(final String token);
 	<T> T extractClaims(final String token, final Function<Claims, T> claimsResolver);
-	String generateAccessToken(final UserDetailsImpl userDetails);
-	String generateRefreshToken(final UserDetailsImpl userDetails);
-	Boolean validateToken(final String token, final UserDetailsImpl userDetails);
+	Boolean validateToken(final String token);
 	
 }

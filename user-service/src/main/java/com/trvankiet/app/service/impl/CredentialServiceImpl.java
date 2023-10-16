@@ -330,10 +330,14 @@ public class CredentialServiceImpl implements CredentialService {
     @Override
     public ResponseEntity<GenericResponse> logout(String authorizationHeader) {
         String accessToken = authorizationHeader.substring(7);
-        String credentialId = jwtService.extractCredentialId(accessToken);
-        Optional<Credential> optionalCredential = credentialRepository.findById(credentialId);
+        String userId = jwtService.extractUserId(accessToken);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new UserException("Không tìm thấy người dùng!");
+        }
+        Optional<Credential> optionalCredential = Optional.ofNullable(optionalUser.get().getCredential());
         if (optionalCredential.isPresent()) {
-            tokenService.revokeRefreshToken(credentialId);
+            tokenService.revokeRefreshToken(optionalCredential.get().getCredentialId());
             return ResponseEntity.ok().body(GenericResponse.builder()
                     .success(true)
                     .message("Đăng xuất thành công!")

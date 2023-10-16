@@ -6,10 +6,12 @@ import com.trvankiet.app.dto.request.TokenRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
+import com.trvankiet.app.entity.User;
 import com.trvankiet.app.exception.wrapper.TokenException;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
+import com.trvankiet.app.repository.UserRepository;
 import com.trvankiet.app.service.EmailService;
 import com.trvankiet.app.service.TokenService;
 import jakarta.transaction.Transactional;
@@ -37,6 +39,7 @@ public class TokenServiceImpl implements TokenService {
     private final CredentialRepository credentialRepository;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -149,12 +152,15 @@ public class TokenServiceImpl implements TokenService {
     }
 
     private Optional<Credential> getValidCredentialFromRefreshToken(String refreshToken) {
-        String userId = jwtService.extractCredentialId(refreshToken);
-        Optional<Credential> optionalCredential = credentialRepository.findById(userId);
-
-        if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
-            if (jwtService.validateToken(refreshToken, optionalCredential.get())) {
-                return optionalCredential;
+        String userId = jwtService.extractUserId(refreshToken);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new TokenException("Không tìm thấy người dùng!");
+        }
+        Credential credential = optionalUser.get().getCredential();
+        if (credential.getIsEnabled()) {
+            if (jwtService.validateToken(refreshToken)) {
+                return Optional.of(credential);
             } else {
                 throw new TokenException("Refresh token đã hết hạn hoặc không chính xác!");
             }

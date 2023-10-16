@@ -26,7 +26,7 @@ public class GroupMember implements Serializable {
     private String groupMemberId;
 
     @Field(name = "user_id")
-    private Integer userId;
+    private String userId;
 
     @Field(name = "group_member_role")
     private String groupMemberRole;

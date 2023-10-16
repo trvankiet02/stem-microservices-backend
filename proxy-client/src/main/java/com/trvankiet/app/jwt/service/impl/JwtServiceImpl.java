@@ -20,9 +20,9 @@ public class JwtServiceImpl implements JwtService {
 	private final JwtUtil jwtUtil;
 	
 	@Override
-	public String extractCredentialId(final String token) {
+	public String extractUserId(final String token) {
 		log.info("JwtServiceImpl, String, extractCredentialId");
-		return this.jwtUtil.extractCredentialId(token);
+		return this.jwtUtil.extractUserId(token);
 	}
 	
 	@Override
@@ -36,23 +36,11 @@ public class JwtServiceImpl implements JwtService {
 		log.info("JwtServiceImpl, <T> T, extractClaims");
 		return this.jwtUtil.extractClaims(token, claimsResolver);
 	}
-	
-	@Override
-	public String generateAccessToken(final UserDetailsImpl userDetails) {
-		log.info("JwtServiceImpl, String, generateAccessToken");
-		return this.jwtUtil.generateAccessToken(userDetails);
-	}
 
 	@Override
-	public String generateRefreshToken(UserDetailsImpl userDetails) {
-		log.info("JwtServiceImpl, String, generateRefreshToken");
-		return this.jwtUtil.generateRefreshToken(userDetails);
-	}
-
-	@Override
-	public Boolean validateToken(final String token, final UserDetailsImpl userDetails) {
+	public Boolean validateToken(final String token) {
 		log.info("JwtServiceImpl, Boolean, validateToken");
-		return this.jwtUtil.validateToken(token, userDetails);
+		return this.jwtUtil.validateToken(token);
 	}
 	
 	
