@@ -1,0 +1,70 @@
+package com.trvanket.app.config;
+
+import com.trvanket.app.jwt.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.nio.charset.StandardCharsets;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilterConfig> {
+
+    private final JwtService jwtService;
+    @Override
+    public GatewayFilter apply(AuthFilterConfig config) {
+        log.info("**AuthFilter, once per request, validating and extracting token*\n");
+        return (exchange, chain) -> {
+            final ServerHttpRequest request = exchange.getRequest();
+
+            if (request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
+                String jwt = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0).substring(7);
+                try {
+                    if (jwtService.validateToken(jwt)) {
+                        ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
+                                .header("Authorization", "Bearer " + jwt)
+                                .build();
+
+                        return chain.filter(exchange.mutate().request(modifiedRequest).build());
+                    }
+                } catch (MalformedJwtException e) {
+                    String body = "{\"success\": false, \"message\": \"Unauthorized\", \"result\": \"Invalid JWT token. Please login again!\", \"statusCode\": \"401\"}";
+                    return onError(exchange, "Invalid JWT token. Please login again!", body);
+                } catch (ExpiredJwtException e) {
+                    String body = "{\"success\": false, \"message\": \"Unauthorized\", \"result\": \"JWT token expired. Please login again!\", \"statusCode\": \"401\"}";
+                    return onError(exchange, "JWT token expired. Please login again!", body);
+                } catch (SignatureException e) {
+                    String body = "{\"success\": false, \"message\": \"Unauthorized\", \"result\": \"JWT signature does not match locally computed signature. Please login again!\", \"statusCode\": \"401\"}";
+                    return onError(exchange, "JWT signature does not match locally computed signature. Please login again!", body);
+                } catch (Exception e) {
+                    String body = "{\"success\": false, \"message\": \"Unauthorized\", \"result\": \"Please login again!\", \"statusCode\": \"401\"}";
+                    return onError(exchange, "Please login again!", body);
+                }
+            }
+            return chain.filter(exchange);
+        };
+    }
+
+    private Mono<Void> onError(final ServerWebExchange exchange, final String err, final String body) {
+        log.error("Gateway Auth Error {}", err);
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().add("Content-Type", "application/json");
+        DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
+        return response.writeWith(Mono.just(buffer));
+    }
+}

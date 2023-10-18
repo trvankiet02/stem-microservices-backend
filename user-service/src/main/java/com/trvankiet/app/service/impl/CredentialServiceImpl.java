@@ -190,6 +190,9 @@ public class CredentialServiceImpl implements CredentialService {
         if (optionalCredential.isEmpty())
             throw new UserException("Tài khoản hoặc mật khẩu không đúng!");
         else {
+            if (!passwordEncoder.matches(loginRequest.getPassword(), optionalCredential.get().getPassword()))
+                throw new UserException("Tài khoản hoặc mật khẩu không đúng!");
+
             String accessToken = jwtService.generateAccessToken(optionalCredential.get());
             String refreshToken = jwtService.generateRefreshToken(optionalCredential.get());
 
