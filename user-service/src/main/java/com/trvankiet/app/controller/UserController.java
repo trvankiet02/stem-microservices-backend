@@ -19,13 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/verify")
-    public ResponseEntity<GenericResponse> initUserInfo(@RequestParam final String token,
-        @RequestBody @Valid final UserInfoRequest userInfoRequest) {
-        log.info("UserController Post, ResponseEntity<GenericResponse>, initUserInfo");
-        return userService.initCredentialInfo(token, userInfoRequest);
-    }
-
     @GetMapping("/credentials")
     public CredentialDto getCredentialDto (@RequestParam String uId) {
         log.info("UserController Get, CredentialDto, getCredentialDto");

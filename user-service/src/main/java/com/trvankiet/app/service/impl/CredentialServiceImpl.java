@@ -348,12 +348,12 @@ public class CredentialServiceImpl implements CredentialService {
                     .statusCode(HttpStatus.OK.value())
                     .build());
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(GenericResponse.builder()
                         .success(false)
                         .message("Đăng xuất thất bại! Vui lòng đăng nhập trước khi thực hiện hành động này!")
                         .result(null)
-                        .statusCode(HttpStatus.UNAUTHORIZED.value())
+                        .statusCode(HttpStatus.FORBIDDEN.value())
                         .build());
     }
 
