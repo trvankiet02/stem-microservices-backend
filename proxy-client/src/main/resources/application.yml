@@ -1,5 +1,0 @@
-spring:
-  application:
-    name: proxy-client
-  profiles:
-    active: dev

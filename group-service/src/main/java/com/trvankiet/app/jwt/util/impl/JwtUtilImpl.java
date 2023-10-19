@@ -1,29 +1,26 @@
 package com.trvankiet.app.jwt.util.impl;
 
 import com.trvankiet.app.constant.AppConstant;
-import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.jwt.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.UnsupportedJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 @Component
+@Slf4j
 public class JwtUtilImpl implements JwtUtil {
 	private Key getSigningKey() {
 		return AppConstant.getSecretKey();
 	}
 	
 	@Override
-	public String extractCredentialId(final String token) {
+	public String extractUserId(final String token) {
 		return this.extractClaims(token, Claims::getSubject);
 	}
 	
@@ -51,12 +48,20 @@ public class JwtUtilImpl implements JwtUtil {
 	}
 	
 	@Override
-	public Boolean validateToken(final String token, final CredentialDto credential) {
-		final String credentialId = this.extractCredentialId(token);
-		return (
-				credentialId.equals(credential.getCredentialId()) && !isTokenExpired(token)
-		);
+	public Boolean validateToken(final String token) {
+		try {
+			Jwts.parserBuilder().setSigningKey(getSigningKey().getEncoded()).build().parseClaimsJws(token);
+			return !this.isTokenExpired(token);
+		} catch (UnsupportedJwtException ex) {
+			log.error("Unsupported JWT token");
+		} catch (IllegalArgumentException ex) {
+			log.error("JWT claims string is empty.");
+		}
+		return false;
 	}
+	
+	
+	
 }
 
 

@@ -1,6 +1,5 @@
 package com.trvankiet.app.jwt.service.impl;
 
-import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.jwt.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -19,9 +18,9 @@ public class JwtServiceImpl implements JwtService {
 	private final JwtUtil jwtUtil;
 	
 	@Override
-	public String extractCredentialId(final String token) {
+	public String extractUserId(final String token) {
 		log.info("JwtServiceImpl, String, extractCredentialId");
-		return this.jwtUtil.extractCredentialId(token);
+		return this.jwtUtil.extractUserId(token);
 	}
 	
 	@Override
@@ -37,9 +36,9 @@ public class JwtServiceImpl implements JwtService {
 	}
 
 	@Override
-	public Boolean validateToken(final String token, final CredentialDto credential) {
+	public Boolean validateToken(final String token) {
 		log.info("JwtServiceImpl, Boolean, validateToken");
-		return this.jwtUtil.validateToken(token, credential);
+		return this.jwtUtil.validateToken(token);
 	}
 	
 	

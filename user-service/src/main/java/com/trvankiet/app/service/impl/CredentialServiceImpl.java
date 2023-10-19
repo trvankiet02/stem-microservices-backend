@@ -190,6 +190,9 @@ public class CredentialServiceImpl implements CredentialService {
         if (optionalCredential.isEmpty())
             throw new UserException("Tài khoản hoặc mật khẩu không đúng!");
         else {
+            if (!passwordEncoder.matches(loginRequest.getPassword(), optionalCredential.get().getPassword()))
+                throw new UserException("Tài khoản hoặc mật khẩu không đúng!");
+
             String accessToken = jwtService.generateAccessToken(optionalCredential.get());
             String refreshToken = jwtService.generateRefreshToken(optionalCredential.get());
 
@@ -330,10 +333,14 @@ public class CredentialServiceImpl implements CredentialService {
     @Override
     public ResponseEntity<GenericResponse> logout(String authorizationHeader) {
         String accessToken = authorizationHeader.substring(7);
-        String credentialId = jwtService.extractCredentialId(accessToken);
-        Optional<Credential> optionalCredential = credentialRepository.findById(credentialId);
+        String userId = jwtService.extractUserId(accessToken);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new UserException("Không tìm thấy người dùng!");
+        }
+        Optional<Credential> optionalCredential = Optional.ofNullable(optionalUser.get().getCredential());
         if (optionalCredential.isPresent()) {
-            tokenService.revokeRefreshToken(credentialId);
+            tokenService.revokeRefreshToken(optionalCredential.get().getCredentialId());
             return ResponseEntity.ok().body(GenericResponse.builder()
                     .success(true)
                     .message("Đăng xuất thành công!")
@@ -341,12 +348,12 @@ public class CredentialServiceImpl implements CredentialService {
                     .statusCode(HttpStatus.OK.value())
                     .build());
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(GenericResponse.builder()
                         .success(false)
                         .message("Đăng xuất thất bại! Vui lòng đăng nhập trước khi thực hiện hành động này!")
                         .result(null)
-                        .statusCode(HttpStatus.UNAUTHORIZED.value())
+                        .statusCode(HttpStatus.FORBIDDEN.value())
                         .build());
     }
 

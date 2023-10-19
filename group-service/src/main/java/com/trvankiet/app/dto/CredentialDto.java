@@ -1,5 +1,7 @@
 package com.trvankiet.app.dto;
 
+import com.trvankiet.app.constant.Provider;
+import com.trvankiet.app.constant.RoleBasedAuthority;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +17,10 @@ import java.util.Date;
 public class CredentialDto implements Serializable {
 
     private String credentialId;
-    private String provider;
+    private Provider provider;
     private String username;
     private String password;
-    private String roleBasedAuthority;
+    private RoleBasedAuthority roleBasedAuthority;
     private Boolean isEnabled;
     private Boolean isAccountNonExpired;
     private Boolean isAccountNonLocked;

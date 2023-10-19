@@ -3,5 +3,3 @@ spring:
     name: api-gateway
   profiles:
     active: dev
-
-

@@ -1,8 +1,38 @@
 version: "3.7"
 networks:
-  stem-microservices-backend:
+  stem-microservices-backend: {}
+volumes:
+  mongodb: {}
+  cloud-config: {}
 
 services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=123456
+    networks:
+      - stem-microservices-backend
+
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=123456
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - stem-microservices-backend
+    depends_on:
+      - mongodb
+
   cloud-config:
     container_name: cloud-config
     image: trvankiet02/cloud-config:1.0-SNAPSHOT
@@ -11,7 +41,7 @@ services:
     networks:
       - stem-microservices-backend
     volumes:
-      - ./cloud-config-data:/data/cloud-config
+      - cloud-config:/data
 
   service-discovery:
     container_name: service-discovery
