@@ -31,8 +31,18 @@ public class GroupController {
         return groupService.createGroup(userId, groupCreateRequest);
     }
 
-    @GetMapping("/test")
-    public UserDto test() {
-        return userClientService.getUserDtoByUserId("5207bec3-c65b-4f0a-887e-ea9a4c04211a");
+    @GetMapping
+    public ResponseEntity<GenericResponse> getAllGroup(@RequestHeader(AppConstant.AUTHORIZATION_HEADER) String authorizationHeader) {
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.getGroupsByUserId(userId);
+    }
+
+    @GetMapping("/{groupId}")
+    public ResponseEntity<GenericResponse> getGroupById(@RequestHeader(AppConstant.AUTHORIZATION_HEADER) String authorizationHeader
+            , @PathVariable("groupId") String groupId) {
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.getGroupById(userId, groupId);
     }
 }

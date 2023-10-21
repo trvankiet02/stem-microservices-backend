@@ -1,7 +1,6 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.Provider;
-import com.trvankiet.app.constant.RoleBasedAuthority;
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.request.LoginRequest;
@@ -9,6 +8,7 @@ import com.trvankiet.app.dto.request.RegisterRequest;
 import com.trvankiet.app.dto.request.ResetPasswordRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
+import com.trvankiet.app.entity.Role;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.exception.wrapper.PasswordException;
@@ -16,6 +16,7 @@ import com.trvankiet.app.exception.wrapper.TokenException;
 import com.trvankiet.app.exception.wrapper.UserException;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
+import com.trvankiet.app.repository.RoleRepository;
 import com.trvankiet.app.repository.UserRepository;
 import com.trvankiet.app.service.CredentialService;
 import com.trvankiet.app.service.EmailService;
@@ -46,6 +47,7 @@ public class CredentialServiceImpl implements CredentialService {
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final EmailService emailService;
+    private final RoleRepository roleRepository;
 
     @Override
     public <S extends Credential> S save(S entity) {
@@ -136,30 +138,19 @@ public class CredentialServiceImpl implements CredentialService {
                 .email(registerRequest.getEmail())
                 .build());
 
+        Role role = roleRepository.findByRoleName(registerRequest.getRole()).orElseThrow(() -> new UserException("Role không tồn tại!"));
+
         Credential credential = Credential.builder()
                 .username(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .provider(Provider.LOCAL)
+                .role(role)
                 .isEnabled(false)
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
                 .isCredentialsNonExpired(true)
                 .user(user)
                 .build();
-
-        switch (registerRequest.getRole()) {
-            case "ADMIN":
-                credential.setRoleBasedAuthority(RoleBasedAuthority.ADMIN);
-                break;
-            case "PARENT":
-                credential.setRoleBasedAuthority(RoleBasedAuthority.PARENT);
-                break;
-            case "TEACHER":
-                credential.setRoleBasedAuthority(RoleBasedAuthority.TEACHER);
-                break;
-            case "STUDENT":
-                credential.setRoleBasedAuthority(RoleBasedAuthority.STUDENT);
-        }
 
         credential = credentialRepository.save(credential);
 
@@ -366,7 +357,7 @@ public class CredentialServiceImpl implements CredentialService {
         return CredentialDto.builder()
                 .username(optionalCredential.get().getUsername())
                 .password(optionalCredential.get().getPassword())
-                .roleBasedAuthority(optionalCredential.get().getRoleBasedAuthority())
+                .role(optionalCredential.get().getRole().getRoleName())
                 .isEnabled(optionalCredential.get().getIsEnabled())
                 .isAccountNonExpired(optionalCredential.get().getIsAccountNonExpired())
                 .isAccountNonLocked(optionalCredential.get().getIsAccountNonLocked())

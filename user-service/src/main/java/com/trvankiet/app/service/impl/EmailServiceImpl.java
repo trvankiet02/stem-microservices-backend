@@ -47,7 +47,7 @@ public class EmailServiceImpl implements EmailService {
                     .build();
 
             Context context = new Context();
-            context.setVariable("role", RoleUtil.getRoleName(credential.getRoleBasedAuthority().toString()));
+            context.setVariable("role", RoleUtil.getRoleName(credential.getRole().getRoleName()));
             context.setVariable("token", verificationToken.getToken());
             String mailContent = templateEngine.process("verification-mail", context);
 

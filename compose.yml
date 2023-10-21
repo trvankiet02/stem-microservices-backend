@@ -6,32 +6,32 @@ volumes:
   cloud-config: {}
 
 services:
-  mongodb:
-    container_name: mongodb
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb:/data
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=123456
-    networks:
-      - stem-microservices-backend
-
-  mongo-express:
-    container_name: mongo-express
-    image: mongo-express:latest
-    ports:
-      - "8081:8081"
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=123456
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - mongodb
+#  mongodb:
+#    container_name: mongodb
+#    image: mongo:latest
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - mongodb:/data
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=admin
+#      - MONGO_INITDB_ROOT_PASSWORD=123456
+#    networks:
+#      - stem-microservices-backend
+#
+#  mongo-express:
+#    container_name: mongo-express
+#    image: mongo-express:latest
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+#      - ME_CONFIG_MONGODB_ADMINPASSWORD=123456
+#      - ME_CONFIG_MONGODB_SERVER=mongodb
+#    networks:
+#      - stem-microservices-backend
+#    depends_on:
+#      - mongodb
 
   cloud-config:
     container_name: cloud-config
@@ -42,6 +42,11 @@ services:
       - stem-microservices-backend
     volumes:
       - cloud-config:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://cloud-config:8888" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   service-discovery:
     container_name: service-discovery
@@ -52,28 +57,33 @@ services:
       - stem-microservices-backend
     depends_on:
       - cloud-config
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://service-discovery:8761" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  conversation-service:
-    container_name: conversation-service
-    image: trvankiet02/conversation-service:1.0-SNAPSHOT
-    ports:
-      - "8100:8100"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
-
-  friend-service:
-    container_name: friend-service
-    image: trvankiet02/friend-service:1.0-SNAPSHOT
-    ports:
-      - "8200:8200"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
+#  conversation-service:
+#    container_name: conversation-service
+#    image: trvankiet02/conversation-service:1.0-SNAPSHOT
+#    ports:
+#      - "8100:8100"
+#    networks:
+#      - stem-microservices-backend
+#    depends_on:
+#      - service-discovery
+#      - cloud-config
+#
+#  friend-service:
+#    container_name: friend-service
+#    image: trvankiet02/friend-service:1.0-SNAPSHOT
+#    ports:
+#      - "8200:8200"
+#    networks:
+#      - stem-microservices-backend
+#    depends_on:
+#      - service-discovery
+#      - cloud-config
 
   group-service:
     container_name: group-service
@@ -86,49 +96,49 @@ services:
       - service-discovery
       - cloud-config
 
-  media-service:
-    container_name: media-service
-    image: trvankiet02/media-service:1.0-SNAPSHOT
-    ports:
-      - "8400:8400"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
-
-  message-service:
-    container_name: message-service
-    image: trvankiet02/message-service:1.0-SNAPSHOT
-    ports:
-      - "8500:8500"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
-
-  notification-service:
-    container_name: notification-service
-    image: trvankiet02/notification-service:1.0-SNAPSHOT
-    ports:
-      - "8600:8600"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
-
-  post-service:
-    container_name: post-service
-    image: trvankiet02/post-service:1.0-SNAPSHOT
-    ports:
-      - "8700:8700"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
+#  media-service:
+#    container_name: media-service
+#    image: trvankiet02/media-service:1.0-SNAPSHOT
+#    ports:
+#      - "8400:8400"
+#    networks:
+#      - stem-microservices-backend
+#    depends_on:
+#      - service-discovery
+#      - cloud-config
+#
+#  message-service:
+#    container_name: message-service
+#    image: trvankiet02/message-service:1.0-SNAPSHOT
+#    ports:
+#      - "8500:8500"
+#    networks:
+#      - stem-microservices-backend
+#    depends_on:
+#      - service-discovery
+#      - cloud-config
+#
+#  notification-service:
+#    container_name: notification-service
+#    image: trvankiet02/notification-service:1.0-SNAPSHOT
+#    ports:
+#      - "8600:8600"
+#    networks:
+#      - stem-microservices-backend
+#    depends_on:
+#      - service-discovery
+#      - cloud-config
+#
+#  post-service:
+#    container_name: post-service
+#    image: trvankiet02/post-service:1.0-SNAPSHOT
+#    ports:
+#      - "8700:8700"
+#    networks:
+#      - stem-microservices-backend
+#    depends_on:
+#      - service-discovery
+#      - cloud-config
 
   user-service:
     container_name: user-service
@@ -141,26 +151,6 @@ services:
       - service-discovery
       - cloud-config
 
-  proxy-client:
-    container_name: proxy-client
-    image: trvankiet02/proxy-client:1.0-SNAPSHOT
-    ports:
-      - "8900:8900"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - cloud-config
-      - service-discovery
-    links:
-      - conversation-service
-      - friend-service
-      - group-service
-      - media-service
-      - message-service
-      - notification-service
-      - post-service
-      - user-service
-
   api-gateway:
     container_name: api-gateway
     image: trvankiet02/api-gateway:1.0-SNAPSHOT
@@ -171,4 +161,3 @@ services:
     depends_on:
       - cloud-config
       - service-discovery
-      - proxy-client
