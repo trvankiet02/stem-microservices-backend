@@ -1,0 +1,157 @@
+services:
+  - name: cloud-config
+    plan: web
+    build:
+      name: trvankiet02/cloud-config:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8888
+    volumes:
+      - name: cloud-config
+        mountPath: /data
+    healthcheck:
+      httpEndpoint: http://cloud-config:8888
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://cloud-config:8888
+
+  - name: service-discovery
+    plan: web
+    build:
+      name: trvankiet02/service-discovery:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8761
+    dependsOn:
+      - cloud-config
+    healthcheck:
+      httpEndpoint: http://service-discovery:8761
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://service-discovery:8761
+
+  - name: conversation-service
+    plan: web
+    build:
+      name: trvankiet02/conversation-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8100
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://conversation-service:8100
+
+  - name: friend-service
+    plan: web
+    build:
+      name: trvankiet02/friend-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8200
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://friend-service:8200
+
+  - name: group-service
+    plan: web
+    build:
+      name: trvankiet02/group-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8300
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://group-service:8300
+
+  - name: media-service
+    plan: web
+    build:
+      name: trvankiet02/media-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8400
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://media-service:8400
+
+  - name: message-service
+    plan: web
+    build:
+      name: trvankiet02/message-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8500
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://message-service:8500
+
+  - name: notification-service
+    plan: web
+    build:
+      name: trvankiet02/notification-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8600
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://notification-service:8600
+
+  - name: post-service
+    plan: web
+    build:
+      name: trvankiet02/post-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8700
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://post-service:8700
+
+  - name: user-service
+    plan: web
+    build:
+      name: trvankiet02/user-service:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8000
+    dependsOn:
+      - service-discovery
+      - cloud-config
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://user-service:8000
+
+  - name: api-gateway
+    plan: web
+    build:
+      name: trvankiet02/api-gateway:1.0-SNAPSHOT
+    env: {}
+    services:
+      - 8080
+    dependsOn:
+      - cloud-config
+      - service-discovery
+    starterCommand: []
+    readinessCheck:
+      httpEndpoint: http://api-gateway:8080
