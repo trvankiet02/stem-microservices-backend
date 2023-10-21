@@ -1,6 +1,6 @@
 services:
-  - name: cloud-config
-    plan: web
+  - type: web
+    name: cloud-config
     build:
       name: trvankiet02/cloud-config:1.0-SNAPSHOT
     env: {}
@@ -15,8 +15,8 @@ services:
     readinessCheck:
       httpEndpoint: http://cloud-config:8888
 
-  - name: service-discovery
-    plan: web
+  - type: web
+    name: service-discovery
     build:
       name: trvankiet02/service-discovery:1.0-SNAPSHOT
     env: {}
@@ -30,8 +30,8 @@ services:
     readinessCheck:
       httpEndpoint: http://service-discovery:8761
 
-  - name: conversation-service
-    plan: web
+  - type: web
+    name: conversation-service
     build:
       name: trvankiet02/conversation-service:1.0-SNAPSHOT
     env: {}
@@ -44,8 +44,8 @@ services:
     readinessCheck:
       httpEndpoint: http://conversation-service:8100
 
-  - name: friend-service
-    plan: web
+  - type: web
+    name: friend-service
     build:
       name: trvankiet02/friend-service:1.0-SNAPSHOT
     env: {}
@@ -58,8 +58,8 @@ services:
     readinessCheck:
       httpEndpoint: http://friend-service:8200
 
-  - name: group-service
-    plan: web
+  - type: web
+    name: group-service
     build:
       name: trvankiet02/group-service:1.0-SNAPSHOT
     env: {}
@@ -72,8 +72,8 @@ services:
     readinessCheck:
       httpEndpoint: http://group-service:8300
 
-  - name: media-service
-    plan: web
+  - type: web
+    name: media-service
     build:
       name: trvankiet02/media-service:1.0-SNAPSHOT
     env: {}
@@ -86,8 +86,8 @@ services:
     readinessCheck:
       httpEndpoint: http://media-service:8400
 
-  - name: message-service
-    plan: web
+  - type: web
+    name: message-service
     build:
       name: trvankiet02/message-service:1.0-SNAPSHOT
     env: {}
@@ -100,8 +100,8 @@ services:
     readinessCheck:
       httpEndpoint: http://message-service:8500
 
-  - name: notification-service
-    plan: web
+  - type: web
+    name: notification-service
     build:
       name: trvankiet02/notification-service:1.0-SNAPSHOT
     env: {}
@@ -114,8 +114,8 @@ services:
     readinessCheck:
       httpEndpoint: http://notification-service:8600
 
-  - name: post-service
-    plan: web
+  - type: web
+    name: post-service
     build:
       name: trvankiet02/post-service:1.0-SNAPSHOT
     env: {}
@@ -128,8 +128,8 @@ services:
     readinessCheck:
       httpEndpoint: http://post-service:8700
 
-  - name: user-service
-    plan: web
+  - type: web
+    name: user-service
     build:
       name: trvankiet02/user-service:1.0-SNAPSHOT
     env: {}
@@ -142,8 +142,8 @@ services:
     readinessCheck:
       httpEndpoint: http://user-service:8000
 
-  - name: api-gateway
-    plan: web
+  - type: web
+    name: api-gateway
     build:
       name: trvankiet02/api-gateway:1.0-SNAPSHOT
     env: {}
