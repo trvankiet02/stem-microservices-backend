@@ -37,8 +37,11 @@ public class Group implements Serializable {
     @Field(name = "group_image")
     private String groupImage;
 
-    @Field(name = "accessibility")
-    private String accessibility;
+    @Field(name = "group_type")
+    private String groupType;
+
+    @Field(name = "group_member_mode")
+    private String groupMemberMode;
 
     @DocumentReference
     @Field(name = "group_members")
@@ -47,6 +50,14 @@ public class Group implements Serializable {
     @DocumentReference
     @Field(name = "group_events")
     private List<Event> groupEvents;
+
+    @DocumentReference
+    @Field(name = "group_member_requests")
+    private List<GroupMemberRequest> groupMemberRequests;
+
+    @DocumentReference
+    @Field(name = "group_member_invitations")
+    private List<GroupMemberRequest> groupMemberInvitations;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

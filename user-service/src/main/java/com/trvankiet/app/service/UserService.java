@@ -1,5 +1,7 @@
 package com.trvankiet.app.service;
 
+import com.trvankiet.app.dto.CredentialDto;
+import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.UserInfoRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.User;
@@ -35,4 +37,8 @@ public interface UserService {
     void delete(User entity);
 
     ResponseEntity<GenericResponse> initCredentialInfo(String token, UserInfoRequest userInfoRequest);
+
+    CredentialDto getCredentialDto(String uId);
+
+    UserDto getUserDetail(String uId);
 }

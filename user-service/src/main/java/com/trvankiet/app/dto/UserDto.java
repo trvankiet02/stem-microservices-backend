@@ -29,6 +29,6 @@ public class UserDto implements Serializable {
     private Gender gender;
     private String about;
     private String address;
-    private Credential credential;
+    private CredentialDto credential;
 
 }

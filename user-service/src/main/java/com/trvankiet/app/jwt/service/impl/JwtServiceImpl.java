@@ -19,9 +19,9 @@ public class JwtServiceImpl implements JwtService {
 	private final JwtUtil jwtUtil;
 	
 	@Override
-	public String extractCredentialId(final String token) {
+	public String extractUserId(final String token) {
 		log.info("JwtServiceImpl, String, extractCredentialId");
-		return this.jwtUtil.extractCredentialId(token);
+		return this.jwtUtil.extractUserId(token);
 	}
 	
 	@Override
@@ -49,9 +49,9 @@ public class JwtServiceImpl implements JwtService {
 	}
 
 	@Override
-	public Boolean validateToken(final String token, final Credential credential) {
+	public Boolean validateToken(final String token) {
 		log.info("JwtServiceImpl, Boolean, validateToken");
-		return this.jwtUtil.validateToken(token, credential);
+		return this.jwtUtil.validateToken(token);
 	}
 	
 	

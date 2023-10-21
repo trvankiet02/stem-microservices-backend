@@ -17,12 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class TokenController {
     private final TokenService tokenService;
 
-    @PostMapping("/refresh-access-token")
-    public ResponseEntity<GenericResponse> refreshAccessToken(@RequestBody @Valid TokenRequest tokenRequest) {
-        log.info("TokenController, Response<GenericResponse>, refreshAccessToken");
-        return tokenService.refreshAccessToken(tokenRequest);
-    }
-
     @PostMapping("reset-password")
     public ResponseEntity<GenericResponse> resetPassword(@RequestBody final EmailRequest emailRequest) {
         log.info("TokenController, Response<GenericResponse>, resetPassword");

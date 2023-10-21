@@ -15,6 +15,8 @@ public class AppConstant {
     public static final String ZONED_DATE_TIME_FORMAT = "dd-MM-yyyy__HH:mm:ss:SSSSSS";
     public static final String INSTANT_FORMAT = "dd-MM-yyyy__HH:mm:ss:SSSSSS";
 
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+
     @SneakyThrows
     public static SecretKey getSecretKey() {
         ClassPathResource resource = new ClassPathResource("static/secret.key");

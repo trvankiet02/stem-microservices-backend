@@ -1,5 +1,7 @@
 package com.trvankiet.app.controller;
 
+import com.trvankiet.app.dto.CredentialDto;
+import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.UserInfoRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.service.UserService;
@@ -17,11 +19,16 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/verify")
-    public ResponseEntity<GenericResponse> initUserInfo(@RequestParam final String token,
-        @RequestBody @Valid final UserInfoRequest userInfoRequest) {
-        log.info("UserController Post, ResponseEntity<GenericResponse>, initUserInfo");
-        return userService.initCredentialInfo(token, userInfoRequest);
+    @GetMapping("/credentials")
+    public CredentialDto getCredentialDto (@RequestParam String uId) {
+        log.info("UserController Get, CredentialDto, getCredentialDto");
+        return userService.getCredentialDto(uId);
+    }
+
+    @GetMapping("/{uId}")
+    public UserDto getUserDetail (@PathVariable String uId) {
+        log.info("UserController Get, UserDto, getUserDto");
+        return userService.getUserDetail(uId);
     }
 
 }
