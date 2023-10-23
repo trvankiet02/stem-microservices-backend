@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -27,9 +28,11 @@ public class User extends AbstractMappedEntity implements Serializable {
     @Column(name = "user_id")
     private String userId;
 
+    @Nationalized
     @Column(name = "first_name")
     private String firstName;
 
+    @Nationalized
     @Column(name = "last_name")
     private String lastName;
 
@@ -53,9 +56,15 @@ public class User extends AbstractMappedEntity implements Serializable {
     @Column(name = "gender")
     private Gender gender;
 
+    @Nationalized
     @Column(name = "about")
     private String about;
 
+    @Nationalized
+    @Column(name = "worked_at")
+    private String workedAt;
+
+    @Nationalized
     @Column(name = "address")
     private String address;
 

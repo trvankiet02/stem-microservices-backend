@@ -1,6 +1,7 @@
 package com.trvankiet.app.exception;
 
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.exception.wrapper.GroupException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -47,6 +49,38 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {
+            IllegalArgumentException.class
+    })
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleIllegalArgumentException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleBasicException");
+        final var badRequest = HttpStatus.BAD_REQUEST;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .result(null)
+                        .statusCode(badRequest.value())
+                        .build(), badRequest);
+    }
+
+    @ExceptionHandler(value = {
+            GroupException.class
+    })
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleApiRequestException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleApiRequestException");
+        final var badRequest = HttpStatus.BAD_REQUEST;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .result(null)
+                        .statusCode(badRequest.value())
+                        .build(), badRequest);
+    }
+
+    @ExceptionHandler(value = {
             NullPointerException.class,
             Exception.class,
             RuntimeException.class,
@@ -60,6 +94,22 @@ public class ApiExceptionHandler {
                         .success(false)
                         .message(e.getMessage())
                         .result("Internal Server Error")
+                        .statusCode(internalServerError.value())
+                        .build(), internalServerError);
+    }
+
+    @ExceptionHandler(value = {
+            MissingRequestHeaderException.class
+    })
+    public <T extends MissingRequestHeaderException> ResponseEntity<GenericResponse> handleMissingRequestHeaderException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleMissingRequestHeaderException");
+        final var internalServerError = HttpStatus.UNAUTHORIZED;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message("Access token is missing!")
+                        .result("Unauthorized")
                         .statusCode(internalServerError.value())
                         .build(), internalServerError);
     }

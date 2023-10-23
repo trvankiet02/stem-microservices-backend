@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
@@ -28,8 +29,9 @@ public class GroupMember implements Serializable {
     @Field(name = "user_id")
     private String userId;
 
+    @DocumentReference
     @Field(name = "group_member_role")
-    private String groupMemberRole;
+    private GroupMemberRole groupMemberRole;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

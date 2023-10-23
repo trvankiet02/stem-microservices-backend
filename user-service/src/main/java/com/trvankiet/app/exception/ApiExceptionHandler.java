@@ -13,6 +13,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -98,6 +99,22 @@ public class ApiExceptionHandler {
                         .success(false)
                         .message(e.getMessage())
                         .result("Internal Server Error")
+                        .statusCode(internalServerError.value())
+                        .build(), internalServerError);
+    }
+
+    @ExceptionHandler(value = {
+            MissingRequestHeaderException.class
+    })
+    public <T extends MissingRequestHeaderException> ResponseEntity<GenericResponse> handleMissingRequestHeaderException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleMissingRequestHeaderException");
+        final var internalServerError = HttpStatus.UNAUTHORIZED;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message("Access token is missing!")
+                        .result("Unauthorized")
                         .statusCode(internalServerError.value())
                         .build(), internalServerError);
     }

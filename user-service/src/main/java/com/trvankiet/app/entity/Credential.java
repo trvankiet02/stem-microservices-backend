@@ -6,8 +6,6 @@ import com.trvankiet.app.constant.Provider;
 import com.trvankiet.app.constant.RoleBasedAuthority;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -18,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = {"token", "user"})
+@EqualsAndHashCode(callSuper = true, exclude = {"token", "user", "role"})
 @Builder
 public class Credential extends AbstractMappedEntity implements Serializable {
     @Id
@@ -36,9 +34,11 @@ public class Credential extends AbstractMappedEntity implements Serializable {
     @Column(name = "password")
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private RoleBasedAuthority roleBasedAuthority;
+    @ToString.Exclude
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    private Role role;
 
     @Column(name = "is_enabled")
     private Boolean isEnabled;

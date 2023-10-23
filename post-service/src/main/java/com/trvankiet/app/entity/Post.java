@@ -31,10 +31,17 @@ public class Post implements Serializable {
     private String groupId;
 
     @Field(name = "author_id")
-    private Integer authorId;
+    private String authorId;
 
     @Field(name = "accessibility")
     private String accessibility;
+
+    @DocumentReference
+    @Field(name = "post_type")
+    private PostType postType;
+
+    @Field(name = "post_content")
+    private String content;
 
     @DocumentReference
     @Field(name = "reactions")

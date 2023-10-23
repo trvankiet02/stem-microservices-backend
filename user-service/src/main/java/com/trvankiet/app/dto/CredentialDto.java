@@ -1,11 +1,6 @@
 package com.trvankiet.app.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.trvankiet.app.constant.Provider;
-import com.trvankiet.app.constant.RoleBasedAuthority;
-import com.trvankiet.app.entity.Token;
-import com.trvankiet.app.entity.User;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,7 +19,7 @@ public class CredentialDto implements Serializable {
     private Provider provider;
     private String username;
     private String password;
-    private RoleBasedAuthority roleBasedAuthority;
+    private String role;
     private Boolean isEnabled;
     private Boolean isAccountNonExpired;
     private Boolean isAccountNonLocked;
