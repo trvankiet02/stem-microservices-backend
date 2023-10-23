@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
@@ -26,10 +27,11 @@ public class Reaction implements Serializable {
     private String reactionId;
 
     @Field(name = "author_id")
-    private Integer authorId;
+    private String authorId;
 
+    @DocumentReference
     @Field(name = "reaction_type")
-    private String reactionType;
+    private ReactionType reactionType;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

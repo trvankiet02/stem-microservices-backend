@@ -1,6 +1,7 @@
 package com.trvankiet.app.exception;
 
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.exception.wrapper.GroupException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,38 @@ public class ApiExceptionHandler {
                         .success(false)
                         .message("Xảy ra lỗi khi xử lý dữ liệu!")
                         .result(errors)
+                        .statusCode(badRequest.value())
+                        .build(), badRequest);
+    }
+
+    @ExceptionHandler(value = {
+            IllegalArgumentException.class
+    })
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleIllegalArgumentException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleBasicException");
+        final var badRequest = HttpStatus.BAD_REQUEST;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .result(null)
+                        .statusCode(badRequest.value())
+                        .build(), badRequest);
+    }
+
+    @ExceptionHandler(value = {
+            GroupException.class
+    })
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleApiRequestException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleApiRequestException");
+        final var badRequest = HttpStatus.BAD_REQUEST;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .result(null)
                         .statusCode(badRequest.value())
                         .build(), badRequest);
     }

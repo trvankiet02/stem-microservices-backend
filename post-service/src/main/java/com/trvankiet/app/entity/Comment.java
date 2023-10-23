@@ -28,7 +28,7 @@ public class Comment implements Serializable {
     private String commentId;
 
     @Field(name = "author_id")
-    private Integer authorId;
+    private String authorId;
 
     @Field(name = "content")
     private String content;

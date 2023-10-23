@@ -223,10 +223,12 @@ public class CredentialServiceImpl implements CredentialService {
                 if (verificationToken.getType().equals(TokenType.VERIFICATION_TOKEN)
                         && TokenUtil.tokenIsNotExpiredAndRevoked(verificationToken)
                         && !verificationToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+                    Map<String, String> resultMap = new HashMap<>();
+                    resultMap.put("role", verificationToken.getCredential().getRole().getRoleName());
                     return ResponseEntity.ok().body(GenericResponse.builder()
                             .success(true)
                             .message("Xác thực thành công! Mời bạn điền thông tin cần thiết để hoàn tất đăng ký!")
-                            .result(null)
+                            .result(resultMap)
                             .statusCode(HttpStatus.OK.value())
                             .build());
                 }

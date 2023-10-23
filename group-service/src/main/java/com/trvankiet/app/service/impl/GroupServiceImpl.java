@@ -39,14 +39,14 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> createGroup(String userId, GroupCreateRequest groupCreateRequest) {
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
-        if (!userDto.getCredential().getRole().equals(RoleBasedAuthority.TEACHER.toString()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(GenericResponse.builder()
-                            .success(false)
-                            .message("Bạn không có quyền để thực hiện hành động này!")
-                            .result(null)
-                            .statusCode(HttpStatus.FORBIDDEN.value())
-                            .build());
+//        if (!userDto.getCredential().getRole().equals(RoleBasedAuthority.TEACHER.toString()))
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                    .body(GenericResponse.builder()
+//                            .success(false)
+//                            .message("Bạn không có quyền để thực hiện hành động này!")
+//                            .result(null)
+//                            .statusCode(HttpStatus.FORBIDDEN.value())
+//                            .build());
         Date now = new Date();
 
         GroupMemberRole groupAdminRole = groupMemberRoleRepository.findByRoleName(GroupRole.GROUP_ADMIN.toString())
