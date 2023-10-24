@@ -27,7 +27,7 @@ public class File implements Serializable {
     private String fileId;
 
     @Field(name = "author_id")
-    private Integer authorId;
+    private String authorId;
 
     @Field(name = "content")
     private String content;

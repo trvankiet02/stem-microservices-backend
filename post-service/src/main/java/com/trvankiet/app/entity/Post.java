@@ -43,6 +43,9 @@ public class Post implements Serializable {
     @Field(name = "post_content")
     private String content;
 
+    @Field(name = "files_id")
+    private List<String> filesId;
+
     @DocumentReference
     @Field(name = "reactions")
     private List<Reaction> reactions;

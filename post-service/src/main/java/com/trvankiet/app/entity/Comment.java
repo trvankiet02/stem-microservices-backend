@@ -37,6 +37,9 @@ public class Comment implements Serializable {
     @Field(name = "reactions")
     private List<Reaction> reactions;
 
+    @Field(name = "files_id")
+    private List<String> filesId;
+
     @DocumentReference
     @Field(name = "sub_comments")
     private List<Comment> subComments;
