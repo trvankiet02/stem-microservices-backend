@@ -43,7 +43,7 @@ services:
     volumes:
       - cloud-config:/data
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://cloud-config:8888" ]
+      test: [ "CMD", "curl", "-f", "http://cloud-config:8888/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -58,7 +58,7 @@ services:
     depends_on:
       - cloud-config
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://service-discovery:8761" ]
+      test: [ "CMD", "curl", "-f", "http://service-discovery:8761/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -95,6 +95,11 @@ services:
     depends_on:
       - service-discovery
       - cloud-config
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://group-service:8300/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 #  media-service:
 #    container_name: media-service

@@ -29,7 +29,7 @@ public class Album implements Serializable {
     private String albumId;
 
     @Field(name = "user_id")
-    private Integer userId;
+    private String userId;
 
     @Field(name = "album_name")
     private String albumName;
