@@ -12,8 +12,8 @@ import com.trvankiet.app.dto.response.ProfileResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
-import com.trvankiet.app.exception.wrapper.TokenException;
-import com.trvankiet.app.exception.wrapper.UserException;
+import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.repository.UserRepository;
@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
         try {
             user.setGender(Gender.valueOf(userInfoRequest.getGender()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Giới tính không hợp lệ!");
+            throw new BadRequestException("Giới tính không hợp lệ!");
         }
 
         userRepository.save(user);
@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
         verificationToken.setExpired(true);
         tokenRepository.save(verificationToken);
 
-        return ResponseEntity.ok(
+        return ResponseEntity.ok().body(
                 GenericResponse.builder()
                         .success(true)
                         .message("Thông tin tài khoản đã được khởi tạo thành công!")
@@ -142,11 +142,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public CredentialDto getCredentialDto(String uId) {
-        Optional<User> optionalUser = userRepository.findById(uId);
-        if (optionalUser.isEmpty()) {
-            throw new UserException("Không tìm thấy tài khoản!");
-        }
-        Credential credential = optionalUser.get().getCredential();
+        User user = userRepository.findById(uId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản!"));
+        Credential credential = user.getCredential();
         return CredentialDto.builder()
                 .credentialId(credential.getCredentialId())
                 .provider(credential.getProvider())
@@ -164,11 +162,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserDetail(String uId) {
-        Optional<User> optionalUser = userRepository.findById(uId);
-        if (optionalUser.isEmpty()) {
-            throw new UserException("Không tìm thấy tài khoản!");
-        }
-        User user = optionalUser.get();
+        User user = userRepository.findById(uId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản!"));
         CredentialDto credentialDto = CredentialDto.builder()
                 .credentialId(user.getCredential().getCredentialId())
                 .provider(user.getCredential().getProvider())
@@ -201,7 +196,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<GenericResponse> getUserProfile(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserException("Người dùng không tồn tại!"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         ProfileResponse profileResponse = generateProfileResponse(user);
         return ResponseEntity.ok(
                 GenericResponse.builder()
@@ -214,12 +210,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<GenericResponse> updateProfile(String userId, ProfileRequest postProfileRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserException("Người dùng không tồn tại!"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         try {
             user.setFirstName(postProfileRequest.getFirstName());
             user.setLastName(postProfileRequest.getLastName());
             user.setPhone(postProfileRequest.getPhone());
-            user.setDob(DateUtil.string2Date(postProfileRequest.getDob(), AppConstant.COMMON_DATE_FORMAT));
+            user.setDob(DateUtil.string2Date(postProfileRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT));
             user.setGender(Gender.valueOf(postProfileRequest.getGender()));
             user.setAbout(postProfileRequest.getAbout());
             user.setWorkedAt(postProfileRequest.getWorkedAt());
@@ -227,10 +224,10 @@ public class UserServiceImpl implements UserService {
             user = userRepository.save(user);
         } catch (ParseException e) {
             log.error("ParseException: {}", e.getMessage());
-            throw new UserException("Ngày sinh không hợp lệ!");
+            throw new BadRequestException("Ngày sinh không hợp lệ!");
         } catch (IllegalArgumentException e) {
             log.error("IllegalArgumentException: {}", e.getMessage());
-            throw new UserException("Giới tính không hợp lệ!");
+            throw new BadRequestException("Giới tính không hợp lệ!");
         }
         return ResponseEntity.ok(
                 GenericResponse.builder()
@@ -244,9 +241,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<GenericResponse> updateAvatar(String userId, MultipartFile avatar) throws IOException{
         String folderName = "/user/avatar";
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserException("Người dùng không tồn tại!"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         String oldAvatar = user.getProfileImageUrl();
-        String fileName = user.getFirstName() + "_" + user.getLastName() + "_" + DateUtil.date2String(new Date(), "yyyyMMddHHmmss");
+        String fileName = user.getFirstName() + "_" + user.getLastName()
+                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_FORMAT);
 
         //upload new avatar
         user.setProfileImageUrl(cloudinaryService.uploadImage(avatar, fileName, folderName));
@@ -267,9 +266,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<GenericResponse> updateCover(String userId, MultipartFile cover) throws IOException {
         String folderName = "/user/cover";
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserException("Người dùng không tồn tại!"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         String oldCover = user.getCoverImageUrl();
-        String fileName = user.getFirstName() + "_" + user.getLastName() + "_" + DateUtil.date2String(new Date(), "yyyyMMddHHmmss");
+        String fileName = user.getFirstName() + "_" + user.getLastName()
+                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_FORMAT);
 
         //upload new cover
         user.setCoverImageUrl(cloudinaryService.uploadImage(cover, fileName, folderName));
@@ -288,20 +289,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private Token validateAndRetrieveVerificationToken(String token) {
-        Optional<Token> optionalToken = tokenRepository.findByToken(token);
-
-        if (optionalToken.isEmpty()) {
-            throw new TokenException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
-        }
-
-        Token verificationToken = optionalToken.get();
+        Token verificationToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!"));
 
         if (!verificationToken.getType().equals(TokenType.VERIFICATION_TOKEN)) {
-            throw new TokenException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
+            throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
 
         if (verificationToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new TokenException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
+            throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
 
         return verificationToken;
@@ -315,7 +311,7 @@ public class UserServiceImpl implements UserService {
                 .coverImageUrl(user.getCoverImageUrl() == null ? "" : user.getCoverImageUrl())
                 .email(user.getEmail() == null ? "" : user.getEmail())
                 .phone(user.getPhone() == null ? "" : user.getPhone())
-                .dob(user.getDob() == null ? "" : DateUtil.date2String(user.getDob(), AppConstant.COMMON_DATE_FORMAT))
+                .dob(user.getDob() == null ? "" : DateUtil.date2String(user.getDob(), AppConstant.LOCAL_DATE_FORMAT))
                 .gender(user.getGender() == null ? "" : user.getGender().toString())
                 .about(user.getAbout() == null ? "" : user.getAbout())
                 .workedAt(user.getWorkedAt() == null ? "" : user.getWorkedAt())

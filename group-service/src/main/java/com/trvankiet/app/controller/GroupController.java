@@ -10,6 +10,7 @@ import com.trvankiet.app.service.client.UserClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class GroupController {
     private final UserClientService userClientService;
 
     @PostMapping
-    public ResponseEntity<GenericResponse> createGroup(@RequestHeader(AppConstant.AUTHORIZATION_HEADER) String authorizationHeader
+    public ResponseEntity<GenericResponse> createGroup(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @RequestBody @Valid GroupCreateRequest groupCreateRequest) {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -32,17 +33,19 @@ public class GroupController {
     }
 
     @GetMapping
-    public ResponseEntity<GenericResponse> getAllGroup(@RequestHeader(AppConstant.AUTHORIZATION_HEADER) String authorizationHeader) {
+    public ResponseEntity<GenericResponse> getAllGroup(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupService.getGroupsByUserId(userId);
     }
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<GenericResponse> getGroupById(@RequestHeader(AppConstant.AUTHORIZATION_HEADER) String authorizationHeader
+    public ResponseEntity<GenericResponse> getGroupById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("groupId") String groupId) {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupService.getGroupById(userId, groupId);
     }
+
+
 }

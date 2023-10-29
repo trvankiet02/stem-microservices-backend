@@ -64,6 +64,7 @@ public class EmailServiceImpl implements EmailService {
             tokenRepository.save(verificationToken);
         } catch (Exception e) {
             log.error("Lỗi khi gửi email: ", e);
+            throw new RuntimeException("Lỗi khi gửi email: ", e);
         }
     }
 
@@ -102,6 +103,7 @@ public class EmailServiceImpl implements EmailService {
             tokenRepository.save(resetPasswordToken);
         } catch (Exception e) {
             log.error("Lỗi khi gửi email: ", e);
+            throw new RuntimeException("Lỗi khi gửi email: ", e);
         }
     }
 }

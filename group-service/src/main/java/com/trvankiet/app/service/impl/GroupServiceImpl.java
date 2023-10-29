@@ -1,7 +1,6 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.GroupRole;
-import com.trvankiet.app.constant.RoleBasedAuthority;
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.GroupDto;
 import com.trvankiet.app.dto.GroupMemberDto;
@@ -13,6 +12,7 @@ import com.trvankiet.app.entity.Group;
 import com.trvankiet.app.entity.GroupMember;
 import com.trvankiet.app.entity.GroupMemberRole;
 import com.trvankiet.app.exception.wrapper.GroupException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.GroupMemberRepository;
 import com.trvankiet.app.repository.GroupMemberRoleRepository;
 import com.trvankiet.app.repository.GroupRepository;
@@ -39,18 +39,10 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> createGroup(String userId, GroupCreateRequest groupCreateRequest) {
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
-//        if (!userDto.getCredential().getRole().equals(RoleBasedAuthority.TEACHER.toString()))
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                    .body(GenericResponse.builder()
-//                            .success(false)
-//                            .message("Bạn không có quyền để thực hiện hành động này!")
-//                            .result(null)
-//                            .statusCode(HttpStatus.FORBIDDEN.value())
-//                            .build());
         Date now = new Date();
 
         GroupMemberRole groupAdminRole = groupMemberRoleRepository.findByRoleName(GroupRole.GROUP_ADMIN.toString())
-                .orElseThrow(() -> new GroupException("Không tìm thấy quyền!"));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền!"));
 
         GroupMember groupMember = groupMemberRepository
                 .save(GroupMember.builder()
@@ -90,7 +82,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseEntity<GenericResponse> getGroupById(String userId, String groupId) {
-        Group group = groupRepository.findByGroupId(groupId).orElseThrow(() -> new GroupException("Không tìm thấy nhóm!"));
+        Group group = groupRepository.findByGroupId(groupId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy nhóm!"));
         GroupDto groupDto = GroupDto.builder()
                 .groupId(group.getGroupId())
                 .groupName(group.getGroupName())
@@ -131,9 +124,10 @@ public class GroupServiceImpl implements GroupService {
     public ResponseEntity<GenericResponse> getGroupsByUserId(String userId) {
         Map<String, List<GroupOfUserResponse>> result = new HashMap<>();
         List<Group> groups = groupRepository.findAll().stream()
-                .filter(group -> group.getGroupMembers().stream()
-                        .anyMatch(groupMember -> groupMember.getUserId().equals(userId)
-                )).collect(Collectors.toList());
+                .filter(group -> group.getGroupMembers()
+                        .stream()
+                        .anyMatch(groupMember -> groupMember.getUserId().equals(userId))
+                ).collect(Collectors.toList());
         List<GroupMemberRole> groupMemberRoles = groupMemberRoleRepository.findAll();
         for (GroupMemberRole role: groupMemberRoles) {
             result.put(role.getRoleName(), getGroupsByUserRole(groups, userId, role.getRoleName()));

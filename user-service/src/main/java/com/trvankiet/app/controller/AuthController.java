@@ -6,6 +6,7 @@ import com.trvankiet.app.service.CredentialService;
 import com.trvankiet.app.service.TokenService;
 import com.trvankiet.app.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,7 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<GenericResponse> verify(@RequestParam final String token) {
+    public ResponseEntity<GenericResponse> verify(@RequestParam final @Valid @NotBlank String token) {
         log.info("CredentialController Get, ResponseEntity<CredentialDto>, verify");
         return credentialService.verify(token);
     }
@@ -53,7 +54,7 @@ public class AuthController {
     }
 
     @GetMapping("/reset-password")
-    public ResponseEntity<GenericResponse> verifyResetPassword(@RequestParam final String token) {
+    public ResponseEntity<GenericResponse> verifyResetPassword(@RequestParam @Valid @NotBlank final String token) {
         log.info("CredentialController Get, ResponseEntity<CredentialDto>, resetPassword");
         return credentialService.verifyResetPassword(token);
     }

@@ -2,6 +2,7 @@ package com.trvankiet.app.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.trvankiet.app.exception.wrapper.UnsupportedMediaTypeException;
 import com.trvankiet.app.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +24,10 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     public String uploadImage(MultipartFile multipartFile, String name, String folder) throws IOException {
         log.info("CloudinaryServiceImpl, uploadImage");
         if (multipartFile.isEmpty()) {
-            throw new IllegalArgumentException("File is null. Please upload a valid file.");
+            throw new UnsupportedMediaTypeException("File is null. Please upload a valid file.");
         }
         if (!multipartFile.getContentType().startsWith("image/")) {
-            throw new IllegalArgumentException("Only image files are allowed.");
+            throw new UnsupportedMediaTypeException("Only image files are allowed.");
         }
         var params = ObjectUtils.asMap(
                 "folder", ROOT_FOLDER + folder,

@@ -14,7 +14,11 @@ import java.util.List;
 @FeignClient(name = "media-service", contextId = "fileClientService", path = "/api/v1/files")
 public interface FileClientService {
 
-    @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    List<FileDto> uploadFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    List<FileDto> uploadPostFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                               @RequestPart("mediaFiles") List<MultipartFile> mediaFiles);
+
+    @PostMapping(value = "/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    List<FileDto> uploadCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                     @RequestPart("mediaFiles") List<MultipartFile> mediaFiles);
 }
