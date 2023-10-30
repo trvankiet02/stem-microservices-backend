@@ -9,5 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileService {
-    List<FileDto> uploadFiles(String userId, List<MultipartFile> mediaFiles) throws IOException;
+    List<FileDto> uploadPostFiles(String userId, List<MultipartFile> mediaFiles) throws IOException;
+
+    List<FileDto> uploadCommentFiles(String userId, List<MultipartFile> mediaFiles) throws IOException;
 }

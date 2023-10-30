@@ -7,7 +7,8 @@ import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
-import com.trvankiet.app.exception.wrapper.TokenException;
+import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
@@ -27,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -121,13 +121,13 @@ public class TokenServiceImpl implements TokenService {
             });
             tokenRepository.saveAll(refreshTokens);
         }
+        throw new BadRequestException("Tài khoản không tồn tại hoặc chưa được xác thực!");
     }
 
     @Override
     public ResponseEntity<GenericResponse> refreshAccessToken(TokenRequest tokenRequest) {
         String refreshToken = tokenRequest.getRefreshToken();
         Optional<Credential> optionalCredential = getValidCredentialFromRefreshToken(refreshToken);
-
         if (optionalCredential.isPresent()) {
             String newAccessToken = jwtService.generateAccessToken(optionalCredential.get());
             Map<String, String> resultMap = new HashMap<>();
@@ -141,13 +141,12 @@ public class TokenServiceImpl implements TokenService {
                             .statusCode(HttpStatus.OK.value())
                             .build());
         }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(GenericResponse.builder()
                         .success(false)
                         .message("Không xác thực! Vui lòng đăng nhập lại!")
                         .result(null)
-                        .statusCode(HttpStatus.UNAUTHORIZED.value())
+                        .statusCode(HttpStatus.FORBIDDEN.value())
                         .build());
     }
 
@@ -155,14 +154,14 @@ public class TokenServiceImpl implements TokenService {
         String userId = jwtService.extractUserId(refreshToken);
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
-            throw new TokenException("Không tìm thấy người dùng!");
+            throw new NotFoundException("Không tìm thấy người dùng!");
         }
         Credential credential = optionalUser.get().getCredential();
         if (credential.getIsEnabled()) {
             if (jwtService.validateToken(refreshToken)) {
                 return Optional.of(credential);
             } else {
-                throw new TokenException("Refresh token đã hết hạn hoặc không chính xác!");
+                throw new BadRequestException("Refresh token đã hết hạn hoặc không chính xác!");
             }
         }
 
@@ -177,7 +176,7 @@ public class TokenServiceImpl implements TokenService {
         if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
             Credential credential = optionalCredential.get();
             emailService.sendResetPasswordEmail(credential);
-            return ResponseEntity.status(HttpStatus.OK)
+            return ResponseEntity.ok()
                     .body(GenericResponse.builder()
                             .success(true)
                             .message("Vui lòng kiểm tra email để đặt lại mật khẩu!")
@@ -185,12 +184,6 @@ public class TokenServiceImpl implements TokenService {
                             .statusCode(HttpStatus.OK.value())
                             .build());
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(GenericResponse.builder()
-                        .success(false)
-                        .message("Tài khoản không tồn tại hoặc chưa được xác thực!")
-                        .result(null)
-                        .statusCode(HttpStatus.NOT_FOUND.value())
-                        .build());
+        throw new BadRequestException("Tài khoản không tồn tại hoặc chưa được xác thực!");
     }
 }

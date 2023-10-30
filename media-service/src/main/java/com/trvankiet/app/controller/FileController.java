@@ -28,12 +28,21 @@ public class FileController {
             return "Hello from FileController";
         }
 
-        @PostMapping( "/post")
-        public List<FileDto> uploadFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+        @PostMapping( "/posts")
+        public List<FileDto> uploadPostFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                          @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
             log.info("Received request to upload {} files", mediaFiles.size());
             String accessToken = authorizationHeader.substring(7);
             String userId = jwtService.extractUserId(accessToken);
-            return fileService.uploadFiles(userId, mediaFiles);
+            return fileService.uploadPostFiles(userId, mediaFiles);
+        }
+
+        @PostMapping( "/comments")
+        public List<FileDto> uploadCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                         @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
+            log.info("Received request to upload {} files", mediaFiles.size());
+            String accessToken = authorizationHeader.substring(7);
+            String userId = jwtService.extractUserId(accessToken);
+            return fileService.uploadCommentFiles(userId, mediaFiles);
         }
 }

@@ -5,40 +5,32 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
-@Document(collection = "files")
+@Document(collection = "file_types")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class File implements Serializable {
+public class FileType implements Serializable {
 
     @Id
-    @Field(name = "file_id")
-    private String fileId;
+    @Field(name = "file_type_id")
+    private String fileTypeId;
 
-    @Field(name = "author_id")
-    private String authorId;
+    @Field(name = "file_type_name")
+    private String fileTypeName;
 
-    @Field(name = "content")
-    private String content;
-
-    @Field(name = "file_link")
-    private String fileLink;
-
-    @DocumentReference
-    @Field(name = "file_type")
-    private FileType fileType;
+    @Field(name = "file_type_extension")
+    private List<String> fileTypeExtension;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -49,5 +41,4 @@ public class File implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Field(name = "updated_at")
     private Date updatedAt;
-
 }

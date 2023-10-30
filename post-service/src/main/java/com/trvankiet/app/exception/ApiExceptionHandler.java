@@ -1,6 +1,7 @@
 package com.trvankiet.app.exception;
 
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.exception.wrapper.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @ControllerAdvice
 @Slf4j
@@ -32,7 +34,7 @@ public class ApiExceptionHandler {
         final var badRequest = HttpStatus.BAD_REQUEST;
         List<ObjectError> objectErrors = e.getBindingResult().getAllErrors();
         Map<String, String> errors = new HashMap<>();
-        objectErrors.forEach((error) ->{
+        objectErrors.forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String message = error.getDefaultMessage();
             errors.put(fieldName, message);
@@ -48,28 +50,59 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-            IllegalArgumentException.class
+            BadRequestException.class
     })
-    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleIllegalArgumentException(final T e) {
-        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleBasicException");
-        final var badRequest = HttpStatus.BAD_REQUEST;
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleBadRequestException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleApiRequestException");
+        return ResponseEntity.badRequest().body(
+                GenericResponse.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .result(null)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
+    }
+
+    @ExceptionHandler(value = {
+            NotFoundException.class
+    })
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleNotFoundException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleNotFoundException");
+        final var notFound = HttpStatus.NOT_FOUND;
 
         return new ResponseEntity<>(
                 GenericResponse.builder()
                         .success(false)
                         .message(e.getMessage())
                         .result(null)
-                        .statusCode(badRequest.value())
-                        .build(), badRequest);
+                        .statusCode(notFound.value())
+                        .build(), notFound);
+    }
+
+    @ExceptionHandler(value = {
+            ForbiddenException.class
+    })
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleForbiddenException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleForbiddenException");
+        final var forbidden = HttpStatus.FORBIDDEN;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .result(null)
+                        .statusCode(forbidden.value())
+                        .build(), forbidden);
     }
 
     @ExceptionHandler(value = {
             NullPointerException.class,
             Exception.class,
             RuntimeException.class,
+            IllegalArgumentException.class
     })
     public <T extends RuntimeException> ResponseEntity<GenericResponse> handleServerException(final T e) {
-        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleBasicException");
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleServerException");
         final var internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
 
         return new ResponseEntity<>(

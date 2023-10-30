@@ -25,8 +25,10 @@ import java.util.function.Function;
 @Slf4j
 public class JwtUtilImpl implements JwtUtil {
 
-	private static final Long JWT_ACCESS_EXPIRATION = 3600000L;
-	private static final Long JWT_REFRESH_EXPIRATION = 604800000L;
+	//private static final Long JWT_ACCESS_EXPIRATION = 3600000L;
+	private static final Long JWT_ACCESS_EXPIRATION = 300000L;
+	//private static final Long JWT_REFRESH_EXPIRATION = 604800000L;
+	private static final Long JWT_REFRESH_EXPIRATION = 600000L;
 	private Key getSigningKey() {
 		return AppConstant.getSecretKey();
 	}

@@ -22,12 +22,12 @@ public class RouteConfig {
     private final Map<String, List<String>> services = Map.of(
             "conversation-service", pathConfig(List.of("conversations")),
             "friend-service", pathConfig(List.of("friends")),
-            "group-service", pathConfig(List.of("groups")),
-            "media-service", pathConfig(List.of("media")),
+            "group-service", pathConfig(List.of("groups", "group-members", "events")),
+            "media-service", pathConfig(List.of("files", "albums")),
             "message-service", pathConfig(List.of("messages")),
             "notification-service", pathConfig(List.of("notifications")),
             "post-service", pathConfig(List.of("posts", "comments", "likes")),
-            "user-service", pathConfig(List.of("users", "credentials", "token", "auth"))
+            "user-service", pathConfig(List.of("users", "credentials", "tokens", "auth"))
     );
     private List<String> pathConfig(List<String> paths) {
         return paths.stream()
