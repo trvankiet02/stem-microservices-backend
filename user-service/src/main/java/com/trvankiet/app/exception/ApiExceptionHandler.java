@@ -96,6 +96,22 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {
+            ForbiddenException.class
+    })
+    public <T extends RuntimeException> ResponseEntity<GenericResponse> handleForbiddenException(final T e) {
+        log.info("ApiExceptionHandler, ResponseEntity<GenericResponse> handleForbiddenException");
+        final var forbidden = HttpStatus.FORBIDDEN;
+
+        return new ResponseEntity<>(
+                GenericResponse.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .result(null)
+                        .statusCode(forbidden.value())
+                        .build(), forbidden);
+    }
+
+    @ExceptionHandler(value = {
             NullPointerException.class,
             Exception.class,
             RuntimeException.class,

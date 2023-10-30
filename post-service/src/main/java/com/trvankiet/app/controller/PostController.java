@@ -9,6 +9,7 @@ import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.CommentService;
 import com.trvankiet.app.service.PostService;
 import com.trvankiet.app.service.client.FileClientService;
+import com.trvankiet.app.service.client.GroupClientService;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class PostController {
     private final PostService postService;
     private final JwtService jwtService;
     private final FileClientService fileClientService;
+    private final GroupClientService groupClientService;
 
     @GetMapping
     public ResponseEntity<GenericResponse> getPostInGroup(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,

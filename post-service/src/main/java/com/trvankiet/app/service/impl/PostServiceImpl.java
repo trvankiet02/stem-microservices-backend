@@ -125,25 +125,28 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public ResponseEntity<GenericResponse> getPostInGroup(String userId, String groupId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Post> postPage = postRepository.findAll(pageable);
-        Map<String, Object> result = new HashMap<>();
-        result.put("totalPages", postPage.getTotalPages());
-        result.put("totalElements", postPage.getTotalElements());
-        result.put("currentPage", postPage.getNumber());
-        result.put("currentElements", postPage.getNumberOfElements());
-        result.put("posts", postPage.getContent().stream().map(mapperService::mapToPostDto).toList());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(GenericResponse.builder()
-                        .success(true)
-                        .statusCode(HttpStatus.OK.value())
-                        .message("Lấy bài viết thành công!")
-                        .result(result)
-                        .build());
+        if (isUserInGroup(userId, groupId)) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<Post> postPage = postRepository.findAll(pageable);
+            Map<String, Object> result = new HashMap<>();
+            result.put("totalPages", postPage.getTotalPages());
+            result.put("totalElements", postPage.getTotalElements());
+            result.put("currentPage", postPage.getNumber() + 1);
+            result.put("currentElements", postPage.getNumberOfElements());
+            result.put("posts", postPage.getContent().stream().map(mapperService::mapToPostDto).toList());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GenericResponse.builder()
+                            .success(true)
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Lấy bài viết thành công!")
+                            .result(result)
+                            .build());
+        }
+        throw new ForbiddenException("Bạn không có quyền xem bài viết trong nhóm này!");
     }
 
     public Boolean isUserInGroup(String userId, String groupId) {
-        ResponseEntity<GenericResponse> responseEntity = groupClientService.getGroupById(userId, groupId);
+        ResponseEntity<GenericResponse> responseEntity = groupClientService.validateUserInGroup(userId, groupId);
         return responseEntity.getStatusCode().equals(HttpStatus.OK);
     }
 }

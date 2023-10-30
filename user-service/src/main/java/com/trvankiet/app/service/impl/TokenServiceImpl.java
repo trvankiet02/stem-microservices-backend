@@ -8,6 +8,7 @@ import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
@@ -147,18 +148,31 @@ public class TokenServiceImpl implements TokenService {
     }
 
     private Optional<Credential> getValidCredentialFromRefreshToken(String refreshToken) {
-        String userId = jwtService.extractUserId(refreshToken);
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new NotFoundException("Không tìm thấy người dùng!");
-        }
-        Credential credential = optionalUser.get().getCredential();
-        if (credential.getIsEnabled()) {
+//        String userId = jwtService.extractUserId(refreshToken);
+//        Optional<User> optionalUser = userRepository.findById(userId);
+//        if (optionalUser.isEmpty()) {
+//            throw new NotFoundException("Không tìm thấy người dùng!");
+//        }
+//        Credential credential = optionalUser.get().getCredential();
+//        if (credential.getIsEnabled()) {
+//            if (jwtService.validateToken(refreshToken)) {
+//                return Optional.of(credential);
+//            } else {
+//                throw new BadRequestException("Refresh token đã hết hạn hoặc không chính xác!");
+//            }
+//        }
+        try {
             if (jwtService.validateToken(refreshToken)) {
-                return Optional.of(credential);
-            } else {
-                throw new BadRequestException("Refresh token đã hết hạn hoặc không chính xác!");
+                String userId = jwtService.extractUserId(refreshToken);
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng!"));
+                Credential credential = user.getCredential();
+                if (credential.getIsEnabled()) {
+                    return Optional.of(credential);
+                }
             }
+        } catch (Exception e) {
+            throw new ForbiddenException("Refresh token đã hết hạn hoặc không chính xác!");
         }
         return Optional.empty();
     }

@@ -47,5 +47,11 @@ public class GroupController {
         return groupService.getGroupById(userId, groupId);
     }
 
+    @GetMapping("/validate-user-in-group")
+    public ResponseEntity<GenericResponse> validateUserInGroup(@RequestParam("userId") String userId,
+            @RequestParam("groupId") String groupId) {
+        return groupService.getGroupById(userId, groupId);
+    }
+
 
 }
