@@ -107,19 +107,15 @@ public class TokenServiceImpl implements TokenService {
         log.info("TokenServiceImpl, void, revokeRefreshToken");
         Optional<Credential> optionalCredential = credentialRepository.findById(credentialId);
         if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
-            List<Token> refreshTokens = tokenRepository.findAll().stream()
-                    .filter(token -> token.getCredential().getCredentialId().equals(credentialId) &&
-                            token.getType().equals(TokenType.REFRESH_TOKEN) &&
-                            !token.getRevoked() && !token.getExpired())
-                    .toList();
-            if(refreshTokens.isEmpty()){
-                return;
+            List<Token> refreshTokens = tokenRepository.findActiveRefreshTokens(credentialId, TokenType.REFRESH_TOKEN);
+            if(!refreshTokens.isEmpty()){
+                refreshTokens.forEach(token -> {
+                    token.setRevoked(true);
+                    token.setExpired(true);
+                });
             }
-            refreshTokens.forEach(token -> {
-                token.setRevoked(true);
-                token.setExpired(true);
-            });
             tokenRepository.saveAll(refreshTokens);
+            return;
         }
         throw new BadRequestException("Tài khoản không tồn tại hoặc chưa được xác thực!");
     }
@@ -164,7 +160,6 @@ public class TokenServiceImpl implements TokenService {
                 throw new BadRequestException("Refresh token đã hết hạn hoặc không chính xác!");
             }
         }
-
         return Optional.empty();
     }
 

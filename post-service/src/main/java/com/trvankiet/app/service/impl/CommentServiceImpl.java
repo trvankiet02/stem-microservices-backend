@@ -14,6 +14,10 @@ import com.trvankiet.app.service.CommentService;
 import com.trvankiet.app.service.MapperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -82,7 +86,9 @@ public class CommentServiceImpl implements CommentService {
         int start = page * size;
         int end = Math.min(start + size, total);
         List<Comment> subComments = comments.subList(start, end);
-        List<CommentDto> commentDtos = subComments.stream().map(mapperService::mapToCommentDto).toList();
+        List<CommentDto> commentDtos = subComments.stream()
+                .sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
+                .map(mapperService::mapToCommentDto).toList();
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách bình luận thành công!")

@@ -28,9 +28,19 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final CommentService commentService;
     private final JwtService jwtService;
     private final FileClientService fileClientService;
+
+    @GetMapping
+    public ResponseEntity<GenericResponse> getPostInGroup(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                          @RequestParam("groupId") String groupId,
+                                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                                          @RequestParam(value = "size", defaultValue = "10") int size) {
+        log.info("PostController, getPostInGroup({})", groupId);
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return postService.getPostInGroup(userId, groupId, page, size);
+    }
 
     @GetMapping("/{postId}")
     public ResponseEntity<GenericResponse> getPostById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable("postId") String postId) {
