@@ -51,7 +51,7 @@ public class JwtUtilImpl implements JwtUtil {
 	public Boolean validateToken(final String token) {
 		try {
 			Jwts.parserBuilder()
-					.setSigningKey(this.getSigningKey())
+					.setSigningKey(this.getSigningKey().getEncoded())
 					.build()
 					.parseClaimsJws(token);
 			return !this.isTokenExpired(token);
