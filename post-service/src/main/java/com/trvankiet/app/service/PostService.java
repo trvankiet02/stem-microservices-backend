@@ -16,4 +16,6 @@ public interface PostService {
     ResponseEntity<GenericResponse> deletePost(String userId, String postId);
 
     ResponseEntity<GenericResponse> getPostById(String userId, String postId);
+
+    ResponseEntity<GenericResponse> getPostInGroup(String userId, String groupId, int page, int size);
 }

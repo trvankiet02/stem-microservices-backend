@@ -17,6 +17,10 @@ import com.trvankiet.app.service.PostService;
 import com.trvankiet.app.service.client.GroupClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -117,6 +121,25 @@ public class PostServiceImpl implements PostService {
                             .build());
         }
         throw new ForbiddenException("Bạn không có quyền xem bài viết này!");
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getPostInGroup(String userId, String groupId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postPage = postRepository.findAll(pageable);
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalPages", postPage.getTotalPages());
+        result.put("totalElements", postPage.getTotalElements());
+        result.put("currentPage", postPage.getNumber());
+        result.put("currentElements", postPage.getNumberOfElements());
+        result.put("posts", postPage.getContent().stream().map(mapperService::mapToPostDto).toList());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(GenericResponse.builder()
+                        .success(true)
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Lấy bài viết thành công!")
+                        .result(result)
+                        .build());
     }
 
     public Boolean isUserInGroup(String userId, String groupId) {
