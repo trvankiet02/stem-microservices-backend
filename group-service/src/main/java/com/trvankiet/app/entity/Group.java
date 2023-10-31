@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,29 +36,13 @@ public class Group implements Serializable {
     private String groupDescription;
 
     @Field(name = "group_image")
-    private String groupImage;
+    private String groupImage = "";
 
     @Field(name = "group_type")
-    private String groupType;
+    private String groupType = "PUBLIC";
 
     @Field(name = "group_member_mode")
-    private String groupMemberMode;
-
-    @DocumentReference
-    @Field(name = "group_members")
-    private List<GroupMember> groupMembers;
-
-    @DocumentReference
-    @Field(name = "group_events")
-    private List<Event> groupEvents;
-
-    @DocumentReference
-    @Field(name = "group_member_requests")
-    private List<GroupMemberRequest> groupMemberRequests;
-
-    @DocumentReference
-    @Field(name = "group_member_invitations")
-    private List<GroupMemberRequest> groupMemberInvitations;
+    private String groupMemberMode = "PUBLIC";
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
