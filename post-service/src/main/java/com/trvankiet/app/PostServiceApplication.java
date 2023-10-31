@@ -2,6 +2,7 @@ package com.trvankiet.app;
 
 import com.trvankiet.app.entity.PostType;
 import com.trvankiet.app.repository.PostTypeRepository;
+import com.trvankiet.app.repository.ReactionTypeRepository;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.beans.factory.InitializingBean;
@@ -25,6 +26,8 @@ public class PostServiceApplication {
 
     @Autowired
     private PostTypeRepository postTypeRepository;
+    @Autowired
+    private ReactionTypeRepository reactionTypeRepository;
     @Bean
     InitializingBean sendDatabase() {
         return () -> {
@@ -33,6 +36,13 @@ public class PostServiceApplication {
                         .postTypeId("1")
                         .postTypeName("ASK")
                         .postTypeDescription("Ask a question")
+                        .createdAt(new Date())
+                        .build());
+            if (reactionTypeRepository.findByReactionTypeName("LIKE").isEmpty())
+                reactionTypeRepository.save(com.trvankiet.app.entity.ReactionType.builder()
+                        .reactionTypeId("1")
+                        .reactionTypeName("LIKE")
+                        .reactionTypeDescription("Like a post")
                         .createdAt(new Date())
                         .build());
         };

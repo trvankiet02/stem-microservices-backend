@@ -11,6 +11,4 @@ import java.util.Optional;
 @Repository
 public interface GroupRepository extends MongoRepository<Group, String> {
     Optional<Group> findByGroupId(String groupId);
-    @Query(value = "{ 'group_members': { '$elemMatch': { 'user_id': ?0 } } }")
-    List<Group> findByUserId(String userId);
 }

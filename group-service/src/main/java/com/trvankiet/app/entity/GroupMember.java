@@ -30,6 +30,10 @@ public class GroupMember implements Serializable {
     private String userId;
 
     @DocumentReference
+    @Field(name = "group_id")
+    private Group group;
+
+    @DocumentReference
     @Field(name = "group_member_role")
     private GroupMemberRole groupMemberRole;
 

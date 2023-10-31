@@ -44,22 +44,22 @@ public class GroupServiceImpl implements GroupService {
         GroupMemberRole groupAdminRole = groupMemberRoleRepository.findByRoleName(GroupRole.GROUP_ADMIN.toString())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền!"));
 
-        GroupMember groupMember = groupMemberRepository
-                .save(GroupMember.builder()
-                        .groupMemberId(UUID.randomUUID().toString())
-                        .userId(userDto.getUserId())
-                        .groupMemberRole(groupAdminRole)
-                        .createdAt(now)
-                        .build());
-
         Group group = groupRepository.save(Group.builder()
                 .groupId(UUID.randomUUID().toString())
                 .groupName(groupCreateRequest.getGroupName())
                 .groupDescription(groupCreateRequest.getGroupDescription())
                 .groupType(groupCreateRequest.getGroupType())
-                .groupMembers(List.of(groupMember))
                 .createdAt(now)
                 .build());
+
+        GroupMember groupMember = groupMemberRepository
+                .save(GroupMember.builder()
+                        .groupMemberId(UUID.randomUUID().toString())
+                        .group(group)
+                        .userId(userDto.getUserId())
+                        .groupMemberRole(groupAdminRole)
+                        .createdAt(now)
+                        .build());
 
         Map<String, String> result = Map.of("groupId", group.getGroupId());
         return ResponseEntity.ok(GenericResponse.builder()
@@ -95,10 +95,7 @@ public class GroupServiceImpl implements GroupService {
         Map<String, Object> result = new HashMap<>();
         result.put("group", groupDto);
 
-        GroupMember groupMember = group.getGroupMembers().stream()
-                .filter(member -> member.getUserId().equals(userId))
-                .findFirst()
-                .orElse(null);
+        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupGroupId(userId, groupId).orElse(null);
 
         if (groupMember != null) {
             GroupMemberDto groupMemberDto = GroupMemberDto.builder()
@@ -123,14 +120,17 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> getGroupsByUserId(String userId) {
         Map<String, List<GroupOfUserResponse>> result = new HashMap<>();
-        List<Group> groups = groupRepository.findAll().stream()
-                .filter(group -> group.getGroupMembers()
-                        .stream()
-                        .anyMatch(groupMember -> groupMember.getUserId().equals(userId))
-                ).collect(Collectors.toList());
         List<GroupMemberRole> groupMemberRoles = groupMemberRoleRepository.findAll();
-        for (GroupMemberRole role: groupMemberRoles) {
-            result.put(role.getRoleName(), getGroupsByUserRole(groups, userId, role.getRoleName()));
+        for (GroupMemberRole role : groupMemberRoles) {
+            result.put(role.getRoleName(), groupMemberRepository.findByUserIdAndGroupMemberRole(userId, role).stream()
+                    .map(groupMember -> GroupOfUserResponse.builder()
+                            .groupId(groupMember.getGroup().getGroupId())
+                            .groupName(groupMember.getGroup().getGroupName())
+                            .groupDescription(groupMember.getGroup().getGroupDescription())
+                            .groupImage(groupMember.getGroup().getGroupImage())
+                            .groupType(groupMember.getGroup().getGroupType())
+                            .build())
+                    .collect(Collectors.toList()));
         }
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -138,24 +138,5 @@ public class GroupServiceImpl implements GroupService {
                 .result(result)
                 .statusCode(HttpStatus.OK.value())
                 .build());
-    }
-
-    private List<GroupOfUserResponse> getGroupsByUserRole(List<Group> groups, String userId, String roleName) {
-        return groups.stream()
-                .filter(group -> isUserInRole(group, userId, roleName))
-                .map(group -> GroupOfUserResponse.builder()
-                        .groupId(group.getGroupId())
-                        .groupName(group.getGroupName())
-                        .groupDescription(group.getGroupDescription())
-                        .groupImage(group.getGroupImage())
-                        .groupType(group.getGroupType())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private boolean isUserInRole(Group group, String userId, String roleName) {
-        return group.getGroupMembers().stream()
-                .anyMatch(member -> userId.equals(member.getUserId()) &&
-                        member.getGroupMemberRole().getRoleName().equals(roleName));
     }
 }

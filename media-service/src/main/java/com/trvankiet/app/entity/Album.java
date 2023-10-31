@@ -41,11 +41,7 @@ public class Album implements Serializable {
     private String accessibility;
 
     @Field(name = "contributors")
-    private List<Integer> contributors;
-
-    @DocumentReference
-    @Field(name = "files")
-    private List<File> files;
+    private List<String> contributorIds;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

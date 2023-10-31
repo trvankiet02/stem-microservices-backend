@@ -29,12 +29,5 @@ public class GroupDto implements Serializable {
     private String groupDescription;
     private String groupImage;
     private String groupType;
-    private String groupMemberMode;
-    private List<GroupMember> groupMembers;
-    private List<Event> groupEvents;
-    private List<GroupMemberRequest> groupMemberRequests;
-    private List<GroupMemberRequest> groupMemberInvitations;
-    private Date createdAt;
-    private Date updatedAt;
 
 }

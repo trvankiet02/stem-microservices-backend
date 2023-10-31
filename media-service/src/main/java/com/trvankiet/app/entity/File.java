@@ -37,6 +37,10 @@ public class File implements Serializable {
     private String fileLink;
 
     @DocumentReference
+    @Field(name = "album_id")
+    private Album album;
+
+    @DocumentReference
     @Field(name = "file_type")
     private FileType fileType;
 

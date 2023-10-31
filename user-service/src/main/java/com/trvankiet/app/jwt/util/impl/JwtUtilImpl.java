@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,10 +26,8 @@ import java.util.function.Function;
 @Slf4j
 public class JwtUtilImpl implements JwtUtil {
 
-	//private static final Long JWT_ACCESS_EXPIRATION = 3600000L;
-	private static final Long JWT_ACCESS_EXPIRATION = 300000L;
-	//private static final Long JWT_REFRESH_EXPIRATION = 604800000L;
-	private static final Long JWT_REFRESH_EXPIRATION = 600000L;
+	private static final Long JWT_ACCESS_EXPIRATION = 3600000L;
+	private static final Long JWT_REFRESH_EXPIRATION = 604800000L;
 	private Key getSigningKey() {
 		return AppConstant.getSecretKey();
 	}
