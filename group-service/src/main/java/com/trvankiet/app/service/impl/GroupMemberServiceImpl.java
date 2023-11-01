@@ -177,4 +177,47 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 throw new BadRequestException("Trạng thái không hợp lệ");
         }
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> changeRole(String userId, String groupMemberId, String role) {
+        log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> changeRole");
+        GroupMember groupMember = groupMemberRepository.findById(groupMemberId)
+                .orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
+        //check userId not a group member
+        GroupMember user = groupMemberRepository.findByUserIdAndGroupGroupId(userId, groupMember.getGroup().getGroupId())
+                .orElseThrow(() -> new ForbiddenException("Bạn không có quyền thay đổi quyền thành viên"));
+        if (user.getGroupMemberRole().getRoleName().equals(GroupRole.GROUP_MEMBER.toString())) {
+            throw new ForbiddenException("Bạn không có quyền thay đổi quyền thành viên");
+        }
+        groupMember.setGroupMemberRole(groupMemberRoleRepository.findByRoleName(role)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")));
+        groupMember.setUpdatedAt(new Date());
+        groupMemberRepository.save(groupMember);
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Thay đổi quyền thành viên thành công")
+                .result(null)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> deleteGroupMember(String userId, String groupMemberId) {
+        log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> deleteGroupMember");
+        GroupMember groupMember = groupMemberRepository.findById(groupMemberId)
+                .orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
+        //check userId not a group member
+        GroupMember user = groupMemberRepository.findByUserIdAndGroupGroupId(userId, groupMember.getGroup().getGroupId())
+                .orElseThrow(() -> new ForbiddenException("Bạn không có quyền xóa thành viên"));
+        if (user.getGroupMemberRole().getRoleName().equals(GroupRole.GROUP_MEMBER.toString())) {
+            throw new ForbiddenException("Bạn không có quyền xóa thành viên");
+        }
+        groupMemberRepository.delete(groupMember);
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Xóa thành viên thành công")
+                .result(null)
+                .build());
+    }
 }
