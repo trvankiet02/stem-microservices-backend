@@ -13,4 +13,8 @@ public interface GroupMemberService {
     ResponseEntity<GenericResponse> responseGroupMemberInvitation(String userId, String groupMemberInvitationId, StateRequest inviteResponseGroupMember);
 
     ResponseEntity<GenericResponse> responseGroupMemberRequest(String userId, String groupMemberRequestId, StateRequest stateRequest);
+
+    ResponseEntity<GenericResponse> changeRole(String userId, String groupMemberId, String role);
+
+    ResponseEntity<GenericResponse> deleteGroupMember(String userId, String groupMemberId);
 }
