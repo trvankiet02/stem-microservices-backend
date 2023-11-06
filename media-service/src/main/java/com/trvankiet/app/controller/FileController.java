@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.FileDto;
+import com.trvankiet.app.dto.request.DeleteRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.FileService;
@@ -23,26 +24,62 @@ public class FileController {
     private final FileService fileService;
     private final JwtService jwtService;
 
-        @GetMapping
-        public String test() {
-            return "Hello from FileController";
-        }
+    @GetMapping
+    public String test() {
+        return "Hello from FileController";
+    }
 
-        @PostMapping( "/posts")
-        public List<FileDto> uploadPostFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+    @PostMapping("/posts")
+    public List<FileDto> uploadPostFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                          @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
-            log.info("Received request to upload {} files", mediaFiles.size());
-            String accessToken = authorizationHeader.substring(7);
-            String userId = jwtService.extractUserId(accessToken);
-            return fileService.uploadPostFiles(userId, mediaFiles);
-        }
+        log.info("FileController, uploadPostFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.uploadPostFiles(userId, mediaFiles);
+    }
 
-        @PostMapping( "/comments")
-        public List<FileDto> uploadCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                         @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
-            log.info("Received request to upload {} files", mediaFiles.size());
-            String accessToken = authorizationHeader.substring(7);
-            String userId = jwtService.extractUserId(accessToken);
-            return fileService.uploadCommentFiles(userId, mediaFiles);
-        }
+    @DeleteMapping("/posts")
+    public ResponseEntity<GenericResponse> deletePostFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                      @RequestBody DeleteRequest deleteRequest) {
+        log.info("FileController, deleteFile");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.deletePostFiles(userId, deleteRequest);
+    }
+
+    @PostMapping("/comments")
+    public List<FileDto> uploadCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                            @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
+        log.info("FileController, uploadCommentFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.uploadCommentFiles(userId, mediaFiles);
+    }
+
+    @DeleteMapping("/comments")
+    public ResponseEntity<GenericResponse> deleteCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                      @RequestBody DeleteRequest deleteRequest) {
+        log.info("FileController, deleteCommentFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.deleteCommentFiles(userId, deleteRequest);
+    }
+
+    @PostMapping("/documents")
+    public List<FileDto> uploadDocumentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                             @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
+        log.info("FileController, uploadDocumentFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.uploadDocumentFiles(userId, mediaFiles);
+    }
+
+    @DeleteMapping("/documents")
+    public ResponseEntity<GenericResponse> deleteDocumentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                      @RequestBody DeleteRequest deleteRequest) {
+        log.info("FileController, deleteDocumentFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.deleteDocumentFiles(userId, deleteRequest);
+    }
 }

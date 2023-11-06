@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface CloudinaryService {
     public String uploadImage(MultipartFile multipartFile, String name, String folder) throws IOException;
-    void deleteUserImage(String url, String folder) throws IOException;
+    public String deleteMediaFile(String url, String folder) throws IOException;
 
-    public String uploadMediaFiles(MultipartFile mediaFile, String name, String folder) throws IOException;
+    public String uploadMediaFile(MultipartFile mediaFile, String name, String folder) throws IOException;
 }

@@ -24,13 +24,16 @@ public class FileType implements Serializable {
 
     @Id
     @Field(name = "file_type_id")
-    private String fileTypeId;
+    private String id;
 
     @Field(name = "file_type_name")
-    private String fileTypeName;
+    private String name;
 
     @Field(name = "file_type_extension")
-    private List<String> fileTypeExtension;
+    private List<String> extension;
+
+    @Field(name = "file_description")
+    private String description;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

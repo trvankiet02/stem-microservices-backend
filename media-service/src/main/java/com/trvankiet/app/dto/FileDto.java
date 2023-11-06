@@ -13,8 +13,9 @@ import java.io.Serializable;
 @Builder
 public class FileDto implements Serializable {
 
-    private String fileId;
     private String authorId;
-    private String fileLink;
-    private String fileType;
+    private String refUrl;
+    private String type;
+    private String createdAt;
+
 }

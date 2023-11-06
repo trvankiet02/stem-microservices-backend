@@ -29,42 +29,42 @@ public class MediaServiceApplication {
     InitializingBean sendDatabase() {
         return () -> {
             Date now = new Date();
-            if (fileTypeRepository.findByFileTypeName("IMAGE").isEmpty()) {
+            if (fileTypeRepository.findByName("Image").isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .fileTypeId("1")
-                                .fileTypeName("IMAGE")
-                                .fileTypeExtension(List.of("jpg", "png", "jpeg"))
+                                .id("image")
+                                .name("Image")
+                                .extension(List.of("jpg", "png", "jpeg"))
                                 .createdAt(now)
                                 .build()
                 );
             }
-            if (fileTypeRepository.findByFileTypeName("VIDEO").isEmpty()) {
+            if (fileTypeRepository.findByName("Video").isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .fileTypeId("2")
-                                .fileTypeName("VIDEO")
-                                .fileTypeExtension(List.of("mp4", "avi", "mkv"))
+                                .id("video")
+                                .name("VIDEO")
+                                .extension(List.of("mp4", "avi", "mkv"))
                                 .createdAt(now)
                                 .build()
                 );
             }
-            if (fileTypeRepository.findByFileTypeName("AUDIO").isEmpty()) {
+            if (fileTypeRepository.findByName("Audio").isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .fileTypeId("3")
-                                .fileTypeName("AUDIO")
-                                .fileTypeExtension(List.of("mp3", "wav", "ogg"))
+                                .id("audio")
+                                .name("Audio")
+                                .extension(List.of("mp3", "wav", "ogg"))
                                 .createdAt(now)
                                 .build()
                 );
             }
-            if (fileTypeRepository.findByFileTypeName("DOCUMENT").isEmpty()) {
+            if (fileTypeRepository.findByName("Document").isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .fileTypeId("4")
-                                .fileTypeName("DOCUMENT")
-                                .fileTypeExtension(List.of("doc", "docx", "pdf"))
+                                .id("document")
+                                .name("Document")
+                                .extension(List.of("doc", "docx", "pdf"))
                                 .createdAt(now)
                                 .build()
                 );

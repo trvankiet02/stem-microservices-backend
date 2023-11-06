@@ -25,24 +25,17 @@ public class File implements Serializable {
 
     @Id
     @Field(name = "file_id")
-    private String fileId;
+    private String id;
 
     @Field(name = "author_id")
     private String authorId;
 
-    @Field(name = "content")
-    private String content;
-
-    @Field(name = "file_link")
-    private String fileLink;
-
-    @DocumentReference
-    @Field(name = "album_id")
-    private Album album;
+    @Field(name = "file_ref_url")
+    private String refUrl;
 
     @DocumentReference
     @Field(name = "file_type")
-    private FileType fileType;
+    private FileType type;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
