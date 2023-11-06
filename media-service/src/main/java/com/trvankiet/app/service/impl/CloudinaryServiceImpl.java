@@ -44,7 +44,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     }
 
     @Override
-    public String uploadMediaFiles(MultipartFile mediaFile, String name, String folder) throws IOException {
+    public String uploadMediaFile(MultipartFile mediaFile, String name, String folder) throws IOException {
         log.info("CloudinaryServiceImpl, uploadMediaFiles");
         if (mediaFile.isEmpty()) {
             throw new UnsupportedMediaTypeException("File is null. Please upload a valid file.");
@@ -59,12 +59,13 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     }
 
     @Override
-    public void deleteUserImage(String url, String folder) throws IOException {
+    public String deleteMediaFile(String url, String folder) throws IOException {
         var params = ObjectUtils.asMap(
                 "folder", ROOT_FOLDER + folder,
                 "resource_type", "image");
         var result = cloudinary.uploader().destroy(getPublicIdFromUrl(url, folder), params);
         log.info("CloudinaryServiceImpl, deleteUserImage, result: {}", result.get("result").toString());
+        return result.get("result").toString();
     }
 
     public String getPublicIdFromUrl(String imageUrl, String folder) {

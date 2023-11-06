@@ -12,10 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -86,22 +83,25 @@ public class User extends AbstractMappedEntity implements Serializable {
     @Column(name = "grade")
     private Integer grade;
 
+    @Builder.Default
     @ManyToMany(mappedBy = "students")
     @JsonBackReference
     @ToString.Exclude
-    private List<User> parents;
+    private List<User> parents = new ArrayList<>();
 
     /**
      * For Teacher
      */
+    @Builder.Default
     @ElementCollection
     @CollectionTable(name = "teacher_subject", joinColumns = @JoinColumn(name = "user_id"))
-    private List<String> subjects;
+    private List<String> subjects = new ArrayList<>();
 
     /**
      * For Parent
      */
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "parent_student",
@@ -110,6 +110,6 @@ public class User extends AbstractMappedEntity implements Serializable {
     )
     @JsonBackReference
     @ToString.Exclude
-    private List<User> students;
+    private List<User> students = new ArrayList<>();
 
 }
