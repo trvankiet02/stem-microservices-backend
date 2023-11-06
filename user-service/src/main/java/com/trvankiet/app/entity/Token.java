@@ -5,46 +5,48 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.trvankiet.app.constant.TokenType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "tokens")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {})
 @Builder
 public class Token extends AbstractMappedEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "token_id")
-    private String tokenId;
+    private String id;
 
-    @Column(name = "token", unique = true)
+    @Column(name = "token_value", unique = true)
     private String token;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(name = "token_type")
     private TokenType type;
 
-    private Boolean expired;
+    @Builder.Default
+    @Column(name = "is_expired")
+    private Boolean isExpired = false;
 
-    private Boolean revoked;
+    @Builder.Default
+    @Column(name = "is_revoked")
+    private Boolean isRevoked = false;
 
     @Column(name = "expired_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime expiredAt;
+    private Date expiredAt;
 
-    @ToString.Exclude
-    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id")
+    @JoinColumn(name = "credential_id")
+    @ToString.Exclude
     private Credential credential;
 
 }

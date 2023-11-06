@@ -1,24 +1,22 @@
 package com.trvankiet.app.service.impl;
 
-import com.trvankiet.app.constant.Provider;
-import com.trvankiet.app.constant.TokenType;
+import com.trvankiet.app.constant.*;
+import com.trvankiet.app.dto.request.*;
+import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.dto.CredentialDto;
-import com.trvankiet.app.dto.request.LoginRequest;
-import com.trvankiet.app.dto.request.RegisterRequest;
-import com.trvankiet.app.dto.request.ResetPasswordRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.entity.Credential;
-import com.trvankiet.app.entity.Role;
-import com.trvankiet.app.entity.Token;
-import com.trvankiet.app.entity.User;
-import com.trvankiet.app.exception.wrapper.*;
+import com.trvankiet.app.entity.*;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
+import com.trvankiet.app.repository.ProviderRepository;
 import com.trvankiet.app.repository.RoleRepository;
 import com.trvankiet.app.repository.UserRepository;
 import com.trvankiet.app.service.CredentialService;
 import com.trvankiet.app.service.EmailService;
+import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.TokenService;
+import com.trvankiet.app.util.DateUtil;
 import com.trvankiet.app.util.TokenUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.text.ParseException;
 import java.util.*;
 
 @Service
@@ -46,6 +44,8 @@ public class CredentialServiceImpl implements CredentialService {
     private final TokenService tokenService;
     private final EmailService emailService;
     private final RoleRepository roleRepository;
+    private final ProviderRepository providerRepository;
+    private final MapperService mapperService;
 
     @Override
     public <S extends Credential> S save(S entity) {
@@ -116,33 +116,39 @@ public class CredentialServiceImpl implements CredentialService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> register(RegisterRequest registerRequest) {
+    public ResponseEntity<GenericResponse> registerForTeacher(TeacherRegisterRequest teacherRegisterRequest) {
         log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, register");
-        Optional<Credential> optionalCredential = credentialRepository.findByUsername(registerRequest.getEmail());
+        Optional<Credential> optionalCredential = credentialRepository.findByUsername(teacherRegisterRequest.getEmail());
 
         if (optionalCredential.isPresent())
             throw new BadRequestException("Tài khoản đã tồn tại!");
 
-        if (registerRequest.getPassword().length() < 8 || registerRequest.getPassword().length() > 32)
+        if (teacherRegisterRequest.getPassword().length() < 8 || teacherRegisterRequest.getPassword().length() > 32)
             throw new BadRequestException("Mật khẩu phải có độ dài từ 8 đến 32 ký tự!");
 
         User user = userRepository.save(User.builder()
-                .email(registerRequest.getEmail())
+                .email(teacherRegisterRequest.getEmail())
+                .role(RoleBasedAuthority.TEACHER)
                 .build());
 
-        Role role = roleRepository.findByRoleName(registerRequest.getRole())
+        Role role = roleRepository.findByCode(RoleType.ROLE_USER.getCode())
                 .orElseThrow(() -> new NotFoundException("Role không tồn tại!"));
 
+        Provider provider = providerRepository.findByCode(ProviderType.PROVIDER_LOCAL.getCode())
+                .orElseThrow(() -> new NotFoundException("Provider không tồn tại!"));
+
         Credential credential = Credential.builder()
-                .username(registerRequest.getEmail())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .provider(Provider.LOCAL)
-                .role(role)
+                .username(teacherRegisterRequest.getEmail())
+                .password(passwordEncoder.encode(teacherRegisterRequest.getPassword()))
                 .isEnabled(false)
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
                 .isCredentialsNonExpired(true)
+                .lockedAt(null)
+                .lockedReason(null)
                 .user(user)
+                .role(role)
+                .provider(provider)
                 .build();
 
         credential = credentialRepository.save(credential);
@@ -183,14 +189,14 @@ public class CredentialServiceImpl implements CredentialService {
             //30 - Refresh token expired time
             Token token = Token.builder()
                     .token(refreshToken)
-                    .revoked(false)
-                    .expired(false)
-                    .type(TokenType.REFRESH_TOKEN)
-                    .expiredAt(LocalDateTime.now().plusDays(30))
+                    .isExpired(false)
+                    .isRevoked(false)
+                    .type(TokenType.REFRESH_ACCESS_TOKEN)
+                    .expiredAt(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000))
                     .credential(optionalCredential.get())
                     .build();
 
-            tokenService.revokeRefreshToken(optionalCredential.get().getCredentialId());
+            tokenService.revokeRefreshToken(optionalCredential.get().getId());
             tokenService.save(token);
 
             Map<String, String> tokenMap = new HashMap<>();
@@ -214,14 +220,12 @@ public class CredentialServiceImpl implements CredentialService {
                 .orElseThrow(() -> new BadRequestException("Yêu cầu xác thực đã hết hạn hoặc không hợp lệ!"));
         if (verificationToken.getType().equals(TokenType.VERIFICATION_TOKEN)
                 && TokenUtil.tokenIsNotExpiredAndRevoked(verificationToken)
-                && !verificationToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            Map<String, String> resultMap = new HashMap<>();
-            resultMap.put("role", verificationToken.getCredential().getRole().getRoleName());
+                && !verificationToken.getExpiredAt().before(new Date())) {
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
                             .success(true)
                             .message("Xác thực thành công! Mời bạn điền thông tin cần thiết để hoàn tất đăng ký!")
-                            .result(resultMap)
+                            .result(null)
                             .statusCode(HttpStatus.OK.value())
                             .build());
         }
@@ -235,7 +239,7 @@ public class CredentialServiceImpl implements CredentialService {
                 .orElseThrow(() -> new BadRequestException("Yêu cầu xác thực đã hết hạn hoặc không hợp lệ!"));
         if (resetPasswordToken.getType().equals(TokenType.RESET_PASSWORD_TOKEN)
                 && TokenUtil.tokenIsNotExpiredAndRevoked(resetPasswordToken)
-                && !resetPasswordToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+                && !resetPasswordToken.getExpiredAt().before(new Date())) {
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
                             .success(true)
@@ -261,7 +265,7 @@ public class CredentialServiceImpl implements CredentialService {
             throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
 
-        if (resetPasswordToken.getExpiredAt().isBefore(LocalDateTime.now())
+        if (resetPasswordToken.getExpiredAt().before(new Date())
                 && TokenUtil.tokenIsNotExpiredAndRevoked(resetPasswordToken)) {
             throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
@@ -278,8 +282,8 @@ public class CredentialServiceImpl implements CredentialService {
         credential.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         credentialRepository.save(credential);
 
-        resetPasswordToken.setExpired(true);
-        resetPasswordToken.setRevoked(true);
+        resetPasswordToken.setIsExpired(true);
+        resetPasswordToken.setIsRevoked(true);
         tokenService.save(resetPasswordToken);
 
         return ResponseEntity.ok().body(
@@ -300,7 +304,7 @@ public class CredentialServiceImpl implements CredentialService {
 
         Optional<Credential> optionalCredential = Optional.ofNullable(user.getCredential());
         if (optionalCredential.isPresent()) {
-            tokenService.revokeRefreshToken(optionalCredential.get().getCredentialId());
+            tokenService.revokeRefreshToken(optionalCredential.get().getId());
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
                             .success(true)
@@ -318,21 +322,144 @@ public class CredentialServiceImpl implements CredentialService {
                         .build());
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> registerForParent(ParentRegisterRequest parentRegisterRequest) {
+        log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, registerForParent");
+        validateEmailAndPassword(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword());
+        User user = null;
+        try {
+            user = userRepository.save(User.builder()
+                    .email(parentRegisterRequest.getEmail())
+                    .role(RoleBasedAuthority.PARENT)
+                    .firstName(parentRegisterRequest.getFirstName())
+                    .lastName(parentRegisterRequest.getLastName())
+                    .gender(Gender.valueOf(parentRegisterRequest.getGender()))
+                    .phone(parentRegisterRequest.getPhone())
+                    .dob(DateUtil.string2Date(parentRegisterRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT))
+                    .students(new ArrayList<>())
+                    .build());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Giới tính không hợp lệ!");
+        } catch (ParseException e) {
+            throw new BadRequestException("Ngày sinh không hợp lệ!");
+        }
+
+        Credential credential = saveCredential(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword(), user);
+
+        return ResponseEntity.ok().body(
+                GenericResponse.builder()
+                        .success(true)
+                        .message("Tài khoản đã được tạo thành công! Đăng nhập để sử dụng ứng dụng!")
+                        .result(mapperService.mapToCredentialDto(credential))
+                        .statusCode(HttpStatus.OK.value())
+                        .build()
+        );
+    }
+
+    private Credential saveCredential(String email, String password, User user) {
+        return credentialRepository.save(Credential.builder()
+                .username(email)
+                .password(passwordEncoder.encode(email))
+                .isEnabled(true)
+                .isAccountNonExpired(true)
+                .isAccountNonLocked(true)
+                .isCredentialsNonExpired(true)
+                .lockedAt(null)
+                .lockedReason(null)
+                .user(user)
+                .role(roleRepository.findByCode(RoleType.ROLE_USER.getCode())
+                        .orElseThrow(() -> new NotFoundException("Role không tồn tại!")))
+                .provider(providerRepository.findByCode(ProviderType.PROVIDER_LOCAL.getCode())
+                        .orElseThrow(() -> new NotFoundException("Provider không tồn tại!")))
+                .build());
+    }
+
+    private void validateEmailAndPassword(String email, String password) {
+        Optional<Credential> optionalCredential = credentialRepository.findByUsername(email);
+
+        if (optionalCredential.isPresent())
+            throw new BadRequestException("Tài khoản đã tồn tại!");
+
+        if (password.length() < 8 || password.length() > 32)
+            throw new BadRequestException("Mật khẩu phải có độ dài từ 8 đến 32 ký tự!");
+        User user = null;
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> registerForStudent(StudentAndParentRequest studentAndParentRequest) {
+        log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, registerForStudent");
+        Map<String, CredentialDto> result = new HashMap<>();
+        User student = null, parent = null;
+        if (studentAndParentRequest.getStudent().getEmail() != null) {
+            StudentRegisterRequest studentRegisterRequest = studentAndParentRequest.getStudent();
+            validateEmailAndPassword(studentRegisterRequest.getEmail(), studentRegisterRequest.getPassword());
+            try {
+                student = userRepository.save(User.builder()
+                        .email(studentRegisterRequest.getEmail())
+                        .role(RoleBasedAuthority.STUDENT)
+                        .firstName(studentRegisterRequest.getFirstName())
+                        .lastName(studentRegisterRequest.getLastName())
+                        .gender(Gender.valueOf(studentRegisterRequest.getGender()))
+                        .phone(studentRegisterRequest.getPhone())
+                        .dob(DateUtil.string2Date(studentRegisterRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT))
+                        .province(studentRegisterRequest.getProvince())
+                        .district(studentRegisterRequest.getDistrict())
+                        .school(studentRegisterRequest.getSchool())
+                        .grade(studentRegisterRequest.getGrade())
+                        .build());
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Giới tính không hợp lệ!");
+            } catch (ParseException e) {
+                throw new BadRequestException("Ngày sinh không hợp lệ!");
+            }
+            Credential studentCredential = saveCredential(studentRegisterRequest.getEmail(), studentRegisterRequest.getPassword(), student);
+            result.put("student", mapperService.mapToCredentialDto(studentCredential));
+        }
+        if (studentAndParentRequest.getParent().getEmail() != null) {
+            ParentRegisterRequest parentRegisterRequest = studentAndParentRequest.getParent();
+            validateEmailAndPassword(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword());
+
+            try {
+                parent = userRepository.save(User.builder()
+                        .email(parentRegisterRequest.getEmail())
+                        .role(RoleBasedAuthority.PARENT)
+                        .firstName(parentRegisterRequest.getFirstName())
+                        .lastName(parentRegisterRequest.getLastName())
+                        .gender(Gender.valueOf(parentRegisterRequest.getGender()))
+                        .phone(parentRegisterRequest.getPhone())
+                        .dob(DateUtil.string2Date(parentRegisterRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT))
+                        .students(new ArrayList<>())
+                        .build());
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Giới tính không hợp lệ!");
+            } catch (ParseException e) {
+                throw new BadRequestException("Ngày sinh không hợp lệ!");
+            }
+            Credential parentCredential = saveCredential(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword(), parent);
+            result.put("parent", mapperService.mapToCredentialDto(parentCredential));
+        }
+
+        if (student != null && parent != null) {
+            parent.getStudents().add(student);
+            userRepository.save(parent);
+        }
+        return ResponseEntity.ok().body(
+                GenericResponse.builder()
+                        .success(true)
+                        .message("Tài khoản đã được tạo thành công! Đăng nhập để sử dụng ứng dụng!")
+                        .result(result)
+                        .statusCode(HttpStatus.OK.value())
+                        .build()
+        );
+    }
+
     private CredentialDto getCredentialDto(Optional<Credential> optionalCredential) {
         if (optionalCredential.isEmpty()) {
             throw new NotFoundException("Tài khoản không tồn tại!");
         }
         if (!optionalCredential.get().getIsEnabled())
             throw new BadRequestException("Tài khoản chưa được xác thực!");
-        return CredentialDto.builder()
-                .username(optionalCredential.get().getUsername())
-                .password(optionalCredential.get().getPassword())
-                .role(optionalCredential.get().getRole().getRoleName())
-                .isEnabled(optionalCredential.get().getIsEnabled())
-                .isAccountNonExpired(optionalCredential.get().getIsAccountNonExpired())
-                .isAccountNonLocked(optionalCredential.get().getIsAccountNonLocked())
-                .isCredentialsNonExpired(optionalCredential.get().getIsCredentialsNonExpired())
-                .build();
+        return mapperService.mapToCredentialDto(optionalCredential.get());
     }
 }
 

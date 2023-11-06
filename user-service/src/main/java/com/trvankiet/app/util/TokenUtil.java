@@ -8,6 +8,6 @@ public class TokenUtil {
     public static boolean tokenIsNotExpiredAndRevoked(Token token) {
         if (token == null)
             throw new BadRequestException("Token rỗng!");
-        return !token.getExpired() && !token.getRevoked();
+        return !token.getIsRevoked() && !token.getIsExpired();
     }
 }

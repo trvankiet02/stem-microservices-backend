@@ -1,8 +1,13 @@
 package com.trvankiet.app;
 
-import com.trvankiet.app.constant.RoleBasedAuthority;
+import com.trvankiet.app.constant.ProviderType;
+import com.trvankiet.app.constant.RoleType;
+import com.trvankiet.app.entity.Provider;
 import com.trvankiet.app.entity.Role;
+import com.trvankiet.app.repository.ProviderRepository;
 import com.trvankiet.app.repository.RoleRepository;
+import com.trvankiet.app.service.ProviderService;
+import com.trvankiet.app.service.RoleService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.beans.factory.InitializingBean;
@@ -11,9 +16,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import java.sql.Timestamp;
-import java.util.Date;
 
 @SpringBootApplication
 @EnableAsync
@@ -24,33 +26,42 @@ public class UserServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
     }
-
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private ProviderRepository providerRepository;
+
     @Bean
     InitializingBean sendDatabase() {
         return () -> {
-            if (roleRepository.findByRoleName(RoleBasedAuthority.ADMIN.toString()).isEmpty()) {
+            if (roleRepository.findByCode(RoleType.ROLE_ADMIN.getCode()).isEmpty())
                 roleRepository.save(Role.builder()
-                        .roleName(RoleBasedAuthority.ADMIN.toString())
+                        .code(RoleType.ROLE_ADMIN.getCode())
+                        .name(RoleType.ROLE_ADMIN.toString())
                         .build());
-            }
-            if (roleRepository.findByRoleName(RoleBasedAuthority.TEACHER.toString()).isEmpty()) {
+            if (roleRepository.findByCode(RoleType.ROLE_USER.getCode()).isEmpty())
                 roleRepository.save(Role.builder()
-                        .roleName(RoleBasedAuthority.TEACHER.toString())
+                        .code(RoleType.ROLE_USER.getCode())
+                        .name(RoleType.ROLE_USER.toString())
                         .build());
-            }
-            if (roleRepository.findByRoleName(RoleBasedAuthority.STUDENT.toString()).isEmpty()) {
-                roleRepository.save(Role.builder()
-                        .roleName(RoleBasedAuthority.STUDENT.toString())
+            if (providerRepository.findByCode(ProviderType.PROVIDER_LOCAL.getCode()).isEmpty())
+                providerRepository.save(Provider.builder()
+                        .code(ProviderType.PROVIDER_LOCAL.getCode())
+                        .name(ProviderType.PROVIDER_LOCAL.toString())
                         .build());
-            }
-            if (roleRepository.findByRoleName(RoleBasedAuthority.PARENT.toString()).isEmpty()) {
-                roleRepository.save(Role.builder()
-                        .roleName(RoleBasedAuthority.PARENT.toString())
+            if (providerRepository.findByCode(ProviderType.PROVIDER_FACEBOOK.getCode()).isEmpty())
+                providerRepository.save(Provider.builder()
+                        .code(ProviderType.PROVIDER_FACEBOOK.getCode())
+                        .name(ProviderType.PROVIDER_FACEBOOK.toString())
                         .build());
-            }
+            if (providerRepository.findByCode(ProviderType.PROVIDER_GOOGLE.getCode()).isEmpty())
+                providerRepository.save(Provider.builder()
+                        .code(ProviderType.PROVIDER_GOOGLE.getCode())
+                        .name(ProviderType.PROVIDER_GOOGLE.toString())
+                        .build());
         };
     }
+
 
 }

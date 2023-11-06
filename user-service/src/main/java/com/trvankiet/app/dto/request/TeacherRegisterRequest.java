@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
+public class TeacherRegisterRequest {
 
     @NotEmpty(message = "Email là bắt buộc!")
     @Email(message = "Email không hợp lệ!")
@@ -13,8 +13,5 @@ public class RegisterRequest {
 
     @NotEmpty(message = "Password là bắt buộc!")
     private String password;
-
-    @NotEmpty(message = "Role là bắt buộc!")
-    private String role;
 
 }

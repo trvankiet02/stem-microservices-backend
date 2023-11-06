@@ -22,10 +22,22 @@ public class AuthController {
     private final CredentialService credentialService;
     private final TokenService tokenService;
 
-    @PostMapping("/register")
-    public ResponseEntity<GenericResponse> register(@RequestBody final RegisterRequest registerRequest) {
+    @PostMapping("/register-teacher")
+    public ResponseEntity<GenericResponse> registerForTeacher(@RequestBody final TeacherRegisterRequest teacherRegisterRequest) {
         log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
-        return credentialService.register(registerRequest);
+        return credentialService.registerForTeacher(teacherRegisterRequest);
+    }
+
+    @PostMapping("/register-parent")
+    public ResponseEntity<GenericResponse> registerForParent(@RequestBody final ParentRegisterRequest parentRegisterRequest) {
+        log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
+        return credentialService.registerForParent(parentRegisterRequest);
+    }
+
+    @PostMapping("/register-student")
+    public ResponseEntity<GenericResponse> registerForStudent(@RequestBody final StudentAndParentRequest studentAndParentRequest) {
+        log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
+        return credentialService.registerForStudent(studentAndParentRequest);
     }
 
     @PostMapping("/login")

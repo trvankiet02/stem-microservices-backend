@@ -63,13 +63,13 @@ public class JwtUtilImpl implements JwtUtil {
 	@Override
 	public String generateAccessToken(final Credential credential) {
 		final Map<String, Object> claims = new HashMap<>();
-		return this.createAccessToken(claims, credential.getUser().getUserId());
+		return this.createAccessToken(claims, credential.getUser().getId());
 	}
 
 	@Override
 	public String generateRefreshToken(Credential credential) {
 		final Map<String, Object> claims = new HashMap<>();
-		return this.createRefreshToken(claims, credential.getUser().getUserId());
+		return this.createRefreshToken(claims, credential.getUser().getId());
 	}
 
 	private String createAccessToken(final Map<String, Object> claims, final String subject) {

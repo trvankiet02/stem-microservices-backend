@@ -3,8 +3,8 @@ package com.trvankiet.app.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.trvankiet.app.constant.Gender;
+import com.trvankiet.app.constant.RoleBasedAuthority;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 
 import lombok.*;
 import org.hibernate.annotations.Nationalized;
@@ -13,20 +13,23 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true, exclude = {"credential"})
+@EqualsAndHashCode(callSuper = true, exclude = {})
 @Builder
 public class User extends AbstractMappedEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id")
-    private String userId;
+    private String id;
 
     @Nationalized
     @Column(name = "first_name")
@@ -36,41 +39,77 @@ public class User extends AbstractMappedEntity implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
-
-    @Column(name = "cover_image_url")
-    private String coverImageUrl;
-
-    @Email
-    @Column(name = "email")
-    private String email;
-
-    @Column(name = "phone")
-    private String phone;
-
-    @Column(name = "dob")
-    private Date dob;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private RoleBasedAuthority role;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
 
-    @Nationalized
-    @Column(name = "about")
-    private String about;
+    @Column(name = "email")
+    private String email;
 
-    @Nationalized
-    @Column(name = "worked_at")
-    private String workedAt;
+    @Builder.Default
+    @Column(name = "phone")
+    private String phone = "";
 
-    @Nationalized
-    @Column(name = "address")
-    private String address;
+    @Column(name = "dob")
+    private Date dob;
 
-    @ToString.Exclude
-    @JsonBackReference
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    @Builder.Default
+    @Column(name = "avatar_url")
+    private String avatarUrl = "";
+
+    @Builder.Default
+    @Column(name = "cover_url")
+    private String coverUrl = "";
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
     private Credential credential;
+
+    /**
+     * For Student and Teacher
+     */
+    @Column(name = "district")
+    private String district;
+
+    @Column(name = "province")
+    private String province;
+
+    @Column(name = "school")
+    private String school;
+
+    /**
+     * For Student
+     */
+    @Column(name = "grade")
+    private Integer grade;
+
+    @ManyToMany(mappedBy = "students")
+    @JsonBackReference
+    @ToString.Exclude
+    private List<User> parents;
+
+    /**
+     * For Teacher
+     */
+    @ElementCollection
+    @CollectionTable(name = "teacher_subject", joinColumns = @JoinColumn(name = "user_id"))
+    private List<String> subjects;
+
+    /**
+     * For Parent
+     */
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "parent_student",
+            joinColumns = @JoinColumn(name = "parent_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    @JsonBackReference
+    @ToString.Exclude
+    private List<User> students;
 
 }
