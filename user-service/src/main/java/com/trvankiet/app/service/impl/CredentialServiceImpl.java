@@ -336,6 +336,7 @@ public class CredentialServiceImpl implements CredentialService {
                     .gender(Gender.valueOf(parentRegisterRequest.getGender()))
                     .phone(parentRegisterRequest.getPhone())
                     .dob(DateUtil.string2Date(parentRegisterRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT))
+                    .students(new ArrayList<>())
                     .build());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Giới tính không hợp lệ!");
@@ -388,10 +389,10 @@ public class CredentialServiceImpl implements CredentialService {
     public ResponseEntity<GenericResponse> registerForStudent(StudentAndParentRequest studentAndParentRequest) {
         log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, registerForStudent");
         Map<String, CredentialDto> result = new HashMap<>();
-        if (!studentAndParentRequest.getStudent().getEmail().isEmpty()) {
+        User student = null, parent = null;
+        if (studentAndParentRequest.getStudent().getEmail() != null) {
             StudentRegisterRequest studentRegisterRequest = studentAndParentRequest.getStudent();
             validateEmailAndPassword(studentRegisterRequest.getEmail(), studentRegisterRequest.getPassword());
-            User student;
             try {
                 student = userRepository.save(User.builder()
                         .email(studentRegisterRequest.getEmail())
@@ -405,7 +406,7 @@ public class CredentialServiceImpl implements CredentialService {
                         .district(studentRegisterRequest.getDistrict())
                         .school(studentRegisterRequest.getSchool())
                         .grade(studentRegisterRequest.getGrade())
-                                .build());
+                        .build());
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("Giới tính không hợp lệ!");
             } catch (ParseException e) {
@@ -414,10 +415,10 @@ public class CredentialServiceImpl implements CredentialService {
             Credential studentCredential = saveCredential(studentRegisterRequest.getEmail(), studentRegisterRequest.getPassword(), student);
             result.put("student", mapperService.mapToCredentialDto(studentCredential));
         }
-        if (!studentAndParentRequest.getParent().getEmail().isEmpty()) {
+        if (studentAndParentRequest.getParent().getEmail() != null) {
             ParentRegisterRequest parentRegisterRequest = studentAndParentRequest.getParent();
             validateEmailAndPassword(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword());
-            User parent;
+
             try {
                 parent = userRepository.save(User.builder()
                         .email(parentRegisterRequest.getEmail())
@@ -427,6 +428,7 @@ public class CredentialServiceImpl implements CredentialService {
                         .gender(Gender.valueOf(parentRegisterRequest.getGender()))
                         .phone(parentRegisterRequest.getPhone())
                         .dob(DateUtil.string2Date(parentRegisterRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT))
+                        .students(new ArrayList<>())
                         .build());
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("Giới tính không hợp lệ!");
@@ -435,6 +437,11 @@ public class CredentialServiceImpl implements CredentialService {
             }
             Credential parentCredential = saveCredential(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword(), parent);
             result.put("parent", mapperService.mapToCredentialDto(parentCredential));
+        }
+
+        if (student != null && parent != null) {
+            parent.getStudents().add(student);
+            userRepository.save(parent);
         }
         return ResponseEntity.ok().body(
                 GenericResponse.builder()

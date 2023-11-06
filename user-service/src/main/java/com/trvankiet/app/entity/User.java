@@ -105,8 +105,8 @@ public class User extends AbstractMappedEntity implements Serializable {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "parent_student",
-            joinColumns = @JoinColumn(name = "parent_id", referencedColumnName = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id", referencedColumnName = "user_id")
+            joinColumns = @JoinColumn(name = "parent_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
     )
     @JsonBackReference
     @ToString.Exclude

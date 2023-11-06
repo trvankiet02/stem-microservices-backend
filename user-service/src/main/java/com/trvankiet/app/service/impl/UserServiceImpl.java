@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
         try {
             user.setFirstName(userInfoRequest.getFirstName());
             user.setLastName(userInfoRequest.getLastName());
-            user.setDob(userInfoRequest.getDob());
+            user.setDob(DateUtil.string2Date(userInfoRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT));
             user.setPhone(userInfoRequest.getPhone());
             user.setGender(Gender.valueOf(userInfoRequest.getGender()));
             user.setProvince(userInfoRequest.getProvince());
@@ -123,6 +123,8 @@ public class UserServiceImpl implements UserService {
             user.setSubjects(userInfoRequest.getSubjects());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Giới tính không hợp lệ!");
+        } catch (ParseException e) {
+            throw new BadRequestException("Ngày sinh không hợp lệ!");
         }
 
         userRepository.save(user);

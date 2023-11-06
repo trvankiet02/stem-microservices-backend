@@ -19,7 +19,7 @@ public class UserInfoRequest {
     @NotBlank(message = "Họ là bắt buộc!")
     private String lastName;
     private String phone;
-    private Date dob;
+    private String dob;
     private String gender;
     private String province;
     private String district;
