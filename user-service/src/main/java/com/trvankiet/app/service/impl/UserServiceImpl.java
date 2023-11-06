@@ -8,7 +8,6 @@ import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.dto.response.ProfileResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
@@ -18,6 +17,7 @@ import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.repository.UserRepository;
 import com.trvankiet.app.service.CloudinaryService;
+import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.UserService;
 import com.trvankiet.app.util.DateUtil;
 import jakarta.transaction.Transactional;
@@ -32,7 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +46,7 @@ public class UserServiceImpl implements UserService {
     private final TokenRepository tokenRepository;
     private final CredentialRepository credentialRepository;
     private final CloudinaryService cloudinaryService;
+    private final MapperService mapperService;
 
     @Override
     public <S extends User> S save(S entity) {
@@ -110,13 +110,17 @@ public class UserServiceImpl implements UserService {
         Token verificationToken = validateAndRetrieveVerificationToken(token);
 
         User user = verificationToken.getCredential().getUser();
-        user.setFirstName(userInfoRequest.getFirstName());
-        user.setLastName(userInfoRequest.getLastName());
-        user.setDob(userInfoRequest.getDob());
-        user.setPhone(userInfoRequest.getPhone());
 
         try {
+            user.setFirstName(userInfoRequest.getFirstName());
+            user.setLastName(userInfoRequest.getLastName());
+            user.setDob(userInfoRequest.getDob());
+            user.setPhone(userInfoRequest.getPhone());
             user.setGender(Gender.valueOf(userInfoRequest.getGender()));
+            user.setProvince(userInfoRequest.getProvince());
+            user.setDistrict(userInfoRequest.getDistrict());
+            user.setSchool(userInfoRequest.getSchool());
+            user.setSubjects(userInfoRequest.getSubjects());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Giới tính không hợp lệ!");
         }
@@ -127,8 +131,8 @@ public class UserServiceImpl implements UserService {
         credential.setIsEnabled(true);
         credentialRepository.save(credential);
 
-        verificationToken.setRevoked(true);
-        verificationToken.setExpired(true);
+        verificationToken.setIsExpired(true);
+        verificationToken.setIsRevoked(true);
         tokenRepository.save(verificationToken);
 
         return ResponseEntity.ok().body(
@@ -145,65 +149,26 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(uId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản!"));
         Credential credential = user.getCredential();
-        return CredentialDto.builder()
-                .credentialId(credential.getCredentialId())
-                .provider(credential.getProvider())
-                .username(credential.getUsername())
-                .password(credential.getPassword())
-                .role(credential.getRole().getRoleName())
-                .isEnabled(credential.getIsEnabled())
-                .isAccountNonExpired(credential.getIsAccountNonExpired())
-                .isAccountNonLocked(credential.getIsAccountNonLocked())
-                .isCredentialsNonExpired(credential.getIsCredentialsNonExpired())
-                .lockedAt(credential.getLockedAt())
-                .lockedReason(credential.getLockedReason())
-                .build();
+        return mapperService.mapToCredentialDto(credential);
     }
 
     @Override
     public UserDto getUserDetail(String uId) {
         User user = userRepository.findById(uId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản!"));
-        CredentialDto credentialDto = CredentialDto.builder()
-                .credentialId(user.getCredential().getCredentialId())
-                .provider(user.getCredential().getProvider())
-                .username(user.getCredential().getUsername())
-                .password(user.getCredential().getPassword())
-                .role(user.getCredential().getRole().getRoleName())
-                .isEnabled(user.getCredential().getIsEnabled())
-                .isAccountNonExpired(user.getCredential().getIsAccountNonExpired())
-                .isAccountNonLocked(user.getCredential().getIsAccountNonLocked())
-                .isCredentialsNonExpired(user.getCredential().getIsCredentialsNonExpired())
-                .lockedAt(user.getCredential().getLockedAt())
-                .lockedReason(user.getCredential().getLockedReason())
-                .build();
 
-        return UserDto.builder()
-                .userId(user.getUserId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .profileImageUrl(user.getProfileImageUrl())
-                .coverImageUrl(user.getCoverImageUrl())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .dob(user.getDob())
-                .gender(user.getGender())
-                .about(user.getAbout())
-                .address(user.getAddress())
-                .credential(credentialDto)
-                .build();
+        return mapperService.mapToUserDto(user);
     }
 
     @Override
     public ResponseEntity<GenericResponse> getUserProfile(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
-        ProfileResponse profileResponse = generateProfileResponse(user);
         return ResponseEntity.ok(
                 GenericResponse.builder()
                         .success(true)
                         .message("Lấy thông tin người dùng thành công!")
-                        .result(profileResponse)
+                        .result(mapperService.mapToUserDto(user))
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
@@ -218,9 +183,6 @@ public class UserServiceImpl implements UserService {
             user.setPhone(postProfileRequest.getPhone());
             user.setDob(DateUtil.string2Date(postProfileRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT));
             user.setGender(Gender.valueOf(postProfileRequest.getGender()));
-            user.setAbout(postProfileRequest.getAbout());
-            user.setWorkedAt(postProfileRequest.getWorkedAt());
-            user.setAddress(postProfileRequest.getAddress());
             user = userRepository.save(user);
         } catch (ParseException e) {
             log.error("ParseException: {}", e.getMessage());
@@ -233,7 +195,7 @@ public class UserServiceImpl implements UserService {
                 GenericResponse.builder()
                         .success(true)
                         .message("Cập nhật thông tin người dùng thành công!")
-                        .result(generateProfileResponse(user))
+                        .result(mapperService.mapToUserDto(user))
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
@@ -243,12 +205,12 @@ public class UserServiceImpl implements UserService {
         String folderName = "/user/avatar";
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
-        String oldAvatar = user.getProfileImageUrl();
+        String oldAvatar = user.getAvatarUrl();
         String fileName = user.getFirstName() + "_" + user.getLastName()
-                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_FORMAT);
+                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_TIME_FORMAT);
 
         //upload new avatar
-        user.setProfileImageUrl(cloudinaryService.uploadImage(avatar, fileName, folderName));
+        user.setAvatarUrl(cloudinaryService.uploadImage(avatar, fileName, folderName));
         user = userRepository.save(user);
         //delete old avatar
         if (oldAvatar != null) {
@@ -258,7 +220,7 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Cập nhật ảnh đại diện thành công")
-                .result(generateProfileResponse(user))
+                .result(mapperService.mapToUserDto(user))
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
@@ -268,12 +230,12 @@ public class UserServiceImpl implements UserService {
         String folderName = "/user/cover";
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
-        String oldCover = user.getCoverImageUrl();
+        String oldCover = user.getCoverUrl();
         String fileName = user.getFirstName() + "_" + user.getLastName()
-                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_FORMAT);
+                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_TIME_FORMAT);
 
         //upload new cover
-        user.setCoverImageUrl(cloudinaryService.uploadImage(cover, fileName, folderName));
+        user.setCoverUrl(cloudinaryService.uploadImage(cover, fileName, folderName));
         user = userRepository.save(user);
         //delete old cover
         if (oldCover != null) {
@@ -283,7 +245,7 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Cập nhật ảnh bìa thành công")
-                .result(generateProfileResponse(user))
+                .result(mapperService.mapToUserDto(user))
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
@@ -296,27 +258,11 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
 
-        if (verificationToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+        if (verificationToken.getExpiredAt().before(new Date())) {
             throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
 
         return verificationToken;
-    }
-
-    private ProfileResponse generateProfileResponse(User user) {
-        return ProfileResponse.builder()
-                .firstName(user.getFirstName() == null ? "" : user.getFirstName())
-                .lastName(user.getLastName() == null ? "" : user.getLastName())
-                .profileImageUrl(user.getProfileImageUrl() == null ? "" : user.getProfileImageUrl())
-                .coverImageUrl(user.getCoverImageUrl() == null ? "" : user.getCoverImageUrl())
-                .email(user.getEmail() == null ? "" : user.getEmail())
-                .phone(user.getPhone() == null ? "" : user.getPhone())
-                .dob(user.getDob() == null ? "" : DateUtil.date2String(user.getDob(), AppConstant.LOCAL_DATE_FORMAT))
-                .gender(user.getGender() == null ? "" : user.getGender().toString())
-                .about(user.getAbout() == null ? "" : user.getAbout())
-                .workedAt(user.getWorkedAt() == null ? "" : user.getWorkedAt())
-                .address(user.getAddress() == null ? "" : user.getAddress())
-                .build();
     }
 
 }

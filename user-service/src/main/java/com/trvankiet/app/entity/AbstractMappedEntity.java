@@ -1,7 +1,6 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.AccessLevel;
@@ -14,7 +13,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Date;
 
 @MappedSuperclass

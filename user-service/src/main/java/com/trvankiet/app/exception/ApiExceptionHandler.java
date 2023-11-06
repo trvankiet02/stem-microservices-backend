@@ -1,7 +1,10 @@
 package com.trvankiet.app.exception;
 
+import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.ForbiddenException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
+import com.trvankiet.app.exception.wrapper.UnsupportedMediaTypeException;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.exception.wrapper.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +21,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @ControllerAdvice
 @Slf4j

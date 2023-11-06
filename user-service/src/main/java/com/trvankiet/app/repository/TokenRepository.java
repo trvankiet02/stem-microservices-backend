@@ -15,8 +15,8 @@ import java.util.Optional;
 public interface TokenRepository extends JpaRepository<Token, String> {
     List<Token> findByCredential(Credential credential);
     Optional<Token> findByToken(String token);
-    @Query("SELECT t FROM Token t WHERE t.credential.credentialId = :credentialId " +
-            "AND t.type = :tokenType AND t.revoked = false AND t.expired = false")
+    @Query("SELECT t FROM Token t WHERE t.credential.id = :credentialId " +
+            "AND t.type = :tokenType AND t.isRevoked = false AND t.isExpired = false")
     List<Token> findActiveRefreshTokens(@Param("credentialId") String credentialId,
                                         @Param("tokenType") TokenType tokenType);
 

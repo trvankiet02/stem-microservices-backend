@@ -19,8 +19,5 @@ public class ProfileRequest implements Serializable {
     private String phone;
     private String dob;
     private String gender;
-    private String about;
-    private String workedAt;
-    private String address;
 
 }

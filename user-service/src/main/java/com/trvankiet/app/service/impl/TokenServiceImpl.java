@@ -108,11 +108,11 @@ public class TokenServiceImpl implements TokenService {
         log.info("TokenServiceImpl, void, revokeRefreshToken");
         Optional<Credential> optionalCredential = credentialRepository.findById(credentialId);
         if (optionalCredential.isPresent() && optionalCredential.get().getIsEnabled()) {
-            List<Token> refreshTokens = tokenRepository.findActiveRefreshTokens(credentialId, TokenType.REFRESH_TOKEN);
+            List<Token> refreshTokens = tokenRepository.findActiveRefreshTokens(credentialId, TokenType.REFRESH_ACCESS_TOKEN);
             if(!refreshTokens.isEmpty()){
                 refreshTokens.forEach(token -> {
-                    token.setRevoked(true);
-                    token.setExpired(true);
+                    token.setIsRevoked(true);
+                    token.setIsExpired(true);
                 });
             }
             tokenRepository.saveAll(refreshTokens);
@@ -148,19 +148,6 @@ public class TokenServiceImpl implements TokenService {
     }
 
     private Optional<Credential> getValidCredentialFromRefreshToken(String refreshToken) {
-//        String userId = jwtService.extractUserId(refreshToken);
-//        Optional<User> optionalUser = userRepository.findById(userId);
-//        if (optionalUser.isEmpty()) {
-//            throw new NotFoundException("Không tìm thấy người dùng!");
-//        }
-//        Credential credential = optionalUser.get().getCredential();
-//        if (credential.getIsEnabled()) {
-//            if (jwtService.validateToken(refreshToken)) {
-//                return Optional.of(credential);
-//            } else {
-//                throw new BadRequestException("Refresh token đã hết hạn hoặc không chính xác!");
-//            }
-//        }
         try {
             if (jwtService.validateToken(refreshToken)) {
                 String userId = jwtService.extractUserId(refreshToken);
