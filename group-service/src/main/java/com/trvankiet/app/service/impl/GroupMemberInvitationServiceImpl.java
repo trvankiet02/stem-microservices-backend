@@ -1,12 +1,11 @@
 package com.trvankiet.app.service.impl;
 
-import com.trvankiet.app.constant.State;
+import com.trvankiet.app.constant.StateType;
 import com.trvankiet.app.dto.GroupMemberInvitationDto;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.entity.GroupMemberInvitation;
 import com.trvankiet.app.repository.GroupMemberInvitationRepository;
 import com.trvankiet.app.service.GroupMemberInvitationService;
-import com.trvankiet.app.service.MappingService;
+import com.trvankiet.app.service.MapperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +19,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GroupMemberInvitationServiceImpl implements GroupMemberInvitationService {
     private final GroupMemberInvitationRepository groupMemberInvitationRepository;
-    private final MappingService mappingService;
+    private final MapperService mappingService;
     @Override
     public ResponseEntity<GenericResponse> getAllGroupMemberInvitations(String userId) {
         log.info("GroupMemberInvitationServiceImpl, ResponseEntity<GenericResponse> getAllGroupMemberInvitations");
         List<GroupMemberInvitationDto> groupMemberInvitations = groupMemberInvitationRepository
-                .findAllByToUserIdAndState(userId, State.PENDING.toString())
+                .findAllByToUserIdAndState(userId, StateType.PENDING.toString())
                 .stream()
                 .map(mappingService::mapToGroupMemberInvitationDto)
                 .collect(Collectors.toList());

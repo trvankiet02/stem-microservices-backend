@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -14,9 +13,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Document(collection = "groups")
 @AllArgsConstructor
@@ -27,22 +24,28 @@ public class Group implements Serializable {
 
     @Id
     @Field(name = "group_id")
-    private String groupId;
+    private String id;
 
     @Field(name = "group_name")
-    private String groupName;
+    private String name;
 
     @Field(name = "group_description")
-    private String groupDescription;
+    private String description;
 
-    @Field(name = "group_image")
-    private String groupImage = "";
+    @Field(name = "author_id")
+    private String authorId;
 
-    @Field(name = "group_type")
-    private String groupType = "PUBLIC";
+    @Builder.Default
+    @Field(name = "group_avatar_url")
+    private String avatarUrl = "https://res.cloudinary.com/djzwxw0ao/image/upload/v1696942528/uqbxidtwcdbqn8glt6we.jpg";
 
+    @Builder.Default
+    @Field(name = "group_cover_url")
+    private String coverUrl = "https://res.cloudinary.com/djzwxw0ao/image/upload/v1696942528/uqbxidtwcdbqn8glt6we.jpg";
+
+    @DocumentReference
     @Field(name = "group_member_mode")
-    private String groupMemberMode = "PUBLIC";
+    private GroupConfig config;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

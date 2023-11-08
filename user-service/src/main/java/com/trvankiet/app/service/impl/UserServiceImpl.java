@@ -19,6 +19,7 @@ import com.trvankiet.app.repository.UserRepository;
 import com.trvankiet.app.service.CloudinaryService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.UserService;
+import com.trvankiet.app.service.client.FileClientService;
 import com.trvankiet.app.util.DateUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService {
     private final CredentialRepository credentialRepository;
     private final CloudinaryService cloudinaryService;
     private final MapperService mapperService;
+    private final FileClientService fileClientService;
 
     @Override
     public <S extends User> S save(S entity) {
@@ -204,19 +206,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<GenericResponse> updateAvatar(String userId, MultipartFile avatar) throws IOException{
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, updateAvatar");
         String folderName = "/user/avatar";
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         String oldAvatar = user.getAvatarUrl();
-        String fileName = user.getFirstName() + "_" + user.getLastName()
-                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_TIME_FORMAT);
-
+        String newAvatar = fileClientService.uploadUserAvatar(avatar);
         //upload new avatar
-        user.setAvatarUrl(cloudinaryService.uploadImage(avatar, fileName, folderName));
+        user.setAvatarUrl(newAvatar);
         user = userRepository.save(user);
         //delete old avatar
         if (oldAvatar != null) {
-            cloudinaryService.deleteUserImage(oldAvatar, folderName);
+            fileClientService.deleteUserAvatar(oldAvatar);
         }
 
         return ResponseEntity.ok(GenericResponse.builder()
@@ -229,21 +230,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<GenericResponse> updateCover(String userId, MultipartFile cover) throws IOException {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, updateCover");
         String folderName = "/user/cover";
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         String oldCover = user.getCoverUrl();
-        String fileName = user.getFirstName() + "_" + user.getLastName()
-                + "_" + DateUtil.date2String(new Date(), AppConstant.FULL_DATE_TIME_FORMAT);
-
+        String newCover = fileClientService.uploadUserCover(cover);
         //upload new cover
-        user.setCoverUrl(cloudinaryService.uploadImage(cover, fileName, folderName));
+        user.setCoverUrl(newCover);
         user = userRepository.save(user);
         //delete old cover
         if (oldCover != null) {
-            cloudinaryService.deleteUserImage(oldCover, folderName);
+            fileClientService.deleteUserCover(oldCover);
         }
-
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Cập nhật ảnh bìa thành công")

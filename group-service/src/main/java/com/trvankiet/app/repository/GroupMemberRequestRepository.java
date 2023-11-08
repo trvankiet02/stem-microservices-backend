@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface GroupMemberRequestRepository extends MongoRepository<GroupMemberRequest, String> {
-    List<GroupMemberRequest> findAllByGroupGroupIdAndState(String groupId, String state);
+    List<GroupMemberRequest> findAllByGroupIdAndStateCode(String groupId, String state);
 }

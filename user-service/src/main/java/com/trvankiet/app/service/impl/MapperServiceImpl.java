@@ -16,6 +16,7 @@ public class MapperServiceImpl implements MapperService {
     @Override
     public UserDto mapToUserDto(User user) {
         return UserDto.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole().toString())

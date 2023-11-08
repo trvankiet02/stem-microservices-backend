@@ -7,11 +7,17 @@ import lombok.Data;
 @Builder
 @Data
 public class EventDto {
-    private String eventId;
+
+    private String id;
     @JsonProperty("author")
     private UserDto userDto;
-    private String eventName;
-    private String eventDescription;
-    private String startDate;
-    private String endDate;
+    @JsonProperty("group")
+    private GroupDto groupDto;
+    private String name;
+    private String description;
+    private String startedAt;
+    private String endedAt;
+    private String createdAt;
+    private String updatedAt;
+
 }

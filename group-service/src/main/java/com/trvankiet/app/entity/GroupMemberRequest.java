@@ -1,7 +1,7 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.trvankiet.app.constant.State;
+import com.trvankiet.app.constant.StateType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class GroupMemberRequest implements Serializable {
 
     @Id
     @Field(name = "group_member_request_id")
-    private String groupMemberRequestId;
+    private String id;
 
     @DocumentReference
     @Field(name = "group_id")
@@ -34,8 +34,13 @@ public class GroupMemberRequest implements Serializable {
     @Field(name = "author_id")
     private String authorId;
 
-    @Field(name = "state")
-    private String state = State.PENDING.toString();
+    @DocumentReference
+    @Field(name = "state_id")
+    private State state;
+
+    @DocumentReference
+    @Field(name = "group_member_invitation_id")
+    private GroupMemberInvitation groupMemberInvitation;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

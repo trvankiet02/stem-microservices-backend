@@ -82,4 +82,44 @@ public class FileController {
         String userId = jwtService.extractUserId(accessToken);
         return fileService.deleteDocumentFiles(userId, deleteRequest);
     }
+
+    @PostMapping("/uploadUserAvatar")
+    public String uploadUserAvatar(@RequestPart("mediaFile") MultipartFile file) throws IOException {
+        return fileService.uploadUserAvatar(file);
+    }
+
+    @DeleteMapping("/deleteUserAvatar")
+    public void deleteUserAvatar(@RequestPart("refUrl") String refUrl) throws IOException {
+        fileService.deleteUserAvatar(refUrl);
+    }
+
+    @PostMapping("/uploadUserCover")
+    public String uploadUserCover(@RequestPart("mediaFile") MultipartFile file) throws IOException {
+        return fileService.uploadUserCover(file);
+    }
+
+    @DeleteMapping("/deleteUserCover")
+    public void deleteUserCover(@RequestPart("refUrl") String refUrl) throws IOException {
+        fileService.deleteUserCover(refUrl);
+    }
+
+    @PostMapping("/uploadGroupAvatar")
+    public String uploadGroupAvatar(@RequestPart("mediaFile") MultipartFile file) throws IOException {
+        return fileService.uploadGroupAvatar(file);
+    }
+
+    @DeleteMapping("/deleteGroupAvatar")
+    public void deleteGroupAvatar(@RequestPart("refUrl") String refUrl) throws IOException {
+        fileService.deleteGroupAvatar(refUrl);
+    }
+
+    @PostMapping("/uploadGroupCover")
+    public String uploadGroupCover(@RequestPart("mediaFile") MultipartFile file) throws IOException {
+        return fileService.uploadGroupCover(file);
+    }
+
+    @DeleteMapping("/deleteGroupCover")
+    public void deleteGroupCover(@RequestPart("refUrl") String refUrl) throws IOException {
+        fileService.deleteGroupCover(refUrl);
+    }
 }

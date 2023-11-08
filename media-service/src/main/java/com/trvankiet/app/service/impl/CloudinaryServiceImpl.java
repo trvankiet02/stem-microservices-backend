@@ -59,6 +59,15 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     }
 
     @Override
+    public void deleteImage(String url, String folder) throws IOException {
+        var params = ObjectUtils.asMap(
+                "folder", ROOT_FOLDER + folder,
+                "resource_type", "image");
+        var result = cloudinary.uploader().destroy(getPublicIdFromUrl(url, folder), params);
+        log.info("CloudinaryServiceImpl, deleteImage, result: {}", result.get("result").toString());
+    }
+
+    @Override
     public String deleteMediaFile(String url, String folder) throws IOException {
         var params = ObjectUtils.asMap(
                 "folder", ROOT_FOLDER + folder,
