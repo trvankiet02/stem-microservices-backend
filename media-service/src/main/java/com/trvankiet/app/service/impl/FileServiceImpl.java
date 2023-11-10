@@ -5,8 +5,10 @@ import com.trvankiet.app.dto.FileDto;
 import com.trvankiet.app.dto.request.DeleteRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.File;
+import com.trvankiet.app.entity.FileType;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
+import com.trvankiet.app.exception.wrapper.UnsupportedMediaTypeException;
 import com.trvankiet.app.repository.FileRepository;
 import com.trvankiet.app.repository.FileTypeRepository;
 import com.trvankiet.app.service.CloudinaryService;
@@ -64,6 +66,46 @@ public class FileServiceImpl implements FileService {
         return this.deleteMediaFiles(userId, deleteRequest, "/documents");
     }
 
+    @Override
+    public String uploadUserAvatar(MultipartFile file) throws IOException {
+        return this.uploadImage(file, "/users/avatars");
+    }
+
+    @Override
+    public String uploadUserCover(MultipartFile file) throws IOException {
+        return this.uploadImage(file, "/users/covers");
+    }
+
+    @Override
+    public String uploadGroupAvatar(MultipartFile file) throws IOException {
+        return this.uploadImage(file, "/groups/avatars");
+    }
+
+    @Override
+    public String uploadGroupCover(MultipartFile file) throws IOException {
+        return this.uploadImage(file, "/groups/covers");
+    }
+
+    @Override
+    public void deleteUserAvatar(String refUrl) throws IOException {
+        cloudinaryService.deleteImage(refUrl, "/users/avatars");
+    }
+
+    @Override
+    public void deleteUserCover(String refUrl) throws IOException {
+        cloudinaryService.deleteImage(refUrl, "/users/covers");
+    }
+
+    @Override
+    public void deleteGroupAvatar(String refUrl) throws IOException {
+        cloudinaryService.deleteImage(refUrl, "/groups/avatars");
+    }
+
+    @Override
+    public void deleteGroupCover(String refUrl) throws IOException {
+        cloudinaryService.deleteImage(refUrl, "/groups/covers");
+    }
+
     public String getFileExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
@@ -99,6 +141,15 @@ public class FileServiceImpl implements FileService {
             }
         }
         return fileDtos;
+    }
+    public String uploadImage(MultipartFile mediaFile, String folder) throws IOException {
+        if (mediaFile.isEmpty() || mediaFile.getOriginalFilename() == null) {
+            throw new UnsupportedMediaTypeException("File is null. Please upload a valid file.");
+        }
+        String fileName = mediaFile.getOriginalFilename();
+        Date now = new Date();
+        String name = DateUtil.date2String(now, AppConstant.FULL_DATE_TIME_FORMAT) + "_" + getFileName(fileName);
+        return cloudinaryService.uploadImage(mediaFile, name, folder);
     }
 
     public ResponseEntity<GenericResponse> deleteMediaFiles(String userId, DeleteRequest deleteRequest, String folder) {

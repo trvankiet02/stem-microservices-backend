@@ -6,5 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface GroupMemberRoleRepository extends MongoRepository<GroupMemberRole, String> {
-    Optional<GroupMemberRole> findByRoleName(String roleName);
+    Optional<GroupMemberRole> findByCode(String roleName);
+    Optional<GroupMemberRole> findByName(String name);
+    Optional<GroupMemberRole> findByDescription(String description);
 }

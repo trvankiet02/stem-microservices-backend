@@ -21,4 +21,20 @@ public interface FileService {
     ResponseEntity<GenericResponse> deleteCommentFiles(String userId, DeleteRequest deleteRequest);
 
     ResponseEntity<GenericResponse> deleteDocumentFiles(String userId, DeleteRequest deleteRequest);
+
+    String uploadUserAvatar(MultipartFile file) throws IOException;
+
+    String uploadUserCover(MultipartFile file) throws IOException;
+
+    String uploadGroupAvatar(MultipartFile file) throws IOException;
+
+    String uploadGroupCover(MultipartFile file) throws IOException;
+
+    void deleteUserAvatar(String refUrl) throws IOException;
+
+    void deleteUserCover(String refUrl) throws IOException;
+
+    void deleteGroupAvatar(String refUrl) throws IOException;
+
+    void deleteGroupCover(String refUrl) throws IOException;
 }

@@ -1,5 +1,6 @@
 package com.trvankiet.app.service;
 
+import com.trvankiet.app.dto.request.AddGroupMemberRequest;
 import com.trvankiet.app.dto.request.InviteGroupMemberRequest;
 import com.trvankiet.app.dto.request.StateRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
@@ -17,4 +18,6 @@ public interface GroupMemberService {
     ResponseEntity<GenericResponse> changeRole(String userId, String groupMemberId, String role);
 
     ResponseEntity<GenericResponse> deleteGroupMember(String userId, String groupMemberId);
+
+    ResponseEntity<GenericResponse> addGroupMember(String userId, AddGroupMemberRequest addGroupMemberRequest);
 }

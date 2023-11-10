@@ -7,10 +7,16 @@ import lombok.Data;
 @Builder
 @Data
 public class GroupMemberRequestDto {
-    @JsonProperty("id")
-    private String groupMemberRequestId;
+
+    private String id;
+    @JsonProperty("group")
     private GroupDto groupDto;
     @JsonProperty("user")
     private UserDto userDto;
-    private String createdDate;
+    private String state;
+    @JsonProperty("invitation")
+    private GroupMemberInvitationDto invitationDto;
+    private String createdAt;
+    private String updatedAt;
+
 }

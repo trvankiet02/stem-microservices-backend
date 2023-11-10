@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @PutMapping("/profile/avatar")
-    public ResponseEntity<GenericResponse> updateAvatar (@RequestHeader("Authorization") String authorizationHeader, @RequestParam("avatar") MultipartFile avatar) throws IOException {
+    public ResponseEntity<GenericResponse> updateAvatar (@RequestHeader("Authorization") String authorizationHeader, @RequestPart("avatar") MultipartFile avatar) throws IOException {
         log.info("UserController Post, GenericResponse, updateAvatar");
         String token = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(token);
@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @PutMapping("/profile/cover")
-    public ResponseEntity<GenericResponse> updateCover (@RequestHeader("Authorization") String authorizationHeader, @RequestParam("cover") MultipartFile cover) throws IOException {
+    public ResponseEntity<GenericResponse> updateCover (@RequestHeader("Authorization") String authorizationHeader, @RequestPart("cover") MultipartFile cover) throws IOException {
         log.info("UserController Post, GenericResponse, updateCover");
         String token = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(token);

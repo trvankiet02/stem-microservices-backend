@@ -1,7 +1,7 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.AppConstant;
-import com.trvankiet.app.constant.GroupRole;
+import com.trvankiet.app.constant.GroupMemberRoleType;
 import com.trvankiet.app.dto.EventDto;
 import com.trvankiet.app.dto.request.CreateEventRequest;
 import com.trvankiet.app.dto.request.ModifyEventRequest;
@@ -14,7 +14,7 @@ import com.trvankiet.app.repository.EventRepository;
 import com.trvankiet.app.repository.GroupMemberRepository;
 import com.trvankiet.app.repository.GroupRepository;
 import com.trvankiet.app.service.EventService;
-import com.trvankiet.app.service.MappingService;
+import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -34,20 +33,20 @@ public class EventServiceImpl implements EventService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final EventRepository eventRepository;
-    private final MappingService mappingService;
+    private final MapperService mappingService;
     @Override
     public ResponseEntity<GenericResponse> createEvent(String userId, CreateEventRequest createEventRequest) throws ParseException {
         log.info("EventServiceImpl, createEvent");
-        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupGroupId(userId, createEventRequest.getGroupId())
+        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, createEventRequest.getGroupId())
                 .orElseThrow(() -> new ForbiddenException("Bạn không có quyền tạo sự kiện cho nhóm này"));
         Event event = eventRepository.save(Event.builder()
-                .eventId(UUID.randomUUID().toString())
+                .id(UUID.randomUUID().toString())
                 .group(groupMember.getGroup())
                 .authorId(userId)
-                .eventName(createEventRequest.getEventName())
-                .eventDescription(createEventRequest.getEventDescription())
-                .startDate(DateUtil.string2Date(createEventRequest.getStartDate(), AppConstant.LOCAL_DATE_FORMAT))
-                .endDate(DateUtil.string2Date(createEventRequest.getEndDate(), AppConstant.LOCAL_DATE_FORMAT))
+                .name(createEventRequest.getEventName())
+                .description(createEventRequest.getEventDescription())
+                .startedAt(DateUtil.string2Date(createEventRequest.getStartDate(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                .endedAt(DateUtil.string2Date(createEventRequest.getEndDate(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .createdAt(new Date())
                 .build());
         return ResponseEntity.ok(GenericResponse.builder()
@@ -81,10 +80,10 @@ public class EventServiceImpl implements EventService {
         if (!event.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa sự kiện này");
         }
-        event.setEventName(modifyEventRequest.getEventName());
-        event.setEventDescription(modifyEventRequest.getEventDescription());
-        event.setStartDate(DateUtil.string2Date(modifyEventRequest.getStartDate(), AppConstant.LOCAL_DATE_FORMAT));
-        event.setEndDate(DateUtil.string2Date(modifyEventRequest.getEndDate(), AppConstant.LOCAL_DATE_FORMAT));
+        event.setName(modifyEventRequest.getEventName());
+        event.setDescription(modifyEventRequest.getEventDescription());
+        event.setStartedAt(DateUtil.string2Date(modifyEventRequest.getStartDate(), AppConstant.LOCAL_DATE_TIME_FORMAT));
+        event.setEndedAt(DateUtil.string2Date(modifyEventRequest.getEndDate(), AppConstant.LOCAL_DATE_TIME_FORMAT));
         eventRepository.save(event);
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -99,9 +98,9 @@ public class EventServiceImpl implements EventService {
         log.info("EventServiceImpl, deleteEvent");
         Event event = eventRepository.findByEventId(eventId)
                 .orElseThrow(() -> new NotFoundException("Sự kiện không tồn tại"));
-        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupGroupId(userId, event.getGroup().getGroupId())
+        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, event.getGroup().getId())
                 .orElseThrow(() -> new ForbiddenException("Bạn không có quyền xóa sự kiện này"));
-        if (groupMember.getGroupMemberRole().getRoleName().equals(GroupRole.GROUP_MEMBER.toString())) {
+        if (groupMember.getGroupMemberRole().getName().equals(GroupMemberRoleType.GROUP_MEMBER.toString())) {
             throw new ForbiddenException("Bạn không có quyền xóa sự kiện này");
         }
         eventRepository.delete(event);

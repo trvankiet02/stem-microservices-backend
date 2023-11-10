@@ -14,24 +14,30 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.io.Serializable;
 import java.util.Date;
 
-@Document(collection = "group_roles")
+@Document(collection = "group_configs")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class GroupMemberRole implements Serializable {
+public class GroupConfig implements Serializable {
 
     @Id
-    @Field(name = "role_id")
+    @Field(name = "group_config_id")
     private String id;
 
-    @Field(name = "role_code")
+    @Field(name = "group_config_code")
     private String code;
 
-    @Field(name = "role_name")
-    private String name;
+    @Field(name = "group_config_type")
+    private String type;
 
-    @Field(name = "role_description")
+    @Field(name = "group_config_accessibility")
+    private String accessibility;
+
+    @Field(name = "group_config_member_mode")
+    private String memberMode;
+
+    @Field(name = "group_config_description")
     private String description;
 
     @CreatedDate

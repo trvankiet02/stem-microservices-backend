@@ -16,16 +16,16 @@ import java.util.List;
 @FeignClient(name = "media-service", contextId = "fileClientService", path = "/api/v1/files")
 public interface FileClientService {
 
-    @PostMapping(value = "/uploadGroupAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    String uploadGroupAvatar(@RequestPart("mediaFile") MultipartFile file);
+    @PostMapping(value = "/uploadUserAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    String uploadUserAvatar(@RequestPart("mediaFile") MultipartFile file);
 
-    @DeleteMapping(value = "/deleteGroupAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    void deleteGroupAvatar(@RequestPart("refUrl") String refUrl) throws IOException;
+    @DeleteMapping(value = "/deleteUserAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    void deleteUserAvatar(@RequestPart("refUrl") String fileName);
 
-    @PostMapping(value = "/uploadGroupCover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    String uploadGroupCover(@RequestPart("mediaFile") MultipartFile file);
+    @PostMapping(value = "/uploadUserCover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    String uploadUserCover(@RequestPart("mediaFile") MultipartFile file);
 
-    @DeleteMapping(value = "/deleteGroupCover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    void deleteGroupCover(@RequestPart("refUrl") String refUrl) throws IOException;
+    @DeleteMapping(value = "/deleteUserCover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    void deleteUserCover(@RequestPart("refUrl") String fileName);
 
 }

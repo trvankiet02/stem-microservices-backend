@@ -9,11 +9,12 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 
 public class AppConstant {
-
+    /**
+     * Date format
+     */
+    public static final String FULL_DATE_TIME_FORMAT = "ddMMyyyyHHmmssSSSSSS";
     public static final String LOCAL_DATE_FORMAT = "dd-MM-yyyy";
-    public static final String LOCAL_DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
-    public static final String ZONED_DATE_TIME_FORMAT = "dd-MM-yyyy__HH:mm:ss:SSSSSS";
-    public static final String INSTANT_FORMAT = "dd-MM-yyyy__HH:mm:ss:SSSSSS";
+    public static final String LOCAL_DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss:SSSSSS";
 
     @SneakyThrows
     public static SecretKey getSecretKey() {

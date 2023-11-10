@@ -1,9 +1,6 @@
 package com.trvankiet.app.controller;
 
-import com.trvankiet.app.dto.request.InviteGroupMemberRequest;
-import com.trvankiet.app.dto.request.MemberRoleRequest;
-import com.trvankiet.app.dto.request.StateRequest;
-import com.trvankiet.app.dto.request.ToGroupMemberRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.GroupMemberRequest;
 import com.trvankiet.app.jwt.service.JwtService;
@@ -42,6 +39,14 @@ public class GroupMemberController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.requestGroupMember(userId, toGroupMemberRequest.getGroupId());
+    }
+    @PostMapping("/add")
+    public ResponseEntity<GenericResponse> addGroupMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                          @RequestBody AddGroupMemberRequest addGroupMemberRequest) {
+        log.info("GroupMemberController, ResponseEntity<GenericResponse> addGroupMember");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupMemberService.addGroupMember(userId, addGroupMemberRequest);
     }
 
     @PutMapping("/{groupMemberId}/role")

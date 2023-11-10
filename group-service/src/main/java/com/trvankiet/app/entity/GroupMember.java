@@ -24,18 +24,32 @@ public class GroupMember implements Serializable {
 
     @Id
     @Field(name = "group_member_id")
-    private String groupMemberId;
+    private String id;
 
     @Field(name = "user_id")
     private String userId;
+
+    @Builder.Default
+    @Field(name = "is_locked")
+    private Boolean isLocked = false;
+
+    @Field(name = "locked_at")
+    private Date lockedAt;
+
+    @Field(name = "locked_reason")
+    private String lockedReason;
 
     @DocumentReference
     @Field(name = "group_id")
     private Group group;
 
     @DocumentReference
-    @Field(name = "group_member_role")
+    @Field(name = "group_member_role_id")
     private GroupMemberRole groupMemberRole;
+
+    @DocumentReference
+    @Field(name = "group_member_request_id")
+    private GroupMemberRequest groupMemberRequest;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

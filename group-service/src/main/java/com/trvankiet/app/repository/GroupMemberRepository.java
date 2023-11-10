@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface GroupMemberRepository extends MongoRepository<GroupMember, String> {
     List<GroupMember> findByUserId(String userId);
-    Optional<GroupMember> findByUserIdAndGroupGroupId(String userId, String groupId);
+    Optional<GroupMember> findByUserIdAndGroupId(String userId, String groupId);
     List<GroupMember> findByUserIdAndGroupMemberRole(String userId, GroupMemberRole groupMemberRole);
+    List<GroupMember> findByGroupId(String groupId);
 }

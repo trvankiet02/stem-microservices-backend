@@ -5,12 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-@Builder
 public class GroupCreateRequest {
-    private String groupName;
-    private String groupDescription;
-    private String groupType;
+
+    private String name;
+    private String description;
+    private String type;
+    private String accessibility;
+    private String memberMode;
+
 }
