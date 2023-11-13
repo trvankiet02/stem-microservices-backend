@@ -38,12 +38,12 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
         Date now = new Date();
         Comment comment = Comment.builder()
-                .commentId(UUID.randomUUID().toString())
+                .id(UUID.randomUUID().toString())
                 .authorId(userId)
                 .content(commentPostRequest.getContent())
                 .reactions(new ArrayList<>())
                 .subComments(new ArrayList<>())
-                .filesId(fileDtos.stream().map(FileDto::getFileLink).toList())
+                .refUrls(fileDtos.stream().map(FileDto::getFileLink).toList())
                 .createdAt(now)
                 .build();
         post.getComments().add(comment);
@@ -66,7 +66,10 @@ public class CommentServiceImpl implements CommentService {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa bình luận này!");
         }
         comment.setContent(commentPostRequest.getContent());
-        comment.setFilesId(fileDtos.stream().map(FileDto::getFileLink).toList());
+        if (!fileDtos.isEmpty()) {
+            comment.setRefUrls(fileDtos.stream().map(FileDto::getFileLink).toList());
+        }
+        comment.setUpdatedAt(new Date());
         commentRepository.save(comment);
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)

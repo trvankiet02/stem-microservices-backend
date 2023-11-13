@@ -21,20 +21,20 @@ import java.util.List;
 public class MapperServiceImpl implements MapperService {
 
     private final UserClientService userClientService;
+
     @Override
     public PostDto mapToPostDto(Post post) {
         return PostDto.builder()
-                .postId(post.getPostId())
+                .id(post.getId())
                 .groupId(post.getGroupId())
                 .userDto(userClientService.getUserDtoByUserId(post.getAuthorId()))
-                .accessibility(post.getAccessibility())
                 .content(post.getContent())
-                .postType(post.getPostType().getPostTypeName())
-                .mediaUrls(post.getFilesId().isEmpty() ?
-                        null : post.getFilesId())
-                .reactions(post.getReactions().isEmpty() ?
+                .type(post.getType().getName())
+                .refUrls(post.getRefUrls().isEmpty() ?
+                        null : post.getRefUrls())
+                .reactionDtos(post.getReactions().isEmpty() ?
                         null : post.getReactions().stream().map(this::mapToReactionDto).toList())
-                .comments(post.getComments().isEmpty() ?
+                .commentDtos(post.getComments().isEmpty() ?
                         null : post.getComments().stream().map(this::mapToCommentDto).toList())
                 .createdAt(post.getCreatedAt() == null ?
                         null : post.getCreatedAt().toString())
@@ -46,12 +46,14 @@ public class MapperServiceImpl implements MapperService {
     @Override
     public CommentDto mapToCommentDto(Comment comment) {
         return CommentDto.builder()
-                .commentId(comment.getCommentId())
+                .id(comment.getId())
                 .userDto(userClientService.getUserDtoByUserId(comment.getAuthorId()))
                 .content(comment.getContent())
-                .reactions(comment.getReactions().isEmpty() ?
+                .refUrls(comment.getRefUrls().isEmpty() ?
+                        null : comment.getRefUrls())
+                .reactionDtos(comment.getReactions().isEmpty() ?
                         null : comment.getReactions().stream().map(this::mapToReactionDto).toList())
-                .subComments(comment.getSubComments().isEmpty() ?
+                .subCommentDtos(comment.getSubComments().isEmpty() ?
                         null : comment.getSubComments().stream().map(this::mapToCommentDto).toList())
                 .createdAt(comment.getCreatedAt() == null ?
                         null : comment.getCreatedAt().toString())
@@ -63,9 +65,9 @@ public class MapperServiceImpl implements MapperService {
     @Override
     public ReactionDto mapToReactionDto(Reaction reaction) {
         return ReactionDto.builder()
-                .reactionId(reaction.getReactionId())
+                .id(reaction.getId())
                 .userDto(userClientService.getUserDtoByUserId(reaction.getAuthorId()))
-                .type(reaction.getReactionType().getReactionTypeName())
+                .type(reaction.getType().getName())
                 .createdAt(reaction.getCreatedAt() == null ?
                         null : reaction.getCreatedAt().toString())
                 .updatedAt(reaction.getUpdatedAt() == null ?

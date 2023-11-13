@@ -7,6 +7,6 @@ public class AddGroupMemberRequest {
 
     private String groupId;
     private String userId;
-    private String role;
+    private String roleCode;
 
 }

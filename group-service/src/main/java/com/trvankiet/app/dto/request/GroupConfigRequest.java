@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class GroupConfigRequest {
 
-    private String type;
-    private String accessibility;
-    private String memberMode;
+    private String typeCode;
+    private String accessibilityCode;
+    private String memberModeCode;
 
 }

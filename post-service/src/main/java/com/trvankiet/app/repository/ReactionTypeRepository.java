@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface ReactionTypeRepository extends MongoRepository<ReactionType, String> {
-    Optional<ReactionType> findByReactionTypeName(String reactionTypeName);
+    Optional<ReactionType> findByName(String reactionTypeName);
+    Optional<ReactionType> findByCode(String reactionTypeName);
 }

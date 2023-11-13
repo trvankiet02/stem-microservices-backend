@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -40,7 +41,8 @@ public class CommentController {
         log.info("PostController, createComment({})", commentPostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles());
+        List<FileDto> fileDtos = commentPostRequest.getMediaFiles().isEmpty() ?
+                new ArrayList<>() : fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles());
         return commentService.createComment(userId, postId, fileDtos, commentPostRequest);
     }
 
@@ -51,7 +53,8 @@ public class CommentController {
         log.info("PostController, updateComment({})", commentPostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles());
+        List<FileDto> fileDtos = commentPostRequest.getMediaFiles().isEmpty() ?
+                new ArrayList<>() : fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles());
         return commentService.updateComment(userId, commentId, fileDtos, commentPostRequest);
     }
 

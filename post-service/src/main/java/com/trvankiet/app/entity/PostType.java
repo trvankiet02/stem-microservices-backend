@@ -23,13 +23,16 @@ public class PostType implements Serializable {
 
     @Id
     @Field(name = "post_type_id")
-    private String postTypeId;
+    private String id;
+
+    @Field(name = "post_type_code")
+    private String code;
 
     @Field(name = "post_type_name")
-    private String postTypeName;
+    private String name;
 
     @Field(name = "post_type_description")
-    private String postTypeDescription;
+    private String description;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

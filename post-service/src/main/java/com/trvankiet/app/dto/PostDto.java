@@ -1,5 +1,6 @@
 package com.trvankiet.app.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,16 +16,18 @@ import java.util.List;
 @Builder
 public class PostDto implements Serializable {
 
-        private String postId;
+        private String id;
+        @JsonIgnore
         private String groupId;
-        @JsonProperty("user")
+        @JsonProperty("author")
         private UserDto userDto;
-        private String accessibility;
         private String content;
-        private String postType;
-        private List<String> mediaUrls;
-        private List<ReactionDto> reactions;
-        private List<CommentDto> comments;
+        private String type;
+        private List<String> refUrls;
+        @JsonProperty("reactions")
+        private List<ReactionDto> reactionDtos;
+        @JsonProperty("comments")
+        private List<CommentDto> commentDtos;
         private String createdAt;
         private String updatedAt;
 }

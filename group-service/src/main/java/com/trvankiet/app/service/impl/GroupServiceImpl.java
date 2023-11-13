@@ -4,13 +4,11 @@ import com.trvankiet.app.constant.GroupAccessType;
 import com.trvankiet.app.constant.GroupMemberRoleType;
 import com.trvankiet.app.constant.GroupType;
 import com.trvankiet.app.dto.GroupDto;
-import com.trvankiet.app.dto.GroupMemberDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.GroupConfigRequest;
 import com.trvankiet.app.dto.request.GroupCreateRequest;
 import com.trvankiet.app.dto.request.UpdateDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.dto.response.GroupOfUserResponse;
 import com.trvankiet.app.entity.Group;
 import com.trvankiet.app.entity.GroupConfig;
 import com.trvankiet.app.entity.GroupMember;
@@ -55,28 +53,30 @@ public class GroupServiceImpl implements GroupService {
         Date now = new Date();
 
         GroupConfig groupConfig = groupConfigRepository.findByTypeAndAccessibilityAndMemberMode(
-                        groupCreateRequest.getType(),
-                        groupCreateRequest.getAccessibility(),
-                        groupCreateRequest.getMemberMode())
+                        groupCreateRequest.getTypeName(),
+                        groupCreateRequest.getAccessibilityName(),
+                        groupCreateRequest.getMemberModeName())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy cấu hình nhóm!"));
 
-        if (groupConfig.getType().equals(GroupType.CLASS.toString())
-            && !userDto.getRole().equals("TEACHER")) {
-            return ResponseEntity.ok(GenericResponse.builder()
-                    .success(false)
-                    .message("Bạn không có quyền tạo nhóm lớp!")
-                    .statusCode(HttpStatus.OK.value())
-                    .build());
-        }
-
-        Group group = groupRepository.save(Group.builder()
+        Group group = Group.builder()
                 .id(UUID.randomUUID().toString())
                 .name(groupCreateRequest.getName())
                 .description(groupCreateRequest.getDescription())
                 .authorId(userId)
                 .config(groupConfig)
                 .createdAt(now)
-                .build());
+                .build();
+
+        if (groupConfig.getType().equals(GroupType.CLASS.toString())) {
+            if (userDto.getRole().equals("TEACHER")) {
+                group.setSubject(groupCreateRequest.getSubject());
+                group.setGrade(groupCreateRequest.getGrade());
+            } else {
+                throw new ForbiddenException("Bạn không có quyền tạo lớp học!");
+            }
+        }
+
+        group = groupRepository.save(group);
 
         GroupMemberRole groupOwnerRole = groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_OWNER.getCode())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên nhóm!"));
@@ -112,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> getGroupById(String userId, String groupId) {
         log.info("GroupServiceImpl, getGroupById");
-        Group group = groupRepository.findByGroupId(groupId)
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy nhóm!"));
         GroupDto groupDto = mapperService.mapToGroupDto(group);
 
@@ -169,15 +169,15 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> updateGroupConfig(String userId, String groupId, GroupConfigRequest groupConfigRequest) {
         log.info("GroupServiceImpl, updateGroupConfig");
-        Group group = groupRepository.findByGroupId(groupId)
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy nhóm!"));
         if (!group.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thay đổi cấu hình nhóm!");
         }
         GroupConfig groupConfig = groupConfigRepository.findByTypeAndAccessibilityAndMemberMode(
-                        groupConfigRequest.getType(),
-                        groupConfigRequest.getAccessibility(),
-                        groupConfigRequest.getMemberMode())
+                        groupConfigRequest.getTypeCode(),
+                        groupConfigRequest.getAccessibilityCode(),
+                        groupConfigRequest.getMemberModeCode())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy cấu hình nhóm!"));
         group.setConfig(groupConfig);
         groupRepository.save(group);
@@ -192,7 +192,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> updateGroupDetail(String userId, String groupId, UpdateDetailRequest updateDetailRequest) {
         log.info("GroupServiceImpl, updateGroupDetail");
-        Group group = groupRepository.findByGroupId(groupId)
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy nhóm!"));
         if (!group.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thay đổi thông tin nhóm!");
@@ -212,7 +212,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> updateGroupAvatar(String userId, String groupId, MultipartFile avatar) throws IOException {
         log.info("GroupServiceImpl, updateGroupAvatar");
-        Group group = groupRepository.findByGroupId(groupId)
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy nhóm!"));
         if (!group.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thay đổi ảnh đại diện nhóm!");
@@ -235,7 +235,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> updateGroupCover(String userId, String groupId, MultipartFile cover) throws IOException {
         log.info("GroupServiceImpl, updateGroupCover");
-        Group group = groupRepository.findByGroupId(groupId)
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy nhóm!"));
         if (!group.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thay đổi ảnh bìa nhóm!");

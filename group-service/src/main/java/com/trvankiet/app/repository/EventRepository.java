@@ -9,6 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface EventRepository extends MongoRepository<Event, String> {
-    List<Event> findAllByGroupGroupId(String groupId);
-    Optional<Event> findByEventId(String eventId);
+    List<Event> findAllByGroupId(String groupId);
 }

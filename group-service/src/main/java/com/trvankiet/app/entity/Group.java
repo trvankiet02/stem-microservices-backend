@@ -47,6 +47,12 @@ public class Group implements Serializable {
     @Field(name = "group_member_mode")
     private GroupConfig config;
 
+    @Field(name = "class_subject")
+    private String subject;
+
+    @Field(name = "class_grade")
+    private Integer grade;
+
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Field(name = "created_at")

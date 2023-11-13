@@ -31,7 +31,6 @@ public class PostController {
     private final PostService postService;
     private final JwtService jwtService;
     private final FileClientService fileClientService;
-    private final GroupClientService groupClientService;
 
     @GetMapping
     public ResponseEntity<GenericResponse> getPostInGroup(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
@@ -58,7 +57,8 @@ public class PostController {
         log.info("PostController, createPost({})", postCreateRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = fileClientService.uploadPostFiles(authorizationHeader, postCreateRequest.getMediaFiles());
+        List<FileDto> fileDtos = postCreateRequest.getMediaFiles().isEmpty() ?
+                new ArrayList<>() : fileClientService.uploadDocumentFiles(authorizationHeader, postCreateRequest.getMediaFiles());
         return postService.createPost(userId, fileDtos, postCreateRequest);
     }
 
@@ -68,12 +68,12 @@ public class PostController {
         log.info("PostController, updatePost({})", updatePostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        //List<FileDto> fileDtos = fileClientService.uploadPostFiles(authorizationHeader, updatePostRequest.getMediaFiles());
-        List<FileDto> fileDtos = new ArrayList<>();
+        List<FileDto> fileDtos = updatePostRequest.getMediaFiles().isEmpty() ?
+                new ArrayList<>() : fileClientService.uploadDocumentFiles(authorizationHeader, updatePostRequest.getMediaFiles());
         return postService.updatePost(userId, fileDtos, updatePostRequest);
     }
 
-    @DeleteMapping(value = "/delete/{postId}")
+    @DeleteMapping(value = "/{postId}")
     public ResponseEntity<GenericResponse> deletePost(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                       @PathVariable String postId) {
         log.info("PostController, deletePost({})", postId);

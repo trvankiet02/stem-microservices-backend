@@ -4,6 +4,7 @@ import com.trvankiet.app.dto.request.ReactionRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Post;
 import com.trvankiet.app.entity.Reaction;
+import com.trvankiet.app.entity.ReactionType;
 import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.PostRepository;
@@ -37,19 +38,19 @@ public class ReactionServiceImpl implements ReactionService {
                 .filter(r -> r.getAuthorId().equals(userId))
                 .findFirst()
                 .orElse(null);
+        ReactionType reactionType = reactionTypeRepository.findByCode(reactionRequest.getTypeCode())
+                .orElseThrow(() -> new NotFoundException("Loại reaction không tồn tại!"));
         if (reaction == null) {
             reaction = Reaction.builder()
-                    .reactionId(UUID.randomUUID().toString())
+                    .id(UUID.randomUUID().toString())
                     .authorId(userId)
-                    .reactionType(reactionTypeRepository.findByReactionTypeName(reactionRequest.getReactionType())
-                            .orElseThrow(() -> new NotFoundException("Loại reaction không tồn tại!")))
+                    .type(reactionType)
                     .createdAt(new Date())
                     .build();
             post.getReactions().add(reaction);
             postRepository.save(post);
         } else {
-            reaction.setReactionType(reactionTypeRepository.findByReactionTypeName(reactionRequest.getReactionType())
-                    .orElseThrow(() -> new NotFoundException("Loại reaction không tồn tại!")));
+            reaction.setType(reactionType);
             reaction.setUpdatedAt(new Date());
         }
         reactionRepository.save(reaction);

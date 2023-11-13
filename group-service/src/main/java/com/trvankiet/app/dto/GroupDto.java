@@ -32,6 +32,8 @@ public class GroupDto implements Serializable {
     private String coverUrl;
     @JsonProperty("config")
     private GroupConfigDto configDto;
+    private String subject;
+    private Integer grade;
     private String createdAt;
     private String updatedAt;
 

@@ -25,7 +25,7 @@ public class Comment implements Serializable {
 
     @Id
     @Field(name = "comment_id")
-    private String commentId;
+    private String id;
 
     @Field(name = "author_id")
     private String authorId;
@@ -37,8 +37,8 @@ public class Comment implements Serializable {
     @Field(name = "reactions")
     private List<Reaction> reactions;
 
-    @Field(name = "files_id")
-    private List<String> filesId;
+    @Field(name = "ref_urls")
+    private List<String> refUrls;
 
     @DocumentReference
     @Field(name = "sub_comments")
@@ -53,4 +53,5 @@ public class Comment implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Field(name = "updated_at")
     private Date updatedAt;
+
 }

@@ -6,8 +6,6 @@ import com.trvankiet.app.dto.request.PostCreateRequest;
 import com.trvankiet.app.dto.request.UpdatePostRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Post;
-import com.trvankiet.app.entity.PostType;
-import com.trvankiet.app.entity.Reaction;
 import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.PostRepository;
@@ -36,24 +34,23 @@ public class PostServiceImpl implements PostService {
     private final PostTypeRepository postTypeRepository;
     private final MapperService mapperService;
     private final GroupClientService groupClientService;
+
     @Override
     public ResponseEntity<GenericResponse> createPost(String userId, List<FileDto> fileDtos, PostCreateRequest postCreateRequest) {
         log.info("PostServiceImpl, createPost({})", postCreateRequest);
         if (!isUserInGroup(userId, postCreateRequest.getGroupId()))
             throw new ForbiddenException("Bạn không có quyền đăng bài viết vào nhóm này!");
-        Date date = new Date();
         Post post = Post.builder()
-                .postId(UUID.randomUUID().toString())
+                .id(UUID.randomUUID().toString())
                 .groupId(postCreateRequest.getGroupId())
                 .authorId(userId)
-                .accessibility("PUBLIC")
-                .postType(postTypeRepository.findByPostTypeName(postCreateRequest.getPostType())
+                .type(postTypeRepository.findByCode(postCreateRequest.getTypeCode())
                         .orElseThrow(() -> new NotFoundException("Không tìm thấy loại bài viết!")))
                 .content(postCreateRequest.getContent())
+                .refUrls(fileDtos.stream().map(FileDto::getFileLink).toList())
                 .reactions(new ArrayList<>())
                 .comments(new ArrayList<>())
-                .createdAt(date)
-                .filesId(fileDtos.stream().map(FileDto::getFileLink).toList())
+                .createdAt(new Date())
                 .build();
         PostDto postDto = mapperService.mapToPostDto(postRepository.save(post));
         return ResponseEntity.status(HttpStatus.OK)
@@ -70,15 +67,16 @@ public class PostServiceImpl implements PostService {
         log.info("PostServiceImpl, updatePost({})", updatePostRequest);
         Post post = postRepository.findByPostId(updatePostRequest.getPostId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết!"));
-        Date now = new Date();
-        if (!isUserInGroup(userId, post.getGroupId())) {
+        if (!post.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa bài viết này!");
         }
         post.setContent(updatePostRequest.getContent());
-        post.setPostType(postTypeRepository.findByPostTypeName(updatePostRequest.getPostType())
+        post.setType(postTypeRepository.findByCode(updatePostRequest.getPostType())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy loại bài viết!")));
-        post.setFilesId(fileDtos.stream().map(FileDto::getFileLink).toList());
-        post.setUpdatedAt(now);
+        if (!fileDtos.isEmpty()) {
+            post.setRefUrls(fileDtos.stream().map(FileDto::getFileLink).toList());
+        }
+        post.setUpdatedAt(new Date());
         PostDto postDto = mapperService.mapToPostDto(postRepository.save(post));
         return ResponseEntity.status(HttpStatus.OK)
                 .body(GenericResponse.builder()

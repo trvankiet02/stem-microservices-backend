@@ -1,17 +1,18 @@
 package com.trvankiet.app.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class GroupCreateRequest {
 
     private String name;
     private String description;
-    private String type;
-    private String accessibility;
-    private String memberMode;
+    @NotNull(message = "typeCode is required")
+    private String typeName;
+    private String accessibilityName;
+    private String memberModeName;
+    private String subject;
+    private Integer grade;
 
 }

@@ -60,7 +60,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public ResponseEntity<GenericResponse> getEvents(String userId, String groupId) {
         log.info("EventServiceImpl, getEvents");
-        List<EventDto> events = eventRepository.findAllByGroupGroupId(groupId)
+        List<EventDto> events = eventRepository.findAllByGroupId(groupId)
                 .stream()
                 .map(mappingService::mapToEventDto)
                 .toList();
@@ -75,7 +75,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public ResponseEntity<GenericResponse> updateEvent(String userId, String eventId, ModifyEventRequest modifyEventRequest) throws ParseException {
         log.info("EventServiceImpl, updateEvent");
-        Event event = eventRepository.findByEventId(eventId)
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Sự kiện không tồn tại"));
         if (!event.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa sự kiện này");
@@ -96,7 +96,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public ResponseEntity<GenericResponse> deleteEvent(String userId, String eventId) {
         log.info("EventServiceImpl, deleteEvent");
-        Event event = eventRepository.findByEventId(eventId)
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Sự kiện không tồn tại"));
         GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, event.getGroup().getId())
                 .orElseThrow(() -> new ForbiddenException("Bạn không có quyền xóa sự kiện này"));

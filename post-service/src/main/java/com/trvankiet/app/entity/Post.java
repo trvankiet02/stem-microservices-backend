@@ -25,7 +25,7 @@ public class Post implements Serializable {
 
     @Id
     @Field(name = "post_id")
-    private String postId;
+    private String id;
 
     @Field(name = "group_id")
     private String groupId;
@@ -33,18 +33,15 @@ public class Post implements Serializable {
     @Field(name = "author_id")
     private String authorId;
 
-    @Field(name = "accessibility")
-    private String accessibility;
-
     @DocumentReference
     @Field(name = "post_type")
-    private PostType postType;
+    private PostType type;
 
     @Field(name = "post_content")
     private String content;
 
-    @Field(name = "files_id")
-    private List<String> filesId;
+    @Field(name = "ref_urls")
+    private List<String> refUrls;
 
     @DocumentReference
     @Field(name = "reactions")

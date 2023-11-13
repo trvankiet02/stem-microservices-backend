@@ -1,8 +1,6 @@
 package com.trvankiet.app.service;
 
-import com.trvankiet.app.dto.request.AddGroupMemberRequest;
-import com.trvankiet.app.dto.request.InviteGroupMemberRequest;
-import com.trvankiet.app.dto.request.StateRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.GenericResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -20,4 +18,12 @@ public interface GroupMemberService {
     ResponseEntity<GenericResponse> deleteGroupMember(String userId, String groupMemberId);
 
     ResponseEntity<GenericResponse> addGroupMember(String userId, AddGroupMemberRequest addGroupMemberRequest);
+
+    ResponseEntity<GenericResponse> getGroupMemberByGroupId(String userId, String groupId);
+
+    ResponseEntity<GenericResponse> lockGroupMember(String userId, LockMemberRequest lockMemberRequest);
+
+    ResponseEntity<GenericResponse> unlockGroupMember(String userId, UnlockMemberRequest unlockMemberRequest);
+
+    String getGroupMemberRoleByGroupIdAndUserId(String groupId, String userId);
 }
