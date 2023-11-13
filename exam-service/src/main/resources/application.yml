@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: exam-service
+  profiles:
+    active: dev

@@ -23,13 +23,16 @@ public class ReactionType implements Serializable {
 
     @Id
     @Field(name = "reaction_type_id")
-    private String reactionTypeId;
+    private String id;
+
+    @Field(name = "reaction_type_code")
+    private String code;
 
     @Field(name = "reaction_type_name")
-    private String reactionTypeName;
+    private String name;
 
     @Field(name = "reaction_type_description")
-    private String reactionTypeDescription;
+    private String description;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -40,4 +43,5 @@ public class ReactionType implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Field(name = "updated_at")
     private Date updatedAt;
+
 }

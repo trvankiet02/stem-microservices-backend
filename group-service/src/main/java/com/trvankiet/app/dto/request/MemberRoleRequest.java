@@ -4,5 +4,7 @@ import lombok.Data;
 
 @Data
 public class MemberRoleRequest {
-    private String role;
+
+    private String roleCode;
 }
+

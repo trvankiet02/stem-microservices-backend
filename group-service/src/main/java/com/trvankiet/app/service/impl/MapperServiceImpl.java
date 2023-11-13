@@ -27,6 +27,10 @@ public class MapperServiceImpl implements MapperService {
                 .avatarUrl(group.getAvatarUrl())
                 .coverUrl(group.getCoverUrl())
                 .configDto(this.mapToGroupConfigDto(group.getConfig()))
+                .subject(group.getSubject() == null ?
+                        null : group.getSubject())
+                .grade(group.getGrade() == null ?
+                        null : group.getGrade())
                 .createdAt(group.getCreatedAt() == null ?
                         null : DateUtil.date2String(group.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .updatedAt(group.getUpdatedAt() == null ?

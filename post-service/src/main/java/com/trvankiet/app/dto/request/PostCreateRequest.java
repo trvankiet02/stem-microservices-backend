@@ -1,9 +1,6 @@
 package com.trvankiet.app.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -12,7 +9,7 @@ import java.util.List;
 public class PostCreateRequest {
 
     private String content;
-    private String postType;
+    private String typeCode;
     private List<MultipartFile> mediaFiles;
     private String groupId;
 

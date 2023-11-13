@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface PostTypeRepository extends MongoRepository<PostType, String> {
-    Optional<PostType> findByPostTypeName(String postTypeName);
+    Optional<PostType> findByName(String postTypeName);
+    Optional<PostType> findByCode(String postTypeCode);
 }

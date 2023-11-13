@@ -36,6 +36,7 @@
         <module>post-service</module>
         <module>group-service</module>
         <module>message-service</module>
+        <module>exam-service</module>
     </modules>
 
     <dependencies>

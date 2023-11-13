@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface GroupMemberInvitationRepository extends MongoRepository<GroupMemberInvitation, String> {
     List<GroupMemberInvitation> findAllByToUserId(String userId);
-    List<GroupMemberInvitation> findAllByToUserIdAndState(String userId, String state);
+    List<GroupMemberInvitation> findAllByToUserIdAndStateCode(String userId, String stateCode);
 }

@@ -4,9 +4,7 @@ import com.trvankiet.app.constant.GroupAccessType;
 import com.trvankiet.app.constant.GroupMemberRoleType;
 import com.trvankiet.app.constant.StateType;
 import com.trvankiet.app.dto.GroupMemberDto;
-import com.trvankiet.app.dto.request.AddGroupMemberRequest;
-import com.trvankiet.app.dto.request.InviteGroupMemberRequest;
-import com.trvankiet.app.dto.request.StateRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Group;
 import com.trvankiet.app.entity.GroupMember;
@@ -116,7 +114,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         if (!groupMemberInvitation.getToUserId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thực hiện hành động này");
         }
-        switch (inviteResponseGroupMember.getState()) {
+        switch (inviteResponseGroupMember.getStateCode()) {
             case "ACCEPT":
                 // chage state to ACCEPT and create GroupMemberRequest
                 groupMemberInvitation.setState(stateRepository.findByCode(StateType.ACCEPTED.getCode())
@@ -186,7 +184,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         if (user.getGroupMemberRole().getCode().equals(GroupMemberRoleType.GROUP_MEMBER.getCode())) {
             throw new ForbiddenException("Bạn không có quyền thực hiện hành động này");
         }
-        switch (stateRequest.getState()) {
+        switch (stateRequest.getStateCode()) {
             case "ACCEPT":
                 // change state to ACCEPT and create GroupMember
                 groupMemberRequest.setState(stateRepository.findByCode(StateType.ACCEPTED.getCode())
@@ -285,7 +283,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                         .id(UUID.randomUUID().toString())
                         .userId(addGroupMemberRequest.getUserId())
                         .group(group)
-                        .groupMemberRole(groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_MEMBER.getCode())
+                        .groupMemberRole(groupMemberRoleRepository.findByCode(addGroupMemberRequest.getRoleCode())
                                 .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")))
                         .createdAt(new Date())
                         .build());
@@ -299,5 +297,76 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 .message("Thêm thành viên vào nhóm thành công")
                 .result(groupMembers)
                 .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getGroupMemberByGroupId(String userId, String groupId) {
+        log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> getGroupMemberByGroupId");
+        List<GroupMemberDto> groupMembers = groupMemberRepository.findByGroupId(groupId)
+                .stream()
+                .map(mapperService::mapToGroupMemberDto)
+                .toList();
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Thêm thành viên vào nhóm thành công")
+                .result(groupMembers)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> lockGroupMember(String userId, LockMemberRequest lockMemberRequest) {
+        log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> lockGroupMember");
+        GroupMember groupMember = groupMemberRepository.findById(lockMemberRequest.getGroupMemberId())
+                .orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
+        Group group = groupMember.getGroup();
+
+        GroupMember user = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
+                .orElseThrow(() -> new ForbiddenException("Ban không có quyền thực hiện hành động này"));
+        if (user.getGroupMemberRole().getCode().equals(GroupMemberRoleType.GROUP_MEMBER.getCode())) {
+            throw new ForbiddenException("Ban không có quyền thực hiện hành động này");
+        }
+        groupMember.setIsLocked(true);
+        groupMember.setLockedAt(new Date());
+        groupMember.setLockedReason(lockMemberRequest.getLockedReason());
+        groupMemberRepository.save(groupMember);
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Khóa thành viên thành công")
+                .result(null)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> unlockGroupMember(String userId, UnlockMemberRequest unlockMemberRequest) {
+        log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> unlockGroupMember");
+        GroupMember groupMember = groupMemberRepository.findById(unlockMemberRequest.getGroupMemberId())
+                .orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
+        Group group = groupMember.getGroup();
+
+        GroupMember user = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
+                .orElseThrow(() -> new ForbiddenException("Ban không có quyền thực hiện hành động này"));
+        if (user.getGroupMemberRole().getCode().equals(GroupMemberRoleType.GROUP_MEMBER.getCode())) {
+            throw new ForbiddenException("Ban không có quyền thực hiện hành động này");
+        }
+        groupMember.setIsLocked(false);
+        groupMember.setLockedAt(null);
+        groupMember.setLockedReason(null);
+        groupMemberRepository.save(groupMember);
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Mở khóa thành viên thành công")
+                .result(null)
+                .build());
+    }
+
+    @Override
+    public String getGroupMemberRoleByGroupIdAndUserId(String groupId, String userId) {
+        log.info("GroupMemberServiceImpl, String getGroupMemberRoleByGroupIdAndUserId");
+        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, groupId)
+                .orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
+        return groupMember.getGroupMemberRole().getName();
     }
 }

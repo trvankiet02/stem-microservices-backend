@@ -24,14 +24,14 @@ public class Reaction implements Serializable {
 
     @Id
     @Field(name = "reaction_id")
-    private String reactionId;
+    private String id;
 
     @Field(name = "author_id")
     private String authorId;
 
     @DocumentReference
     @Field(name = "reaction_type")
-    private ReactionType reactionType;
+    private ReactionType type;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

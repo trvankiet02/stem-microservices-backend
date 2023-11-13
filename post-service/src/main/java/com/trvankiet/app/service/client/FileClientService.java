@@ -21,4 +21,8 @@ public interface FileClientService {
     @PostMapping(value = "/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     List<FileDto> uploadCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                      @RequestPart("mediaFiles") List<MultipartFile> mediaFiles);
+
+    @PostMapping(value = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    List<FileDto> uploadDocumentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                     @RequestPart("mediaFiles") List<MultipartFile> mediaFiles);
 }
