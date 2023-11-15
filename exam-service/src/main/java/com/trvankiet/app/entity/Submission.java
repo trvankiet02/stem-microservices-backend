@@ -36,7 +36,7 @@ public class Submission implements Serializable {
     private Date endedAt;
 
     @Field("submission_score")
-    private Integer score;
+    private Float score;
 
     @DocumentReference
     @Field("exam_id")
