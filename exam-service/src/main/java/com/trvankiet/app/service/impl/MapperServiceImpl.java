@@ -18,7 +18,7 @@ public class MapperServiceImpl implements MapperService {
         return AnswerDto.builder()
                 .id(answer.getId())
                 .content(answer.getContent())
-                .isCorrect(answer.isCorrect())
+                .isCorrect(answer.getIsCorrect())
                 .questionDto(mapToQuestionDto(answer.getQuestion()))
                 .createdAt(answer.getCreatedAt() == null
                         ? null : DateUtil.date2String(answer.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
@@ -36,9 +36,10 @@ public class MapperServiceImpl implements MapperService {
                 .name(exam.getName())
                 .description(exam.getDescription())
                 .duration(exam.getDuration())
-                .staredAt(DateUtil.date2String(exam.getStaredAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                .staredAt(DateUtil.date2String(exam.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .endedAt(DateUtil.date2String(exam.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .isEnabled(exam.getIsEnabled())
+                .numberOfQuestion(exam.getNumberOfQuestion())
                 .level(exam.getLevel())
                 .maxScore(exam.getMaxScore())
                 .createdAt(exam.getCreatedAt() == null
@@ -56,7 +57,7 @@ public class MapperServiceImpl implements MapperService {
                 .content(question.getContent())
                 .examDto(mapToExamDto(question.getExam()))
                 .level(question.getLevel())
-                .type(question.getType().getName())
+                .typeCode(question.getType().getCode())
                 .createdAt(question.getCreatedAt() == null
                         ? null : DateUtil.date2String(question.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .updatedAt(question.getUpdatedAt() == null

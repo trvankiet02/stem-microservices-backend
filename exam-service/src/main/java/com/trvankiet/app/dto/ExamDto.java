@@ -17,6 +17,7 @@ public class ExamDto implements Serializable {
         private String staredAt;
         private String endedAt;
         private Boolean isEnabled;
+        private Integer numberOfQuestion;
         private String level;
         private Integer maxScore;
         private String createdAt;

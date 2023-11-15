@@ -37,14 +37,17 @@ public class Exam implements Serializable {
     @Field("exam_duration")
     private Integer duration; // minutes
 
-    @Field("exam_stared_at")
-    private Date staredAt;
+    @Field("exam_started_at")
+    private Date startedAt;
 
     @Field("exam_ended_at")
     private Date endedAt;
 
     @Field("exam_is_enabled")
     private Boolean isEnabled;
+
+    @Field("exam_number_of_question")
+    private Integer numberOfQuestion;
 
     @Field("exam_level")
     private String level;

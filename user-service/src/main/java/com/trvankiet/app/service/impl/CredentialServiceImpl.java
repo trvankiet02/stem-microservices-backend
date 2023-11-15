@@ -18,11 +18,10 @@ import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.TokenService;
 import com.trvankiet.app.util.DateUtil;
 import com.trvankiet.app.util.TokenUtil;
+import io.swagger.v3.oas.models.examples.Example;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,16 +52,6 @@ public class CredentialServiceImpl implements CredentialService {
     }
 
     @Override
-    public <S extends Credential> Optional<S> findOne(Example<S> example) {
-        return credentialRepository.findOne(example);
-    }
-
-    @Override
-    public List<Credential> findAll(Sort sort) {
-        return credentialRepository.findAll(sort);
-    }
-
-    @Override
     public List<Credential> findAll() {
         return credentialRepository.findAll();
     }
@@ -89,17 +78,6 @@ public class CredentialServiceImpl implements CredentialService {
     public boolean existsById(String id) {
         return credentialRepository.existsById(id);
     }
-
-    @Override
-    public <S extends Credential> long count(Example<S> example) {
-        return credentialRepository.count(example);
-    }
-
-    @Override
-    public <S extends Credential> boolean exists(Example<S> example) {
-        return credentialRepository.exists(example);
-    }
-
     @Override
     public long count() {
         return credentialRepository.count();
@@ -359,7 +337,7 @@ public class CredentialServiceImpl implements CredentialService {
     private Credential saveCredential(String email, String password, User user) {
         return credentialRepository.save(Credential.builder()
                 .username(email)
-                .password(passwordEncoder.encode(email))
+                .password(passwordEncoder.encode(password))
                 .isEnabled(true)
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
