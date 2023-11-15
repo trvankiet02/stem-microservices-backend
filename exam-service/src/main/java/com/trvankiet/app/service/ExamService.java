@@ -1,6 +1,7 @@
 package com.trvankiet.app.service;
 
 import com.trvankiet.app.dto.request.CreateExamRequest;
+import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,4 +16,8 @@ public interface ExamService {
     ResponseEntity<CreateExamRequest> importFromDocOrDocx(String userId, MultipartFile multipartFile);
 
     ResponseEntity<GenericResponse> findExamById(String examId);
+
+    ResponseEntity<GenericResponse> updateExamDetailByExamId(String userId, String examId, UpdateExamDetailRequest updateExamDetailRequest) throws ParseException;
+
+    ResponseEntity<GenericResponse> deleteExamById(String userId, String examId);
 }

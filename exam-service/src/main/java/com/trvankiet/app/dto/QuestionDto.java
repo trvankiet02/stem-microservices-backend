@@ -2,7 +2,6 @@ package com.trvankiet.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.trvankiet.app.entity.Exam;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,7 +17,7 @@ public class QuestionDto implements Serializable {
     @JsonProperty("exam")
     private ExamDto examDto;
     private String level;
-    private String type;
+    private String typeCode;
     private String createdAt;
     private String updatedAt;
 

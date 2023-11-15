@@ -65,7 +65,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public ResponseEntity<GenericResponse> updatePost(String userId, List<FileDto> fileDtos, UpdatePostRequest updatePostRequest) {
         log.info("PostServiceImpl, updatePost({})", updatePostRequest);
-        Post post = postRepository.findByPostId(updatePostRequest.getPostId())
+        Post post = postRepository.findById(updatePostRequest.getPostId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết!"));
         if (!post.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa bài viết này!");
@@ -90,7 +90,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public ResponseEntity<GenericResponse> deletePost(String userId, String postId) {
         log.info("PostServiceImpl, deletePost({})", postId);
-        Post post = postRepository.findByPostId(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
         if (!post.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền xóa bài viết này!");
@@ -107,7 +107,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public ResponseEntity<GenericResponse> getPostById(String userId, String postId) {
-        Post post = postRepository.findByPostId(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
         if (isUserInGroup(userId, post.getGroupId())) {
             return ResponseEntity.status(HttpStatus.OK)

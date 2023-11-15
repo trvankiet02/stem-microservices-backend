@@ -5,6 +5,7 @@ import com.trvankiet.app.constant.QuestionTypeEnum;
 import com.trvankiet.app.dto.request.CreateAnswerRequest;
 import com.trvankiet.app.dto.request.CreateExamRequest;
 import com.trvankiet.app.dto.request.CreateQuestionRequest;
+import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Exam;
 import com.trvankiet.app.entity.Question;
@@ -21,7 +22,6 @@ import com.trvankiet.app.service.client.GroupMemberClientService;
 import com.trvankiet.app.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.wp.usermodel.Paragraph;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -29,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -56,7 +55,7 @@ public class ExamServiceImpl implements ExamService {
         return ResponseEntity.ok().body(GenericResponse.builder()
                 .result(true)
                 .statusCode(200)
-                .message("Success")
+                .message("Lấy danh sách đề thi thành công!")
                 .result(examRepository.findAll().stream().map(mapperService::mapToExamDto).toList())
                 .build()
         );
@@ -74,9 +73,10 @@ public class ExamServiceImpl implements ExamService {
                             .name(createExamRequest.getName())
                             .description(createExamRequest.getDescription())
                             .duration(createExamRequest.getDuration())
-                            .staredAt(DateUtil.string2Date(createExamRequest.getStaredAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                            .startedAt(DateUtil.string2Date(createExamRequest.getStaredAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                             .endedAt(DateUtil.string2Date(createExamRequest.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                             .isEnabled(createExamRequest.getIsEnabled())
+                            .numberOfQuestion(createExamRequest.getNumberOfQuestion())
                             .level(createExamRequest.getLevel())
                             .maxScore(createExamRequest.getMaxScore())
                             .createdAt(new Date())
@@ -89,7 +89,7 @@ public class ExamServiceImpl implements ExamService {
                                 .level(questionRequest.getLevel())
                                 .exam(exam)
                                 .type(questionTypeRepository.findByCode(questionRequest.getTypeCode())
-                                        .orElseThrow(() -> new NotFoundException("Question type not found")))
+                                        .orElseThrow(() -> new NotFoundException("Loại câu hỏi không tồn tại!")))
                                 .createdAt(new Date())
                                 .build());
                 questionRequest.getAnswers().forEach(answerRequest -> {
@@ -112,7 +112,7 @@ public class ExamServiceImpl implements ExamService {
                             .build()
             );
         }
-        throw new ForbiddenException("You are not allowed to create exam");
+        throw new ForbiddenException("Bạn không có quyền tạo đề thi cho nhóm này!");
     }
 
     @Override
@@ -206,6 +206,56 @@ public class ExamServiceImpl implements ExamService {
                                 .orElseThrow(() -> new NotFoundException("Exam not found"))))
                         .build()
         );
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> updateExamDetailByExamId(String userId, String examId, UpdateExamDetailRequest updateExamDetailRequest) throws ParseException {
+        log.info("ExamServiceImpl, updateExamDetailByExamId");
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new NotFoundException("Exam not found"));
+        String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
+        if (role.equals("GROUP_OWNER")) {
+            exam.setName(updateExamDetailRequest.getName());
+            exam.setDescription(updateExamDetailRequest.getDescription());
+            exam.setDuration(updateExamDetailRequest.getDuration());
+            exam.setStartedAt(DateUtil.string2Date(updateExamDetailRequest.getStaredAt(), AppConstant.LOCAL_DATE_TIME_FORMAT));
+            exam.setEndedAt(DateUtil.string2Date(updateExamDetailRequest.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT));
+            exam.setIsEnabled(updateExamDetailRequest.getIsEnabled());
+            exam.setNumberOfQuestion(updateExamDetailRequest.getNumberOfQuestion());
+            exam.setLevel(updateExamDetailRequest.getLevel());
+            exam.setMaxScore(updateExamDetailRequest.getMaxScore());
+            exam.setUpdatedAt(new Date());
+            examRepository.save(exam);
+            return ResponseEntity.ok().body(
+                    GenericResponse.builder()
+                            .result(true)
+                            .statusCode(200)
+                            .message("Success")
+                            .result(mapperService.mapToExamDto(exam))
+                            .build()
+            );
+        }
+        throw new ForbiddenException("You are not allowed to update exam");
+
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> deleteExamById(String userId, String examId) {
+        log.info("ExamServiceImpl, deleteExamById");
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new NotFoundException("Exam not found"));
+        String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
+        if (role.equals("GROUP_OWNER")) {
+            examRepository.deleteById(examId);
+            return ResponseEntity.ok().body(
+                    GenericResponse.builder()
+                            .result(true)
+                            .statusCode(200)
+                            .message("Xoá đề thi thành công!")
+                            .build()
+            );
+        }
+        throw new ForbiddenException("Bạn không có quyền xoá đề thi này!");
     }
 
     private static boolean isCorrectAnswer(XWPFParagraph paragraph) {

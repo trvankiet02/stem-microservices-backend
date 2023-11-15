@@ -31,7 +31,7 @@ public class Answer implements Serializable {
     private String content;
 
     @Field("answer_is_correct")
-    private boolean isCorrect;
+    private Boolean isCorrect;
 
     @DocumentReference
     @Field("question_id")

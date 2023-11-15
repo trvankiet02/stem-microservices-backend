@@ -1,15 +1,10 @@
 package com.trvankiet.app.dto.request;
 
-import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-@Builder
-public class CreateExamRequest {
+public class UpdateExamDetailRequest {
 
-    private String groupId;
     private String name;
     private String description;
     private Integer duration; // minutes
@@ -19,6 +14,5 @@ public class CreateExamRequest {
     private Integer numberOfQuestion;
     private String level;
     private Integer maxScore;
-    private List<CreateQuestionRequest> questions;
 
 }

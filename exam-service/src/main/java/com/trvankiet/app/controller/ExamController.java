@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.request.CreateExamRequest;
+import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.ExamService;
@@ -51,5 +52,24 @@ public class ExamController {
     public ResponseEntity<GenericResponse> findExamById(@PathVariable String examId) {
         log.info("ExamController, findExamById");
         return examService.findExamById(examId);
+    }
+
+    @PutMapping("/{examId}")
+    public ResponseEntity<GenericResponse> updateExamDetailByExamId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+    , @PathVariable String examId
+    , @RequestBody UpdateExamDetailRequest updateExamDetailRequest) throws ParseException {
+        log.info("ExamController, updateExamByExamId");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return examService.updateExamDetailByExamId(userId, examId, updateExamDetailRequest);
+    }
+
+    @DeleteMapping("/{examId}")
+    public ResponseEntity<GenericResponse> deleteExamById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+                                                          , @PathVariable String examId) {
+        log.info("ExamController, deleteExamById");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return examService.deleteExamById(userId, examId);
     }
 }

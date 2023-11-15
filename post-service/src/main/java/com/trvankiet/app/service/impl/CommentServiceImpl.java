@@ -34,7 +34,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseEntity<GenericResponse> createComment(String userId, String postId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest) {
         log.info("CommentServiceImpl, createComment({})", commentPostRequest);
-        Post post = postRepository.findByPostId(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
         Date now = new Date();
         Comment comment = Comment.builder()
@@ -60,7 +60,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseEntity<GenericResponse> updateComment(String userId, String commentId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest) {
         log.info("CommentServiceImpl, updateComment({})", commentPostRequest);
-        Comment comment = commentRepository.findByCommentId(commentId)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bình luận!"));
         if (!comment.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa bình luận này!");
@@ -82,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseEntity<GenericResponse> getComments(String postId, int page, int size) {
         log.info("CommentServiceImpl, getComments({})", postId);
-        Post post = postRepository.findByPostId(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
         List<Comment> comments = post.getComments();
         int total = comments.size();
@@ -103,7 +103,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseEntity<GenericResponse> deleteComment(String userId, String commentId) {
         log.info("CommentServiceImpl, deleteComment({})", commentId);
-        Comment comment = commentRepository.findByCommentId(commentId)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bình luận!"));
         if (!comment.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa bình luận này!");
