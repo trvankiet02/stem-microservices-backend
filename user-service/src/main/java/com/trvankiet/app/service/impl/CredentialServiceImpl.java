@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ public class CredentialServiceImpl implements CredentialService {
     private final RoleRepository roleRepository;
     private final ProviderRepository providerRepository;
     private final MapperService mapperService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Override
     public <S extends Credential> S save(S entity) {

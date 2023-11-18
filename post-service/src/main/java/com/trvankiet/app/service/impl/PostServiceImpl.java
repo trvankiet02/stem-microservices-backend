@@ -15,10 +15,6 @@ import com.trvankiet.app.service.PostService;
 import com.trvankiet.app.service.client.GroupClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -124,20 +120,28 @@ public class PostServiceImpl implements PostService {
     @Override
     public ResponseEntity<GenericResponse> getPostInGroup(String userId, String groupId, int page, int size) {
         if (isUserInGroup(userId, groupId)) {
-            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-            Page<Post> postPage = postRepository.findAll(pageable);
-            Map<String, Object> result = new HashMap<>();
-            result.put("totalPages", postPage.getTotalPages());
-            result.put("totalElements", postPage.getTotalElements());
-            result.put("currentPage", postPage.getNumber() + 1);
-            result.put("currentElements", postPage.getNumberOfElements());
-            result.put("posts", postPage.getContent().stream().map(mapperService::mapToPostDto).toList());
+//            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+//            Page<Post> postPage = postRepository.findAll(pageable);
+//            Map<String, Object> result = new HashMap<>();
+//            result.put("totalPages", postPage.getTotalPages());
+//            result.put("totalElements", postPage.getTotalElements());
+//            result.put("currentPage", postPage.getNumber() + 1);
+//            result.put("currentElements", postPage.getNumberOfElements());
+//            result.put("posts", postPage.getContent().stream().map(mapperService::mapToPostDto).toList());
+//            return ResponseEntity.status(HttpStatus.OK)
+//                    .body(GenericResponse.builder()
+//                            .success(true)
+//                            .statusCode(HttpStatus.OK.value())
+//                            .message("Lấy bài viết thành công!")
+//                            .result(result)
+//                            .build());
+            List<Post> posts = postRepository.findAllByGroupId(groupId);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(GenericResponse.builder()
                             .success(true)
                             .statusCode(HttpStatus.OK.value())
                             .message("Lấy bài viết thành công!")
-                            .result(result)
+                            .result(posts.stream().map(mapperService::mapToPostDto).toList())
                             .build());
         }
         throw new ForbiddenException("Bạn không có quyền xem bài viết trong nhóm này!");

@@ -309,7 +309,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)
-                .message("Thêm thành viên vào nhóm thành công")
+                .message("Lấy danh sách thành viên thành công!")
                 .result(groupMembers)
                 .build());
     }

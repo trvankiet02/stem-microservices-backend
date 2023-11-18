@@ -37,6 +37,7 @@
         <module>group-service</module>
         <module>message-service</module>
         <module>exam-service</module>
+        <module>search-service</module>
     </modules>
 
     <dependencies>
