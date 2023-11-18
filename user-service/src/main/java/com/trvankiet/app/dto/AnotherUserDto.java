@@ -1,25 +1,16 @@
 package com.trvankiet.app.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.trvankiet.app.constant.Gender;
-import com.trvankiet.app.entity.Credential;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Nationalized;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 @Builder
 @Data
-public class UserDto implements Serializable {
+public class AnotherUserDto {
 
     private String id;
     private String firstName;
@@ -33,17 +24,6 @@ public class UserDto implements Serializable {
     private String coverUrl;
     @JsonProperty("credential")
     private CredentialDto credentialDto;
-
-    private String district;
-    private String province;
-    private String school;
-    List<String> subjects;
-
-    @JsonManagedReference
-    List<AnotherUserDto> parents;
-    @JsonManagedReference
-    List<AnotherUserDto> children;
-
     private Date createdAt;
     private Date updatedAt;
 

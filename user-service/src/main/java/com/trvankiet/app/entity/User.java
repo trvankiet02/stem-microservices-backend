@@ -77,9 +77,20 @@ public class User extends AbstractMappedEntity implements Serializable {
     @Column(name = "school")
     private String school;
 
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "teacher_subject", joinColumns = @JoinColumn(name = "user_id"))
+    private List<String> subjects = new ArrayList<>();
+
     /**
      * For Student
      */
+    @OneToMany
+    @JoinColumn(name = "child_id")
+    @JsonBackReference
+    @ToString.Exclude
+    private List<Relationship> relationships = new ArrayList<>();
+
     @Column(name = "grade")
     private Integer grade;
 
@@ -90,16 +101,13 @@ public class User extends AbstractMappedEntity implements Serializable {
     private List<User> parents = new ArrayList<>();
 
     /**
-     * For Teacher
-     */
-    @Builder.Default
-    @ElementCollection
-    @CollectionTable(name = "teacher_subject", joinColumns = @JoinColumn(name = "user_id"))
-    private List<String> subjects = new ArrayList<>();
-
-    /**
      * For Parent
      */
+    @OneToMany
+    @JoinColumn(name = "parent_id")
+    @JsonBackReference
+    @ToString.Exclude
+    private List<Relationship> children = new ArrayList<>();
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)

@@ -73,8 +73,10 @@ public class MapperServiceImpl implements MapperService {
                 .authorId(submission.getAuthorId())
                 .score(submission.getScore())
                 .examDto(mapToExamDto(submission.getExam()))
-                .startedAt(DateUtil.date2String(submission.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
-                .endedAt(DateUtil.date2String(submission.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                .startedAt(submission.getStartedAt() == null
+                        ? null : DateUtil.date2String(submission.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                .endedAt(submission.getEndedAt() == null
+                        ? null : DateUtil.date2String(submission.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .createdAt(submission.getCreatedAt() == null
                         ? null : DateUtil.date2String(submission.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .updatedAt(submission.getUpdatedAt() == null

@@ -7,5 +7,7 @@ import lombok.Data;
 @Builder
 public class AnswerSubmissionResponse {
 
+    private String answer;
+    private boolean isChecked;
 
 }

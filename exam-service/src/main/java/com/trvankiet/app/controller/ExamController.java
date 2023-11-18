@@ -49,9 +49,12 @@ public class ExamController {
     }
 
     @GetMapping("/{examId}")
-    public ResponseEntity<GenericResponse> findExamById(@PathVariable String examId) {
+    public ResponseEntity<GenericResponse> findExamById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @PathVariable String examId) {
         log.info("ExamController, findExamById");
-        return examService.findExamById(examId);
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return examService.findExamById(userId, examId);
     }
 
     @PutMapping("/{examId}")
