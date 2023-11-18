@@ -10,6 +10,7 @@ import com.trvankiet.app.service.CommentService;
 import com.trvankiet.app.service.PostService;
 import com.trvankiet.app.service.client.FileClientService;
 import com.trvankiet.app.service.client.GroupClientService;
+import com.trvankiet.app.util.FileUtil;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,8 +58,8 @@ public class PostController {
         log.info("PostController, createPost({})", postCreateRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = postCreateRequest.getMediaFiles().isEmpty() ?
-                new ArrayList<>() : fileClientService.uploadDocumentFiles(authorizationHeader, postCreateRequest.getMediaFiles());
+        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(postCreateRequest.getMediaFiles()) ?
+                fileClientService.uploadDocumentFiles(authorizationHeader, postCreateRequest.getMediaFiles()) : new ArrayList<>();
         return postService.createPost(userId, fileDtos, postCreateRequest);
     }
 
@@ -68,8 +69,8 @@ public class PostController {
         log.info("PostController, updatePost({})", updatePostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = updatePostRequest.getMediaFiles().isEmpty() ?
-                new ArrayList<>() : fileClientService.uploadDocumentFiles(authorizationHeader, updatePostRequest.getMediaFiles());
+        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(updatePostRequest.getMediaFiles()) ?
+                fileClientService.uploadDocumentFiles(authorizationHeader, updatePostRequest.getMediaFiles()) : new ArrayList<>();
         return postService.updatePost(userId, fileDtos, updatePostRequest);
     }
 
