@@ -35,4 +35,18 @@ public class SubmissionController {
         String userId = jwtService.extractUserId(accessToken);
         return submissionService.submitSubmission(userId, submissionId);
     }
+
+    @GetMapping("/continue/{submissionId}")
+    public ResponseEntity<GenericResponse> continueSubmissionById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
+            , @PathVariable("submissionId") String submissionId) {
+        log.info("SubmissionController, getSubmission");
+        String accessToken = authorizationToken.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return submissionService.continueSubmissionById(userId, submissionId);
+    }
+
+    // Get list of submissions of class for teacher
+    // Get result of a submission for student and parent of student
+    // Get list exam and submission of student for student and parent of student
+    
 }

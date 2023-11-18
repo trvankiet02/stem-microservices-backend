@@ -15,7 +15,7 @@ public interface ExamService {
 
     ResponseEntity<CreateExamRequest> importFromDocOrDocx(String userId, MultipartFile multipartFile);
 
-    ResponseEntity<GenericResponse> findExamById(String examId);
+    ResponseEntity<GenericResponse> findExamById(String userId, String examId);
 
     ResponseEntity<GenericResponse> updateExamDetailByExamId(String userId, String examId, UpdateExamDetailRequest updateExamDetailRequest) throws ParseException;
 

@@ -7,4 +7,8 @@ public interface SubmissionService {
     ResponseEntity<GenericResponse> createSubmission(String userId, String examId);
 
     ResponseEntity<GenericResponse> submitSubmission(String userId, String submissionId);
+
+    ResponseEntity<GenericResponse> continueSubmissionById(String userId, String submissionId);
+
+    ResponseEntity<GenericResponse> createSubmissionV2(String userId, String examId);
 }

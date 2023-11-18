@@ -2,6 +2,7 @@ package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.constant.QuestionTypeEnum;
+import com.trvankiet.app.dto.SubmissionDto;
 import com.trvankiet.app.dto.request.CreateAnswerRequest;
 import com.trvankiet.app.dto.request.CreateExamRequest;
 import com.trvankiet.app.dto.request.CreateQuestionRequest;
@@ -9,13 +10,11 @@ import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Exam;
 import com.trvankiet.app.entity.Question;
+import com.trvankiet.app.entity.Submission;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
 import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
-import com.trvankiet.app.repository.AnswerRepository;
-import com.trvankiet.app.repository.ExamRepository;
-import com.trvankiet.app.repository.QuestionRepository;
-import com.trvankiet.app.repository.QuestionTypeRepository;
+import com.trvankiet.app.repository.*;
 import com.trvankiet.app.service.ExamService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.client.GroupMemberClientService;
@@ -32,10 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -48,6 +44,7 @@ public class ExamServiceImpl implements ExamService {
     private final QuestionTypeRepository questionTypeRepository;
     private final MapperService mapperService;
     private final GroupMemberClientService groupMemberClientService;
+    private final SubmissionRepository submissionRepository;
 
     @Override
     public ResponseEntity<GenericResponse> findAllExams() {
@@ -195,15 +192,23 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> findExamById(String examId) {
+    public ResponseEntity<GenericResponse> findExamById(String userId, String examId) {
         log.info("ExamServiceImpl, findExamById");
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new NotFoundException("Exam not found"));
+        Submission submission = submissionRepository.findByExamIdAndAuthorId(examId, userId)
+                .orElse(null);
+        SubmissionDto submissionDto = submission == null ?
+                null : mapperService.mapToSubmissionDto(submission);
+        Map<String, Object> result = new HashMap<>();
+        result.put("exam", mapperService.mapToExamDto(exam));
+        result.put("submission", submissionDto);
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
                         .result(true)
                         .statusCode(200)
                         .message("Success")
-                        .result(mapperService.mapToExamDto(examRepository.findById(examId)
-                                .orElseThrow(() -> new NotFoundException("Exam not found"))))
+                        .result(result)
                         .build()
         );
     }
