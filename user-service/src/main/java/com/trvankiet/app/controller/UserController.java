@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.PUT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,7 +54,7 @@ public class UserController {
         return userService.updateProfile(userId, postProfileRequest);
     }
 
-    @PutMapping("/profile/avatar")
+    @PutMapping(value = "/profile/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> updateAvatar (@RequestHeader("Authorization") String authorizationHeader, @RequestPart("avatar") MultipartFile avatar) throws IOException {
         log.info("UserController Post, GenericResponse, updateAvatar");
         String token = authorizationHeader.substring(7);
@@ -61,7 +62,7 @@ public class UserController {
         return userService.updateAvatar(userId, avatar);
     }
 
-    @PutMapping("/profile/cover")
+    @PutMapping(value = "/profile/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> updateCover (@RequestHeader("Authorization") String authorizationHeader, @RequestPart("cover") MultipartFile cover) throws IOException {
         log.info("UserController Post, GenericResponse, updateCover");
         String token = authorizationHeader.substring(7);
