@@ -216,7 +216,7 @@ public class UserServiceImpl implements UserService {
         user.setAvatarUrl(newAvatar);
         user = userRepository.save(user);
         //delete old avatar
-        if (oldAvatar != null) {
+        if (oldAvatar != null && !oldAvatar.isEmpty()) {
             fileClientService.deleteUserAvatar(oldAvatar);
         }
 
@@ -240,7 +240,7 @@ public class UserServiceImpl implements UserService {
         user.setCoverUrl(newCover);
         user = userRepository.save(user);
         //delete old cover
-        if (oldCover != null) {
+        if (oldCover != null && !oldCover.isEmpty()) {
             fileClientService.deleteUserCover(oldCover);
         }
         return ResponseEntity.ok(GenericResponse.builder()
