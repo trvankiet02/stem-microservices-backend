@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/group-member-requests")
 @Slf4j
@@ -21,11 +23,12 @@ public class GroupMemberRequestController {
 
     @GetMapping
     public ResponseEntity<GenericResponse> getAllGroupMemberRequests(@RequestHeader("Authorization") String authorizationHeader,
-                                                                     @RequestParam(value = "groupId") String groupId) {
+                                                                     @RequestParam(value = "groupId") String groupId,
+                                                                     @RequestParam("state") Optional<String> stateCode) {
         log.info("GroupMemberRequestController, ResponseEntity<GenericResponse> getAllGroupMemberRequests");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return groupMemberRequestService.getAllGroupMemberRequests(userId, groupId);
+        return groupMemberRequestService.getAllGroupMemberRequests(userId, groupId, stateCode);
     }
 
     @PostMapping("/{gmrId}/response")
