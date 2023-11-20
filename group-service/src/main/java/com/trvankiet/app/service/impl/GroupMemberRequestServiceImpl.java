@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -32,7 +33,7 @@ public class GroupMemberRequestServiceImpl implements GroupMemberRequestService 
     private final MapperService mappingService;
 
     @Override
-    public ResponseEntity<GenericResponse> getAllGroupMemberRequests(String userId, String groupId) {
+    public ResponseEntity<GenericResponse> getAllGroupMemberRequests(String userId, String groupId, Optional<String> stateCode) {
         log.info("GroupMemberRequestServiceImpl, ResponseEntity<GenericResponse> getAllGroupMemberRequests");
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Nhóm không tồn tại"));
@@ -43,9 +44,11 @@ public class GroupMemberRequestServiceImpl implements GroupMemberRequestService 
                         .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên nhóm")))) {
             throw new ForbiddenException("Bạn không có quyền truy cập");
         }
+        String stateCodeValue = stateCode.orElse(StateType.PENDING.getCode());
         List<GroupMemberRequestDto> groupMemberRequestDtos = groupMemberRequestRepository
-                .findAllByGroupIdAndStateCode(groupId, StateType.PENDING.getCode())
+                .findAllByGroupId(groupId)
                 .stream()
+                .filter(groupMemberRequest -> groupMemberRequest.getState().getCode().equals(stateCodeValue))
                 .map(mappingService::mapToGroupMemberRequestDto)
                 .toList();
         return ResponseEntity.ok(
