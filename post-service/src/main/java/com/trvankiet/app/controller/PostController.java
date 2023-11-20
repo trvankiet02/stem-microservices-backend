@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.FileDto;
+import com.trvankiet.app.dto.PostDto;
 import com.trvankiet.app.dto.request.CommentPostRequest;
 import com.trvankiet.app.dto.request.PostCreateRequest;
 import com.trvankiet.app.dto.request.UpdatePostRequest;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -81,6 +83,13 @@ public class PostController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return postService.deletePost(userId, postId);
+    }
+
+    @GetMapping("/search")
+    public List<PostDto> searchPost(@RequestParam("query") Optional<String> query
+    , @RequestParam("type") Optional<String> type) {
+        log.info("PostController, searchPost");
+        return postService.searchPost(query, type);
     }
 
 

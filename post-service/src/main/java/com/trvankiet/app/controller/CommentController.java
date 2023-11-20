@@ -36,14 +36,13 @@ public class CommentController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> createComment(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                                         @RequestParam("postId") String postId,
                                                          @ModelAttribute CommentPostRequest commentPostRequest) {
         log.info("PostController, createComment({})", commentPostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         List<FileDto> fileDtos = commentPostRequest.getMediaFiles().isEmpty() ?
                 new ArrayList<>() : fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles());
-        return commentService.createComment(userId, postId, fileDtos, commentPostRequest);
+        return commentService.createComment(userId, fileDtos, commentPostRequest);
     }
 
     @PutMapping("/{commentId}")

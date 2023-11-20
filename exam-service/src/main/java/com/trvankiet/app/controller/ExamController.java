@@ -1,5 +1,6 @@
 package com.trvankiet.app.controller;
 
+import com.trvankiet.app.dto.ExamDto;
 import com.trvankiet.app.dto.request.CreateExamRequest;
 import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/exams")
@@ -59,8 +62,8 @@ public class ExamController {
 
     @PutMapping("/{examId}")
     public ResponseEntity<GenericResponse> updateExamDetailByExamId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-    , @PathVariable String examId
-    , @RequestBody UpdateExamDetailRequest updateExamDetailRequest) throws ParseException {
+            , @PathVariable String examId
+            , @RequestBody UpdateExamDetailRequest updateExamDetailRequest) throws ParseException {
         log.info("ExamController, updateExamByExamId");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -69,10 +72,17 @@ public class ExamController {
 
     @DeleteMapping("/{examId}")
     public ResponseEntity<GenericResponse> deleteExamById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-                                                          , @PathVariable String examId) {
+            , @PathVariable String examId) {
         log.info("ExamController, deleteExamById");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return examService.deleteExamById(userId, examId);
+    }
+
+    @GetMapping("/search")
+    public List<ExamDto> searchExam(@RequestParam("query") Optional<String> query
+            , @RequestParam("level") Optional<String> level) {
+        log.info("ExamController, searchExam");
+        return examService.searchExam(query, level);
     }
 }

@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/register-student")
-    public ResponseEntity<GenericResponse> registerForStudent(@RequestBody final StudentAndParentRequest studentAndParentRequest) {
+    public ResponseEntity<GenericResponse> registerForStudent(@RequestBody @Valid final StudentAndParentRequest studentAndParentRequest) {
         log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
         return credentialService.registerForStudent(studentAndParentRequest);
     }

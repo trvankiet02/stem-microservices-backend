@@ -19,8 +19,6 @@ import com.trvankiet.app.service.TokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -49,16 +47,6 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public <S extends Token> Optional<S> findOne(Example<S> example) {
-        return tokenRepository.findOne(example);
-    }
-
-    @Override
-    public List<Token> findAll(Sort sort) {
-        return tokenRepository.findAll(sort);
-    }
-
-    @Override
     public List<Token> findAll() {
         return tokenRepository.findAll();
     }
@@ -76,16 +64,6 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public boolean existsById(String id) {
         return tokenRepository.existsById(id);
-    }
-
-    @Override
-    public <S extends Token> long count(Example<S> example) {
-        return tokenRepository.count(example);
-    }
-
-    @Override
-    public <S extends Token> boolean exists(Example<S> example) {
-        return tokenRepository.exists(example);
     }
 
     @Override

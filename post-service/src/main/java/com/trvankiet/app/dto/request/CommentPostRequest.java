@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class CommentPostRequest {
 
+    private String postId;
     private String content;
     private List<MultipartFile> mediaFiles;
 

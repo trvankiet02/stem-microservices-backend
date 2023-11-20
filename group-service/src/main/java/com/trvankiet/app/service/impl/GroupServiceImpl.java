@@ -23,6 +23,7 @@ import com.trvankiet.app.service.GroupService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.client.FileClientService;
 import com.trvankiet.app.service.client.UserClientService;
+import com.trvankiet.app.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -258,5 +259,25 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseEntity<GenericResponse> deleteGroup(String userId, String groupId) {
         return null;
+    }
+
+    @Override
+    public ResponseEntity<List<GroupDto>> searchGroup(
+            Optional<String> query, Optional<String> type, Optional<String> accessibility,
+            Optional<Integer> grade, Optional<String> subject) {
+        log.info("GroupServiceImpl, searchGroup");
+
+        List<Group> groups = groupRepository.searchGroupByQuery(query.orElse(""));
+
+        type.ifPresent(typeValue -> groups.removeIf(group -> !group.getConfig().getType().equals(typeValue)));
+        accessibility.ifPresent(accessibilityValue -> groups.removeIf(group -> !group.getConfig().getAccessibility().equals(accessibilityValue)));
+        grade.ifPresent(gradeValue -> groups.removeIf(group -> group.getGrade() == null || !group.getGrade().equals(gradeValue)));
+        subject.ifPresent(subjectValue -> groups.removeIf(group -> group.getSubject() == null || !group.getSubject().equals(subjectValue)));
+
+        List<GroupDto> groupDtos = groups.stream()
+                .map(mapperService::mapToGroupDto)
+                .toList();
+
+        return ResponseEntity.ok(groupDtos);
     }
 }
