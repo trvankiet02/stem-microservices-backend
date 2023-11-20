@@ -2,6 +2,7 @@ package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.constant.Gender;
+import com.trvankiet.app.constant.RoleBasedAuthority;
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.UserDto;
@@ -24,8 +25,6 @@ import com.trvankiet.app.util.DateUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,9 +32,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -56,16 +57,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public <S extends User> Optional<S> findOne(Example<S> example) {
-        return userRepository.findOne(example);
-    }
-
-    @Override
-    public List<User> findAll(Sort sort) {
-        return userRepository.findAll(sort);
-    }
-
-    @Override
     public List<User> findAll() {
         return userRepository.findAll();
     }
@@ -78,16 +69,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsById(String id) {
         return userRepository.existsById(id);
-    }
-
-    @Override
-    public <S extends User> long count(Example<S> example) {
-        return userRepository.count(example);
-    }
-
-    @Override
-    public <S extends User> boolean exists(Example<S> example) {
-        return userRepository.exists(example);
     }
 
     @Override
@@ -251,6 +232,28 @@ public class UserServiceImpl implements UserService {
                 .build());
     }
 
+    @Override
+    public ResponseEntity<List<UserDto>> searchUser(Optional<String> query, Optional<String> role, Optional<String> gender, Optional<String> school, Optional<Integer> grade, Optional<List<String>> subjects) {
+        log.info("UserServiceImpl, ResponseEntity<String>, searchUser");
+
+        String queryString = query.orElse(null);
+        RoleBasedAuthority roleBasedAuthority = role.map(RoleBasedAuthority::valueOf).orElse(null);
+        Gender genderString = gender.map(Gender::valueOf).orElse(null);
+        String schoolString = school.orElse(null);
+        Integer gradeInteger = grade.orElse(null);
+        List<String> subjectsList = subjects.orElse(Collections.emptyList());
+
+        try {
+            List<User> users = userRepository.searchUsers(queryString, roleBasedAuthority, genderString, schoolString, gradeInteger, subjectsList);
+            List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).collect(Collectors.toList());
+            return ResponseEntity.ok(userDtos);
+        } catch (Exception e) {
+            log.error("Error while executing searchUsers query", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
     private Token validateAndRetrieveVerificationToken(String token) {
         Token verificationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!"));
@@ -265,5 +268,7 @@ public class UserServiceImpl implements UserService {
 
         return verificationToken;
     }
+
+
 
 }

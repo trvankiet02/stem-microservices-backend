@@ -14,10 +14,6 @@ import com.trvankiet.app.service.CommentService;
 import com.trvankiet.app.service.MapperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,9 +28,9 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final MapperService mapperService;
     @Override
-    public ResponseEntity<GenericResponse> createComment(String userId, String postId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest) {
+    public ResponseEntity<GenericResponse> createComment(String userId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest) {
         log.info("CommentServiceImpl, createComment({})", commentPostRequest);
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(commentPostRequest.getPostId())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
         Date now = new Date();
         Comment comment = Comment.builder()

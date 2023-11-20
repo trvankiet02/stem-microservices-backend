@@ -6,8 +6,6 @@ import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.User;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,19 +17,11 @@ public interface UserService {
 
     <S extends User> S save(S entity);
 
-    <S extends User> Optional<S> findOne(Example<S> example);
-
-    List<User> findAll(Sort sort);
-
     List<User> findAll();
 
     Optional<User> findById(String id);
 
     boolean existsById(String id);
-
-    <S extends User> long count(Example<S> example);
-
-    <S extends User> boolean exists(Example<S> example);
 
     long count();
 
@@ -52,4 +42,6 @@ public interface UserService {
     ResponseEntity<GenericResponse> updateAvatar(String userId, MultipartFile avatar) throws IOException;
 
     ResponseEntity<GenericResponse> updateCover(String userId, MultipartFile cover) throws IOException;
+
+    ResponseEntity<List<UserDto>> searchUser(Optional<String> query, Optional<String> role, Optional<String> gender, Optional<String> school, Optional<Integer> grade, Optional<List<String>> subjects);
 }

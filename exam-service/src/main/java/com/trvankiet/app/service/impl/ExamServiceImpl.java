@@ -2,6 +2,7 @@ package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.constant.QuestionTypeEnum;
+import com.trvankiet.app.dto.ExamDto;
 import com.trvankiet.app.dto.SubmissionDto;
 import com.trvankiet.app.dto.request.CreateAnswerRequest;
 import com.trvankiet.app.dto.request.CreateExamRequest;
@@ -261,6 +262,29 @@ public class ExamServiceImpl implements ExamService {
             );
         }
         throw new ForbiddenException("Bạn không có quyền xoá đề thi này!");
+    }
+
+    @Override
+    public List<ExamDto> searchExam(Optional<String> query, Optional<String> level) {
+        log.info("ExamServiceImpl, searchExam");
+        if (query.isPresent() && level.isPresent()) {
+            return examRepository.searchExam(query.get()).stream()
+                    .filter(exam -> exam.getLevel().equals(level.get()))
+                    .map(mapperService::mapToExamDto)
+                    .toList();
+        } else {
+            return query.map(s -> examRepository.searchExam(s).stream()
+                            .map(mapperService::mapToExamDto)
+                            .toList())
+                    .orElseGet(() -> level.map(s -> examRepository.findAll().stream()
+                                    .filter(exam -> exam.getLevel().equals(s))
+                                    .map(mapperService::mapToExamDto)
+                                    .toList())
+                            .orElseGet(() -> examRepository.findAll().stream()
+                                    .map(mapperService::mapToExamDto)
+                                    .toList()));
+
+        }
     }
 
     private static boolean isCorrectAnswer(XWPFParagraph paragraph) {

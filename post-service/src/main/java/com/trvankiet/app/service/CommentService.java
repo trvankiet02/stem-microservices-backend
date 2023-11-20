@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface CommentService {
-    ResponseEntity<GenericResponse> createComment(String userId, String postId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest);
+    ResponseEntity<GenericResponse> createComment(String userId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest);
 
     ResponseEntity<GenericResponse> updateComment(String userId, String commentId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest);
 

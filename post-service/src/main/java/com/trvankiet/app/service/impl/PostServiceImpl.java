@@ -147,6 +147,28 @@ public class PostServiceImpl implements PostService {
         throw new ForbiddenException("Bạn không có quyền xem bài viết trong nhóm này!");
     }
 
+    @Override
+    public List<PostDto> searchPost(Optional<String> query, Optional<String> type) {
+        log.info("PostServiceImpl, searchPost");
+        if (query.isPresent() && type.isPresent()) {
+            return postRepository.searchPost(query.get()).stream()
+                    .filter(post -> post.getType().getCode().equals(type.get()))
+                    .map(mapperService::mapToPostDto)
+                    .toList();
+        } else {
+            return query.map(s -> postRepository.searchPost(s).stream()
+                            .map(mapperService::mapToPostDto)
+                            .toList())
+                    .orElseGet(() -> type.map(s -> postRepository.findAll().stream()
+                                    .filter(post -> post.getType().getCode().equals(s))
+                                    .map(mapperService::mapToPostDto)
+                                    .toList())
+                            .orElseGet(() -> postRepository.findAll().stream()
+                                    .map(mapperService::mapToPostDto)
+                                    .toList()));
+        }
+    }
+
     public Boolean isUserInGroup(String userId, String groupId) {
         ResponseEntity<GenericResponse> responseEntity = groupClientService.validateUserInGroup(userId, groupId);
         return responseEntity.getStatusCode().equals(HttpStatus.OK);
