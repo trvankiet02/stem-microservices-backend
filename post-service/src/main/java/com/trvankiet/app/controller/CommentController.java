@@ -6,6 +6,7 @@ import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.CommentService;
 import com.trvankiet.app.service.client.FileClientService;
+import com.trvankiet.app.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -40,8 +41,8 @@ public class CommentController {
         log.info("PostController, createComment({})", commentPostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = commentPostRequest.getMediaFiles().isEmpty() ?
-                new ArrayList<>() : fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles());
+        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(commentPostRequest.getMediaFiles()) ?
+                fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles()) : new ArrayList<>();
         return commentService.createComment(userId, fileDtos, commentPostRequest);
     }
 
@@ -52,8 +53,8 @@ public class CommentController {
         log.info("PostController, updateComment({})", commentPostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = commentPostRequest.getMediaFiles().isEmpty() ?
-                new ArrayList<>() : fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles());
+        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(commentPostRequest.getMediaFiles()) ?
+                fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles()) : new ArrayList<>();
         return commentService.updateComment(userId, commentId, fileDtos, commentPostRequest);
     }
 
