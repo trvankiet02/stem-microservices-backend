@@ -194,7 +194,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 GroupMember groupMember = groupMemberRepository
                         .save(GroupMember.builder()
                                 .id(UUID.randomUUID().toString())
-                                .userId(userId)
+                                .userId(groupMemberRequest.getAuthorId())
                                 .group(group)
                                 .groupMemberRole(groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_MEMBER.getCode())
                                         .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")))
