@@ -1,5 +1,5 @@
 package com.trvankiet.app.constant;
 
-public enum FriendType {
+public enum FriendTypeEnum {
     FRIEND, BLOCKED, REQUESTED;
 }

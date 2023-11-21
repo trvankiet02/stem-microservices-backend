@@ -1,7 +1,6 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.trvankiet.app.constant.FriendType;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
