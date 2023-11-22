@@ -18,7 +18,7 @@ public class TokenController {
     private final TokenService tokenService;
 
     @PostMapping("reset-password")
-    public ResponseEntity<GenericResponse> resetPassword(@RequestBody final EmailRequest emailRequest) {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestBody @Valid final EmailRequest emailRequest) {
         log.info("TokenController, Response<GenericResponse>, resetPassword");
         return tokenService.resetPassword(emailRequest);
     }

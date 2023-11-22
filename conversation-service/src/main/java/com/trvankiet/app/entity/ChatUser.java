@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Document(collection = "chat_users")
 @NoArgsConstructor
@@ -35,6 +36,6 @@ public class ChatUser implements Serializable {
     private StatusEnum status;
 
     @Field(name = "last_online")
-    private Data lastOnline;
+    private Date lastOnline;
 
 }

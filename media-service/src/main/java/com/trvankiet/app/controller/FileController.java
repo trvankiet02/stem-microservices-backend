@@ -8,6 +8,7 @@ import com.trvankiet.app.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +30,7 @@ public class FileController {
         return "Hello from FileController";
     }
 
-    @PostMapping("/posts")
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<FileDto> uploadPostFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                          @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
         log.info("FileController, uploadPostFiles");
@@ -47,7 +48,7 @@ public class FileController {
         return fileService.deletePostFiles(userId, deleteRequest);
     }
 
-    @PostMapping("/comments")
+    @PostMapping(value = "/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<FileDto> uploadCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                             @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
         log.info("FileController, uploadCommentFiles");
@@ -65,7 +66,7 @@ public class FileController {
         return fileService.deleteCommentFiles(userId, deleteRequest);
     }
 
-    @PostMapping("/documents")
+    @PostMapping(value = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<FileDto> uploadDocumentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                              @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
         log.info("FileController, uploadDocumentFiles");
@@ -83,27 +84,27 @@ public class FileController {
         return fileService.deleteDocumentFiles(userId, deleteRequest);
     }
 
-    @PostMapping("/uploadUserAvatar")
+    @PostMapping(value = "/uploadUserAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String uploadUserAvatar(@RequestPart("mediaFile") MultipartFile file) throws IOException {
         return fileService.uploadUserAvatar(file);
     }
 
-    @DeleteMapping("/deleteUserAvatar")
+    @DeleteMapping(value = "/deleteUserAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void deleteUserAvatar(@RequestPart("refUrl") String refUrl) throws IOException {
         fileService.deleteUserAvatar(refUrl);
     }
 
-    @PostMapping("/uploadUserCover")
+    @PostMapping(value = "/uploadUserCover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String uploadUserCover(@RequestPart("mediaFile") MultipartFile file) throws IOException {
         return fileService.uploadUserCover(file);
     }
 
-    @DeleteMapping("/deleteUserCover")
+    @DeleteMapping(value = "/deleteUserCover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void deleteUserCover(@RequestPart("refUrl") String refUrl) throws IOException {
         fileService.deleteUserCover(refUrl);
     }
 
-    @PostMapping("/uploadGroupAvatar")
+    @PostMapping(value = "/uploadGroupAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String uploadGroupAvatar(@RequestPart("mediaFile") MultipartFile file) throws IOException {
         return fileService.uploadGroupAvatar(file);
     }

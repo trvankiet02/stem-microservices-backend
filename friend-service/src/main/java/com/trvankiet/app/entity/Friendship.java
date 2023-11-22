@@ -28,7 +28,6 @@ public class Friendship implements Serializable {
     @Field(name = "author_id")
     private String authorId;
 
-    @DocumentReference
     @Field(name = "fiend_ids")
     private List<String> friendIds;
 

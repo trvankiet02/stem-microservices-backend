@@ -1,9 +1,11 @@
-package com.trvankiet.app.dto;
+package com.trvankiet.app.dto.request;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class UpdateUserRequest {
+@Builder
+public class UpdateChatUserRequest {
 
     private String firstName;
     private String lastName;

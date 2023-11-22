@@ -3,6 +3,7 @@ package com.trvankiet.app.service.impl;
 import com.trvankiet.app.dto.CommentDto;
 import com.trvankiet.app.dto.FileDto;
 import com.trvankiet.app.dto.request.CommentPostRequest;
+import com.trvankiet.app.dto.request.UpdateCommentRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Comment;
 import com.trvankiet.app.entity.Post;
@@ -39,7 +40,7 @@ public class CommentServiceImpl implements CommentService {
                 .content(commentPostRequest.getContent())
                 .reactions(new ArrayList<>())
                 .subComments(new ArrayList<>())
-                .refUrls(fileDtos.stream().map(FileDto::getFileLink).toList())
+                .refUrls(fileDtos.stream().map(FileDto::getRefUrl).toList())
                 .createdAt(now)
                 .build();
         post.getComments().add(comment);
@@ -54,16 +55,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> updateComment(String userId, String commentId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest) {
-        log.info("CommentServiceImpl, updateComment({})", commentPostRequest);
+    public ResponseEntity<GenericResponse> updateComment(String userId, String commentId, List<FileDto> fileDtos, UpdateCommentRequest updateCommentRequest) {
+        log.info("CommentServiceImpl, updateComment({})", updateCommentRequest);
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bình luận!"));
         if (!comment.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa bình luận này!");
         }
-        comment.setContent(commentPostRequest.getContent());
+        comment.setContent(updateCommentRequest.getContent());
         if (!fileDtos.isEmpty()) {
-            comment.setRefUrls(fileDtos.stream().map(FileDto::getFileLink).toList());
+            comment.setRefUrls(fileDtos.stream().map(FileDto::getRefUrl).toList());
         }
         comment.setUpdatedAt(new Date());
         commentRepository.save(comment);

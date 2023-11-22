@@ -5,22 +5,29 @@ import com.trvankiet.app.constant.Gender;
 import com.trvankiet.app.constant.RoleBasedAuthority;
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.dto.CredentialDto;
+import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.UserDto;
+import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.dto.request.ProfileRequest;
+import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
+import com.trvankiet.app.dto.response.ChatUser;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
+import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.repository.UserRepository;
 import com.trvankiet.app.service.CloudinaryService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.UserService;
+import com.trvankiet.app.service.client.ChatUserClientService;
 import com.trvankiet.app.service.client.FileClientService;
+import com.trvankiet.app.service.client.FriendshipClientService;
 import com.trvankiet.app.util.DateUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -47,9 +54,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final CredentialRepository credentialRepository;
-    private final CloudinaryService cloudinaryService;
     private final MapperService mapperService;
     private final FileClientService fileClientService;
+    private final FriendshipClientService friendshipClientService;
+    private final JwtService jwtService;
+    private final ChatUserClientService chatUserClientService;
 
     @Override
     public <S extends User> S save(S entity) {
@@ -119,6 +128,14 @@ public class UserServiceImpl implements UserService {
         verificationToken.setIsExpired(true);
         verificationToken.setIsRevoked(true);
         tokenRepository.save(verificationToken);
+        String accessToken = jwtService.generateAccessToken(credential);
+        ResponseEntity<String> friendIdsResponse = friendshipClientService.createFriendship(user.getId());
+        CreateChatUserRequest createChatUserRequest = CreateChatUserRequest.builder()
+                .id(credential.getUser().getId())
+                .firstName(credential.getUser().getFirstName())
+                .lastName(credential.getUser().getLastName())
+                .build();
+        ResponseEntity<ChatUser> chatUserResponse = chatUserClientService.createChatUser(createChatUserRequest);
 
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
@@ -176,6 +193,14 @@ public class UserServiceImpl implements UserService {
             log.error("IllegalArgumentException: {}", e.getMessage());
             throw new BadRequestException("Giới tính không hợp lệ!");
         }
+        UpdateChatUserRequest updateChatUserRequest = UpdateChatUserRequest.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build();
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
+            updateChatUserRequest.setAvatarUrl(user.getAvatarUrl());
+        }
+        ResponseEntity<ChatUser> chatUserResponse = chatUserClientService.updateChatUser(userId, updateChatUserRequest);
         return ResponseEntity.ok(
                 GenericResponse.builder()
                         .success(true)
@@ -200,6 +225,12 @@ public class UserServiceImpl implements UserService {
         if (oldAvatar != null && !oldAvatar.isEmpty()) {
             fileClientService.deleteUserAvatar(oldAvatar);
         }
+        UpdateChatUserRequest updateChatUserRequest = UpdateChatUserRequest.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .avatarUrl(user.getAvatarUrl())
+                .build();
+        ResponseEntity<ChatUser> chatUserResponse = chatUserClientService.updateChatUser(userId, updateChatUserRequest);
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -266,12 +297,30 @@ public class UserServiceImpl implements UserService {
                 .build());
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getFriendRequests(List<FriendRequestDto> friendRequests) {
+        log.info("UserServiceImpl, ResponseEntity<List<UserDto>>, getFriendRequests");
+        List<String> userIds = friendRequests.stream().map(FriendRequestDto::getSenderId).toList();
+        List<User> users = userRepository.findAllById(userIds);
+        List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách lời mời kết bạn thành công!")
+                .result(userDtos)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
 
     private Token validateAndRetrieveVerificationToken(String token) {
         Token verificationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!"));
 
         if (!verificationToken.getType().equals(TokenType.VERIFICATION_TOKEN)) {
+            throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
+        }
+
+        if (verificationToken.getIsExpired() && verificationToken.getIsRevoked()) {
             throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
 

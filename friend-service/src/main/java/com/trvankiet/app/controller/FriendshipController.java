@@ -42,10 +42,8 @@ public class FriendshipController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createFriendship(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<String> createFriendship(@RequestParam String userId) {
         log.info("FriendshipController, addFriend");
-        String accessToken = authorizationHeader.substring(7);
-        String userId = jwtService.extractUserId(accessToken);
         return friendshipService.createFriendship(userId);
     }
 }

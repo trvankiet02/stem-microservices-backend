@@ -1,7 +1,7 @@
 package com.trvankiet.app.controller;
 
-import com.trvankiet.app.dto.UpdateUserRequest;
-import com.trvankiet.app.dto.UserDto;
+import com.trvankiet.app.dto.request.UpdateChatUserRequest;
+import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.entity.ChatUser;
 import com.trvankiet.app.service.ChatUserService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/chat-users")
+@RequestMapping("/api/v1/chat-users")
 @RequiredArgsConstructor
 @Slf4j
 public class ChatUserController {
@@ -18,15 +18,15 @@ public class ChatUserController {
     private final ChatUserService chatUserService;
 
     @PostMapping
-    public ResponseEntity<ChatUser> createChatUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<ChatUser> createChatUser(@RequestBody CreateChatUserRequest createChatUserRequest) {
         log.info("ChatUserController: createChatUser");
-        return chatUserService.createChatUser(userDto);
+        return chatUserService.createChatUser(createChatUserRequest);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChatUser> updateChatUser(@PathVariable String id, @RequestBody UpdateUserRequest updateUserRequest) {
+    public ResponseEntity<ChatUser> updateChatUser(@PathVariable String id, @RequestBody UpdateChatUserRequest updateChatUserRequest) {
         log.info("ChatUserController: updateChatUser");
-        return chatUserService.updateChatUser(id, updateUserRequest);
+        return chatUserService.updateChatUser(id, updateChatUserRequest);
     }
 
     @DeleteMapping("/{id}")

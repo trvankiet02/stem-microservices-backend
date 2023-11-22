@@ -5,7 +5,9 @@ import com.trvankiet.app.dto.PostDto;
 import com.trvankiet.app.dto.request.PostCreateRequest;
 import com.trvankiet.app.dto.request.UpdatePostRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.dto.response.PostResponse;
 import com.trvankiet.app.entity.Post;
+import com.trvankiet.app.entity.Reaction;
 import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.PostRepository;
@@ -15,6 +17,10 @@ import com.trvankiet.app.service.PostService;
 import com.trvankiet.app.service.client.GroupClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -67,7 +73,7 @@ public class PostServiceImpl implements PostService {
             throw new ForbiddenException("Bạn không có quyền chỉnh sửa bài viết này!");
         }
         post.setContent(updatePostRequest.getContent());
-        post.setType(postTypeRepository.findByCode(updatePostRequest.getPostType())
+        post.setType(postTypeRepository.findByCode(updatePostRequest.getTypeCode())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy loại bài viết!")));
         if (!fileDtos.isEmpty()) {
             post.setRefUrls(fileDtos.stream().map(FileDto::getRefUrl).toList());
@@ -105,13 +111,18 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<GenericResponse> getPostById(String userId, String postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
+        Reaction reaction = getReactionByUserIdInPost(userId, post);
+        PostResponse postResponse = PostResponse.builder()
+                .postDetailResponse(mapperService.mapToPostDetailResponse(post))
+                .reactionDto(mapperService.mapToReactionDto(reaction))
+                .build();
         if (isUserInGroup(userId, post.getGroupId())) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(GenericResponse.builder()
                             .success(true)
                             .statusCode(HttpStatus.OK.value())
                             .message("Lấy bài viết thành công!")
-                            .result(mapperService.mapToPostDto(post))
+                            .result(postResponse)
                             .build());
         }
         throw new ForbiddenException("Bạn không có quyền xem bài viết này!");
@@ -120,28 +131,28 @@ public class PostServiceImpl implements PostService {
     @Override
     public ResponseEntity<GenericResponse> getPostInGroup(String userId, String groupId, int page, int size) {
         if (isUserInGroup(userId, groupId)) {
-//            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-//            Page<Post> postPage = postRepository.findAll(pageable);
-//            Map<String, Object> result = new HashMap<>();
-//            result.put("totalPages", postPage.getTotalPages());
-//            result.put("totalElements", postPage.getTotalElements());
-//            result.put("currentPage", postPage.getNumber() + 1);
-//            result.put("currentElements", postPage.getNumberOfElements());
-//            result.put("posts", postPage.getContent().stream().map(mapperService::mapToPostDto).toList());
-//            return ResponseEntity.status(HttpStatus.OK)
-//                    .body(GenericResponse.builder()
-//                            .success(true)
-//                            .statusCode(HttpStatus.OK.value())
-//                            .message("Lấy bài viết thành công!")
-//                            .result(result)
-//                            .build());
-            List<Post> posts = postRepository.findAllByGroupId(groupId);
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<Post> postPage = postRepository.findAll(pageable);
+            Map<String, Object> result = new HashMap<>();
+            result.put("totalPages", postPage.getTotalPages());
+            result.put("totalElements", postPage.getTotalElements());
+            result.put("currentPage", postPage.getNumber() + 1);
+            result.put("currentElements", postPage.getNumberOfElements());
+            result.put("posts", postPage.getContent()
+                    .stream()
+                    .map(post -> {
+                        Reaction reaction = getReactionByUserIdInPost(userId, post);
+                        return PostResponse.builder()
+                                .postDetailResponse(mapperService.mapToPostDetailResponse(post))
+                                .reactionDto(mapperService.mapToReactionDto(reaction))
+                                .build();
+                    }).toList());
             return ResponseEntity.status(HttpStatus.OK)
                     .body(GenericResponse.builder()
                             .success(true)
                             .statusCode(HttpStatus.OK.value())
                             .message("Lấy bài viết thành công!")
-                            .result(posts.stream().map(mapperService::mapToPostDto).toList())
+                            .result(result)
                             .build());
         }
         throw new ForbiddenException("Bạn không có quyền xem bài viết trong nhóm này!");
@@ -172,5 +183,12 @@ public class PostServiceImpl implements PostService {
     public Boolean isUserInGroup(String userId, String groupId) {
         ResponseEntity<GenericResponse> responseEntity = groupClientService.validateUserInGroup(userId, groupId);
         return responseEntity.getStatusCode().equals(HttpStatus.OK);
+    }
+
+    public Reaction getReactionByUserIdInPost(String userId, Post post) {
+        return post.getReactions().stream()
+                .filter(reaction -> reaction.getAuthorId().equals(userId))
+                .findFirst()
+                .orElse(null);
     }
 }

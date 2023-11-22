@@ -1,6 +1,7 @@
 package com.trvankiet.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.trvankiet.app.constant.Gender;
@@ -31,6 +32,7 @@ public class UserDto implements Serializable {
     private Date dob;
     private String avatarUrl;
     private String coverUrl;
+    @JsonIgnore
     @JsonProperty("credential")
     private CredentialDto credentialDto;
 

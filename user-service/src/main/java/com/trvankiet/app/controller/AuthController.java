@@ -23,13 +23,13 @@ public class AuthController {
     private final TokenService tokenService;
 
     @PostMapping("/register-teacher")
-    public ResponseEntity<GenericResponse> registerForTeacher(@RequestBody final TeacherRegisterRequest teacherRegisterRequest) {
+    public ResponseEntity<GenericResponse> registerForTeacher(@RequestBody @Valid final TeacherRegisterRequest teacherRegisterRequest) {
         log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
         return credentialService.registerForTeacher(teacherRegisterRequest);
     }
 
     @PostMapping("/register-parent")
-    public ResponseEntity<GenericResponse> registerForParent(@RequestBody final ParentRegisterRequest parentRegisterRequest) {
+    public ResponseEntity<GenericResponse> registerForParent(@RequestBody @Valid final ParentRegisterRequest parentRegisterRequest) {
         log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
         return credentialService.registerForParent(parentRegisterRequest);
     }
@@ -41,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<GenericResponse> login(@RequestBody final LoginRequest loginRequest) {
+    public ResponseEntity<GenericResponse> login(@RequestBody @Valid final LoginRequest loginRequest) {
         log.info("CredentialController Post, ResponseEntity<CredentialDto>, login");
         return credentialService.login(loginRequest);
     }

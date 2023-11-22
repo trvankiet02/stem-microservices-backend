@@ -2,6 +2,7 @@ package com.trvankiet.app.dto.request;
 
 import com.trvankiet.app.constant.Gender;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.Date;
@@ -18,8 +19,11 @@ public class UserInfoRequest {
 
     @NotBlank(message = "Họ là bắt buộc!")
     private String lastName;
+    @NotNull
     private String phone;
+    @NotNull
     private String dob;
+    @NotNull
     private String gender;
     private String province;
     private String district;

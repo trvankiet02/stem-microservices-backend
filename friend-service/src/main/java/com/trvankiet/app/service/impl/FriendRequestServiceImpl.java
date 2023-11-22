@@ -7,6 +7,7 @@ import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.FriendRequest;
 import com.trvankiet.app.entity.Friendship;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.FriendRequestRepository;
 import com.trvankiet.app.repository.FriendshipRepository;
 import com.trvankiet.app.service.FriendRequestService;
@@ -45,7 +46,22 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         log.info("FriendRequestServiceImpl, createFriendRequest");
         Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findByTwoUserId(userId, createFriendRequest.getUserId());
         if (optionalFriendRequest.isPresent()) {
-            throw new BadRequestException("Lời mời kết bạn đã được gửi trước đó!");
+            if (optionalFriendRequest.get().getState().equals(FriendStateEnum.REJECTED)) {
+                FriendRequest friendRequest = optionalFriendRequest.get();
+                friendRequest.setState(FriendStateEnum.PENDING);
+                friendRequest.setUpdatedAt(new Date());
+                friendRequestRepository.save(friendRequest);
+                return ResponseEntity.ok(GenericResponse.builder()
+                        .success(true)
+                        .statusCode(200)
+                        .message("Gửi lại lời mời kết bạn thành công!")
+                        .result(mapperService.mapToFriendRequestDto(friendRequest))
+                        .build());
+            } else if (optionalFriendRequest.get().getState().equals(FriendStateEnum.PENDING)) {
+                throw new BadRequestException("Lời mời kết bạn đã được gửi trước đó!");
+            } else {
+                throw new BadRequestException("Hai người đã là bạn bè!");
+            }
         }
         if (friendshipRepository.findByAuthorIdAndFriendIdsContaining(userId, createFriendRequest.getUserId()).isPresent()) {
             throw new BadRequestException("Hai người đã là bạn bè!");
@@ -71,22 +87,15 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         Optional<FriendRequest> optionalFriendRequest = friendRequestRepository.findById(friendRequestId);
         FriendRequest friendRequest = getFriendRequest(optionalFriendRequest, userId, FriendStateEnum.ACCEPTED);
         friendRequest = friendRequestRepository.save(friendRequest);
-        Friendship senderRecipient = friendshipRepository.findByAuthorIdAndFriendIdsContaining(friendRequest.getSenderId(), friendRequest.getRecipientId())
-                .orElse(Friendship.builder()
-                        .id(UUID.randomUUID().toString())
-                        .authorId(friendRequest.getSenderId())
-                        .friendIds(List.of(friendRequest.getRecipientId()))
-                        .createdAt(new Date())
-                        .build());
-        Friendship recipientSender = friendshipRepository.findByAuthorIdAndFriendIdsContaining(friendRequest.getRecipientId(), friendRequest.getSenderId())
-                .orElse(Friendship.builder()
-                        .id(UUID.randomUUID().toString())
-                        .authorId(friendRequest.getRecipientId())
-                        .friendIds(List.of(friendRequest.getSenderId()))
-                        .createdAt(new Date())
-                        .build());
-        senderRecipient.getFriendIds().add(friendRequest.getRecipientId());
-        recipientSender.getFriendIds().add(friendRequest.getSenderId());
+        Friendship senderRecipient = friendshipRepository.findByAuthorId(userId)
+                        .orElseThrow(() -> new NotFoundException("Yêu cầu không phù hợp!"));
+        if (senderRecipient.getFriendIds().contains(friendRequest.getSenderId())) {
+            throw new BadRequestException("Hai người đã là bạn bè!");
+        }
+        Friendship recipientSender = friendshipRepository.findByAuthorId(friendRequest.getSenderId())
+                .orElseThrow(() -> new NotFoundException("Yêu cầu không phù hợp!"));
+        senderRecipient.getFriendIds().add(friendRequest.getSenderId());
+        recipientSender.getFriendIds().add(userId);
         friendshipRepository.save(senderRecipient);
         friendshipRepository.save(recipientSender);
         return ResponseEntity.ok(GenericResponse.builder()
