@@ -1,34 +1,39 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.trvankiet.app.constant.FriendStateEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
-public class Conversation  implements Serializable {
+@Document(collection = "friend_requests")
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
+public class FriendRequest implements Serializable {
 
     @Id
-    @Field(name = "conversation_id")
-    private String conversationId;
+    @Field(name = "friend_request_id")
+    private String id;
 
-    @Field(name = "conversation_name")
-    private String conversationName;
+    @Field(name = "sender_id")
+    private String senderId;
 
-    @Field(name = "conversation_image")
-    private String conversationImage;
+    @Field(name = "recipient_id")
+    private String recipientId;
 
-    @DocumentReference
-    @Field(name = "conversation_members")
-    private List<ConversationMember> conversationMembers;
-
-    @Field("conversation_messages")
-    private List<String> conversationMessages;
+    @Field(name = "status")
+    private FriendStateEnum state;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

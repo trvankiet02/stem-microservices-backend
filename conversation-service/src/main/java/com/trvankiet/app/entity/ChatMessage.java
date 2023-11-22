@@ -9,30 +9,41 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
-@Document(collection = "conversation_members")
-@AllArgsConstructor
+@Document(collection = "chat_messages")
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
-public class ConversationMember implements Serializable {
+public class ChatMessage implements Serializable {
 
     @Id
-    @Field(name = "conversation_member_id")
-    private String conversationMemberId;
+    @Field(name = "message_id")
+    private String id;
 
-    @Field(name = "conversation_member_name")
-    private String conversationMemberName;
+    @DocumentReference
+    @Field(name = "room_id")
+    private ChatRoom roomId;
 
-    @Field(name = "user_id")
-    private Integer userId;
+    @DocumentReference
+    @Field(name = "sender_id")
+    private ChatUser sender;
 
-    @Field(name = "conversation_member_role")
-    private String conversationMemberRole;
+    @DocumentReference
+    @Field(name = "receiver_id")
+    private ChatUser receiver;
+
+    @Field(name = "message_content")
+    private String content;
+
+    @Field(name = "ref_urls")
+    private List<String> refUrls;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
