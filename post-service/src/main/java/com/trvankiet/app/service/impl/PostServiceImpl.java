@@ -43,7 +43,7 @@ public class PostServiceImpl implements PostService {
                 .type(postTypeRepository.findByCode(postCreateRequest.getTypeCode())
                         .orElseThrow(() -> new NotFoundException("Không tìm thấy loại bài viết!")))
                 .content(postCreateRequest.getContent())
-                .refUrls(fileDtos.stream().map(FileDto::getFileLink).toList())
+                .refUrls(fileDtos.stream().map(FileDto::getRefUrl).toList())
                 .reactions(new ArrayList<>())
                 .comments(new ArrayList<>())
                 .createdAt(new Date())
@@ -70,7 +70,7 @@ public class PostServiceImpl implements PostService {
         post.setType(postTypeRepository.findByCode(updatePostRequest.getPostType())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy loại bài viết!")));
         if (!fileDtos.isEmpty()) {
-            post.setRefUrls(fileDtos.stream().map(FileDto::getFileLink).toList());
+            post.setRefUrls(fileDtos.stream().map(FileDto::getRefUrl).toList());
         }
         post.setUpdatedAt(new Date());
         PostDto postDto = mapperService.mapToPostDto(postRepository.save(post));

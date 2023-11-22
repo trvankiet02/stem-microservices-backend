@@ -253,6 +253,19 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getFriends(List<String> friendIds) {
+        log.info("UserServiceImpl, ResponseEntity<List<UserDto>>, getFriends");
+        List<User> users = userRepository.findAllById(friendIds);
+        List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách bạn bè thành công!")
+                .result(userDtos)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
 
     private Token validateAndRetrieveVerificationToken(String token) {
         Token verificationToken = tokenRepository.findByToken(token)

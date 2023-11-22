@@ -44,4 +44,6 @@ public interface UserService {
     ResponseEntity<GenericResponse> updateCover(String userId, MultipartFile cover) throws IOException;
 
     ResponseEntity<List<UserDto>> searchUser(Optional<String> query, Optional<String> role, Optional<String> gender, Optional<String> school, Optional<Integer> grade, Optional<List<String>> subjects);
+
+    ResponseEntity<GenericResponse> getFriends(List<String> friendIds);
 }
