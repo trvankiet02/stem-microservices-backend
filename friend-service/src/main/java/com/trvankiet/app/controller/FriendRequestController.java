@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/friend-requests")
+@RequestMapping("/api/v1/friend-requests")
 @RequiredArgsConstructor
 @Slf4j
 public class FriendRequestController {

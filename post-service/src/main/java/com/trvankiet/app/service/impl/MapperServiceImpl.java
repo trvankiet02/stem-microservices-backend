@@ -4,6 +4,7 @@ import com.trvankiet.app.dto.CommentDto;
 import com.trvankiet.app.dto.FileDto;
 import com.trvankiet.app.dto.PostDto;
 import com.trvankiet.app.dto.ReactionDto;
+import com.trvankiet.app.dto.response.PostDetailResponse;
 import com.trvankiet.app.entity.Comment;
 import com.trvankiet.app.entity.Post;
 import com.trvankiet.app.entity.Reaction;
@@ -44,6 +45,29 @@ public class MapperServiceImpl implements MapperService {
     }
 
     @Override
+    public PostDetailResponse mapToPostDetailResponse(Post post) {
+        //litmit get 5 response lasted
+        List<CommentDto> commentDtos = post.getComments().isEmpty() ?
+                null : post.getComments().stream().map(this::mapToCommentDto).limit(5).toList();
+        return PostDetailResponse.builder()
+                .id(post.getId())
+                .groupId(post.getGroupId())
+                .userDto(userClientService.getUserDtoByUserId(post.getAuthorId()))
+                .content(post.getContent())
+                .type(post.getType().getName())
+                .refUrls(post.getRefUrls().isEmpty() ?
+                        null : post.getRefUrls())
+                .reactionDtos(post.getReactions().isEmpty() ?
+                        null : post.getReactions().stream().map(this::mapToReactionDto).toList())
+                .commentDtos(commentDtos)
+                .createdAt(post.getCreatedAt() == null ?
+                        null : post.getCreatedAt().toString())
+                .updatedAt(post.getUpdatedAt() == null ?
+                        null : post.getUpdatedAt().toString())
+                .build();
+    }
+
+    @Override
     public CommentDto mapToCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
@@ -74,4 +98,5 @@ public class MapperServiceImpl implements MapperService {
                         null : reaction.getUpdatedAt().toString())
                 .build();
     }
+
 }

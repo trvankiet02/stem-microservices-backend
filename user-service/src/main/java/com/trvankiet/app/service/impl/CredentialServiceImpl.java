@@ -2,6 +2,7 @@ package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.*;
 import com.trvankiet.app.dto.request.*;
+import com.trvankiet.app.dto.response.ChatUser;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.dto.CredentialDto;
@@ -16,15 +17,15 @@ import com.trvankiet.app.service.CredentialService;
 import com.trvankiet.app.service.EmailService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.TokenService;
+import com.trvankiet.app.service.client.ChatUserClientService;
+import com.trvankiet.app.service.client.FriendshipClientService;
 import com.trvankiet.app.util.DateUtil;
 import com.trvankiet.app.util.TokenUtil;
-import io.swagger.v3.oas.models.examples.Example;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,8 @@ public class CredentialServiceImpl implements CredentialService {
     private final RoleRepository roleRepository;
     private final ProviderRepository providerRepository;
     private final MapperService mapperService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final FriendshipClientService friendshipClientService;
+    private final ChatUserClientService chatUserClientService;
 
     @Override
     public <S extends Credential> S save(S entity) {
@@ -134,6 +136,7 @@ public class CredentialServiceImpl implements CredentialService {
         credential = credentialRepository.save(credential);
 
         emailService.sendVerificationEmail(credential);
+
 
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
@@ -325,6 +328,13 @@ public class CredentialServiceImpl implements CredentialService {
         }
 
         Credential credential = saveCredential(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword(), user);
+        ResponseEntity<String> friendIds = friendshipClientService.createFriendship(user.getId());
+        CreateChatUserRequest createChatUserRequest = CreateChatUserRequest.builder()
+                .id(credential.getUser().getId())
+                .firstName(credential.getUser().getFirstName())
+                .lastName(credential.getUser().getLastName())
+                .build();
+        ResponseEntity<ChatUser> chatUserResponseEntity = chatUserClientService.createChatUser(createChatUserRequest);
 
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
@@ -393,6 +403,13 @@ public class CredentialServiceImpl implements CredentialService {
                 throw new BadRequestException("Ngày sinh không hợp lệ!");
             }
             Credential studentCredential = saveCredential(studentRegisterRequest.getEmail(), studentRegisterRequest.getPassword(), student);
+            ResponseEntity<String> friendIds = friendshipClientService.createFriendship(student.getId());
+            CreateChatUserRequest createChatUserRequest = CreateChatUserRequest.builder()
+                    .id(studentCredential.getUser().getId())
+                    .firstName(studentCredential.getUser().getFirstName())
+                    .lastName(studentCredential.getUser().getLastName())
+                    .build();
+            ResponseEntity<ChatUser> chatUserResponseEntity = chatUserClientService.createChatUser(createChatUserRequest);
             result.put("student", mapperService.mapToCredentialDto(studentCredential));
         }
         if (studentAndParentRequest.getParent().getEmail() != null) {
@@ -416,6 +433,13 @@ public class CredentialServiceImpl implements CredentialService {
                 throw new BadRequestException("Ngày sinh không hợp lệ!");
             }
             Credential parentCredential = saveCredential(parentRegisterRequest.getEmail(), parentRegisterRequest.getPassword(), parent);
+            ResponseEntity<String> friendIds = friendshipClientService.createFriendship(parent.getId());
+            CreateChatUserRequest createChatUserRequest = CreateChatUserRequest.builder()
+                    .id(parentCredential.getUser().getId())
+                    .firstName(parentCredential.getUser().getFirstName())
+                    .lastName(parentCredential.getUser().getLastName())
+                    .build();
+            ResponseEntity<ChatUser> chatUserResponseEntity = chatUserClientService.createChatUser(createChatUserRequest);
             result.put("parent", mapperService.mapToCredentialDto(parentCredential));
         }
 

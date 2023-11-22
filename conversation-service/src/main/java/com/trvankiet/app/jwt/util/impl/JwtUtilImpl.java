@@ -1,5 +1,6 @@
 package com.trvankiet.app.jwt.util.impl;
 
+import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.jwt.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

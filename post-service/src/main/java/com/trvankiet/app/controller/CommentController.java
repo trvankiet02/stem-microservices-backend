@@ -2,6 +2,7 @@ package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.FileDto;
 import com.trvankiet.app.dto.request.CommentPostRequest;
+import com.trvankiet.app.dto.request.UpdateCommentRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.CommentService;
@@ -46,16 +47,16 @@ public class CommentController {
         return commentService.createComment(userId, fileDtos, commentPostRequest);
     }
 
-    @PutMapping("/{commentId}")
+    @PutMapping(value = "/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> updateComment(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                          @PathVariable("commentId") String commentId,
-                                                         @ModelAttribute CommentPostRequest commentPostRequest) {
-        log.info("PostController, updateComment({})", commentPostRequest);
+                                                         @ModelAttribute UpdateCommentRequest updateCommentRequest) {
+        log.info("PostController, updateComment({})", updateCommentRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(commentPostRequest.getMediaFiles()) ?
-                fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles()) : new ArrayList<>();
-        return commentService.updateComment(userId, commentId, fileDtos, commentPostRequest);
+        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(updateCommentRequest.getMediaFiles()) ?
+                fileClientService.uploadCommentFiles(authorizationHeader, updateCommentRequest.getMediaFiles()) : new ArrayList<>();
+        return commentService.updateComment(userId, commentId, fileDtos, updateCommentRequest);
     }
 
     @DeleteMapping("/{commentId}")

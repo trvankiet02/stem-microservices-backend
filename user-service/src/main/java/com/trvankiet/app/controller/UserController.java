@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.CredentialDto;
+import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
@@ -8,6 +9,7 @@ import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.UserService;
+import com.trvankiet.app.service.client.FriendRequestClientService;
 import com.trvankiet.app.service.client.FriendshipClientService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.PUT;
@@ -31,6 +33,7 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
     private final FriendshipClientService friendshipClientService;
+    private final FriendRequestClientService friendRequestClientService;
 
     @GetMapping("/credentials")
     public CredentialDto getCredentialDto(@RequestParam String uId) {
@@ -90,10 +93,14 @@ public class UserController {
     @GetMapping("/friends")
     public ResponseEntity<GenericResponse> getFriends(@RequestHeader("Authorization") String authorizationHeader) {
         log.info("UserController Get, UserDto, getFriends");
-        String token = authorizationHeader.substring(7);
-        String userId = jwtService.extractUserId(token);
         List<String> friendIds = friendshipClientService.getFriendIds(authorizationHeader).getBody();
         return userService.getFriends(friendIds);
+    }
+    @GetMapping("/friend-requests")
+    public ResponseEntity<GenericResponse> getFriendRequests(@RequestHeader("Authorization") String authorizationHeader) {
+        log.info("UserController Get, UserDto, getFriendRequests");
+        List<FriendRequestDto> friendRequests = friendRequestClientService.getFriendRequests(authorizationHeader).getBody();
+        return userService.getFriendRequests(friendRequests);
     }
 
 }

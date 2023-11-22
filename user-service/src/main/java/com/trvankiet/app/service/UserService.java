@@ -1,6 +1,7 @@
 package com.trvankiet.app.service;
 
 import com.trvankiet.app.dto.CredentialDto;
+import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
@@ -46,4 +47,6 @@ public interface UserService {
     ResponseEntity<List<UserDto>> searchUser(Optional<String> query, Optional<String> role, Optional<String> gender, Optional<String> school, Optional<Integer> grade, Optional<List<String>> subjects);
 
     ResponseEntity<GenericResponse> getFriends(List<String> friendIds);
+
+    ResponseEntity<GenericResponse> getFriendRequests(List<FriendRequestDto> friendRequests);
 }

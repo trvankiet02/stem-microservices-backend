@@ -1,10 +1,11 @@
-package com.trvankiet.app.dto;
+package com.trvankiet.app.dto.request;
 
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 @Data
-public class UserDto {
+@Builder
+public class CreateChatUserRequest {
 
     private String id;
     private String firstName;
