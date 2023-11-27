@@ -280,4 +280,25 @@ public class GroupServiceImpl implements GroupService {
 
         return ResponseEntity.ok(groupDtos);
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> valiadateUserInGroup(String userId, String groupId) {
+        log.info("GroupServiceImpl, valiadateUserInGroup");
+        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, groupId)
+                .orElse(null);
+        if (groupMember == null) {
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .message("Bạn không có quyền truy cập nhóm!")
+                    .statusCode(HttpStatus.OK.value())
+                    .result(false)
+                    .build());
+        }
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Bạn có quyền truy cập nhóm!")
+                .statusCode(HttpStatus.OK.value())
+                .result(true)
+                .build());
+    }
 }

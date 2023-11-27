@@ -60,6 +60,14 @@ public class GroupServiceApplication {
                         .description("Owner of group")
                         .build());
             }
+            if (groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_PARENT.getCode()).isEmpty()) {
+                groupMemberRoleRepository.save(com.trvankiet.app.entity.GroupMemberRole.builder()
+                        .id(GroupMemberRoleType.GROUP_PARENT.getCode())
+                        .code(GroupMemberRoleType.GROUP_PARENT.getCode())
+                        .name(GroupMemberRoleType.GROUP_PARENT.toString())
+                        .description("Parent of group")
+                        .build());
+            }
             // State
             if (stateRepository.findByCode(StateType.ACCEPTED.getCode()).isEmpty()) {
                 stateRepository.save(com.trvankiet.app.entity.State.builder()

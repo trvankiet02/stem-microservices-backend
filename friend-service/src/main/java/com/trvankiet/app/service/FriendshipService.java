@@ -12,4 +12,6 @@ public interface FriendshipService {
     ResponseEntity<GenericResponse> deleteFriend(String userId, String friendId);
 
     ResponseEntity<String> createFriendship(String userId);
+
+    ResponseEntity<GenericResponse> validateFriendship(String userId, String friendId);
 }

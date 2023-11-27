@@ -46,4 +46,13 @@ public class FriendshipController {
         log.info("FriendshipController, addFriend");
         return friendshipService.createFriendship(userId);
     }
+
+    @GetMapping("/validate")
+    public ResponseEntity<GenericResponse> validateFriendship(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestParam String friendId) {
+        log.info("FriendshipController, validateFriendship");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return friendshipService.validateFriendship(userId, friendId);
+    }
 }
