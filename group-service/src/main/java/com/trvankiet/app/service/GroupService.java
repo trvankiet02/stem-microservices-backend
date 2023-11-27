@@ -32,4 +32,6 @@ public interface GroupService {
     ResponseEntity<GenericResponse> deleteGroup(String userId, String groupId);
 
     ResponseEntity<List<GroupDto>> searchGroup(Optional<String> query, Optional<String> type, Optional<String> accessibility, Optional<Integer> grade, Optional<String> subject);
+
+    ResponseEntity<GenericResponse> valiadateUserInGroup(String userId, String groupId);
 }

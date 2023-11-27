@@ -60,7 +60,7 @@ public class GroupController {
     public ResponseEntity<GenericResponse> validateUserInGroup(@RequestParam("userId") String userId
             , @RequestParam("groupId") String groupId) {
         log.info("GroupController, validateUserInGroup");
-        return groupService.getGroupById(userId, groupId);
+        return groupService.valiadateUserInGroup(userId, groupId);
     }
 
     @PutMapping("/{groupId}/config")

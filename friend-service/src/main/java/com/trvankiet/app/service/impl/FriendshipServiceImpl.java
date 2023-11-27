@@ -71,4 +71,25 @@ public class FriendshipServiceImpl implements FriendshipService {
         friendshipRepository.save(friendship);
         return ResponseEntity.ok("Tạo mối quan hệ bạn bè thành công!");
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> validateFriendship(String userId, String friendId) {
+        log.info("FriendshipServiceImpl, validateFriendship");
+        Friendship senderRecipient = friendshipRepository.findByAuthorId(userId)
+                .orElseThrow(() -> new BadRequestException("Bạn không có quyền thực hiện hành động này!"));
+        if (senderRecipient.getFriendIds().contains(friendId)) {
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Bạn bè")
+                    .result(true)
+                    .build());
+        }
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Không phải bạn bè")
+                .result(false)
+                .build());
+    }
 }
