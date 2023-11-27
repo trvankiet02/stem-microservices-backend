@@ -141,10 +141,13 @@ public class PostServiceImpl implements PostService {
             result.put("posts", postPage.getContent()
                     .stream()
                     .map(post -> {
+                        if (post == null) {
+                            return null;
+                        }
                         Reaction reaction = getReactionByUserIdInPost(userId, post);
                         return PostResponse.builder()
                                 .postDetailResponse(mapperService.mapToPostDetailResponse(post))
-                                .reactionDto(mapperService.mapToReactionDto(reaction))
+                                .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
                                 .build();
                     }).toList());
             return ResponseEntity.status(HttpStatus.OK)
