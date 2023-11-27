@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{uId}")
-    public UserDto getUserDetail(@PathVariable String uId) {
+    public UserDto getUserDto(@PathVariable String uId) {
         log.info("UserController Get, UserDto, getUserDto");
         return userService.getUserDetail(uId);
     }

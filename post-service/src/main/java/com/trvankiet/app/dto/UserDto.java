@@ -1,11 +1,13 @@
 package com.trvankiet.app.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Builder
 @Data
@@ -21,8 +23,18 @@ public class UserDto implements Serializable {
     private Date dob;
     private String avatarUrl;
     private String coverUrl;
+    @JsonIgnore
     @JsonProperty("credential")
     private CredentialDto credentialDto;
+
+    private String district;
+    private String province;
+    private String school;
+    List<String> subjects;
+
+    List<AnotherUserDto> parents;
+    List<AnotherUserDto> children;
+
     private Date createdAt;
     private Date updatedAt;
 
