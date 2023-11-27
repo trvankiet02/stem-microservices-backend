@@ -114,7 +114,7 @@ public class PostServiceImpl implements PostService {
         Reaction reaction = getReactionByUserIdInPost(userId, post);
         PostResponse postResponse = PostResponse.builder()
                 .postDetailResponse(mapperService.mapToPostDetailResponse(post))
-                .reactionDto(mapperService.mapToReactionDto(reaction))
+                .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
                 .build();
         if (isUserInGroup(userId, post.getGroupId())) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -132,19 +132,22 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<GenericResponse> getPostInGroup(String userId, String groupId, int page, int size) {
         if (isUserInGroup(userId, groupId)) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-            Page<Post> postPage = postRepository.findAll(pageable);
+            Page<Post> postPage = postRepository.findAllByGroupId(groupId, pageable);
             Map<String, Object> result = new HashMap<>();
             result.put("totalPages", postPage.getTotalPages());
             result.put("totalElements", postPage.getTotalElements());
-            result.put("currentPage", postPage.getNumber() + 1);
+            result.put("currentPage", postPage.getNumber());
             result.put("currentElements", postPage.getNumberOfElements());
             result.put("posts", postPage.getContent()
                     .stream()
                     .map(post -> {
+                        if (post == null) {
+                            return null;
+                        }
                         Reaction reaction = getReactionByUserIdInPost(userId, post);
                         return PostResponse.builder()
                                 .postDetailResponse(mapperService.mapToPostDetailResponse(post))
-                                .reactionDto(mapperService.mapToReactionDto(reaction))
+                                .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
                                 .build();
                     }).toList());
             return ResponseEntity.status(HttpStatus.OK)

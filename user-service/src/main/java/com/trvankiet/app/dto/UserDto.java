@@ -41,9 +41,7 @@ public class UserDto implements Serializable {
     private String school;
     List<String> subjects;
 
-    @JsonManagedReference
     List<AnotherUserDto> parents;
-    @JsonManagedReference
     List<AnotherUserDto> children;
 
     private Date createdAt;
