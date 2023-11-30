@@ -25,4 +25,6 @@ public interface ExamService {
     ResponseEntity<GenericResponse> deleteExamById(String userId, String examId);
 
     List<ExamDto> searchExam(Optional<String> query, Optional<String> level);
+
+    ResponseEntity<GenericResponse> findAllExams(String userId, String groupId);
 }

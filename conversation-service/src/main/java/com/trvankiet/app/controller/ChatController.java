@@ -1,6 +1,8 @@
 package com.trvankiet.app.controller;
 
+import com.trvankiet.app.entity.ChatMessage;
 import com.trvankiet.app.entity.ChatUser;
+import com.trvankiet.app.service.ChatService;
 import com.trvankiet.app.service.ChatUserService;
 import com.trvankiet.app.service.client.FriendshipClientService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class ChatController {
 
     private final ChatUserService chatUserService;
     private final FriendshipClientService friendshipClientService;
+    private final ChatService chatService;
 
     @MessageMapping("/user.addUser")
     @SendTo("/user/topic")
@@ -48,5 +51,11 @@ public class ChatController {
             return ResponseEntity.status(responseEntity.getStatusCode()).build();
         }
         return ResponseEntity.ok(chatUserService.findOnlineChatUsers(responseEntity.getBody()));
+    }
+
+    @MessageMapping("/private-message")
+    public ChatMessage sendPrivateMessage(@Payload ChatMessage chatMessage) {
+        log.info("ChatController, sendPrivateMessage");
+        return chatService.sendPrivateMessage(chatMessage);
     }
 }
