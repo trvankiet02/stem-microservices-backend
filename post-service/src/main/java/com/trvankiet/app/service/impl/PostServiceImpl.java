@@ -183,6 +183,46 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getHomePost(List<String> groupIds, int page, int size) {
+        log.info("PostServiceImpl, getHomePost");
+        if (groupIds.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GenericResponse.builder()
+                            .success(true)
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Lấy bài viết thành công!")
+                            .result(null)
+                            .build());
+        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postPage = postRepository.findAllByGroupIdIn(groupIds, pageable);
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalPages", postPage.getTotalPages());
+        result.put("totalElements", postPage.getTotalElements());
+        result.put("currentPage", postPage.getNumber());
+        result.put("currentElements", postPage.getNumberOfElements());
+        result.put("posts", postPage.getContent()
+                .stream()
+                .map(post -> {
+                    if (post == null) {
+                        return null;
+                    }
+                    Reaction reaction = getReactionByUserIdInPost(groupIds.get(0), post);
+                    return PostResponse.builder()
+                            .postDetailResponse(mapperService.mapToPostDetailResponse(post))
+                            .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
+                            .build();
+                }).toList());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(GenericResponse.builder()
+                        .success(true)
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Lấy bài viết thành công!")
+                        .result(result)
+                        .build());
+    }
+
     public Boolean isUserInGroup(String userId, String groupId) {
         ResponseEntity<GenericResponse> responseEntity = groupClientService.validateUserInGroup(userId, groupId);
         return responseEntity.getStatusCode().equals(HttpStatus.OK);

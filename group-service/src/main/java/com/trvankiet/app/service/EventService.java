@@ -15,4 +15,6 @@ public interface EventService {
     ResponseEntity<GenericResponse> updateEvent(String userId, String eventId, ModifyEventRequest modifyEventRequest) throws ParseException;
 
     ResponseEntity<GenericResponse> deleteEvent(String userId, String eventId);
+
+    ResponseEntity<GenericResponse> getHomeEvents(String userId);
 }

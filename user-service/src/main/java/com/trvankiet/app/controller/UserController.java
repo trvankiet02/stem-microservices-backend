@@ -5,6 +5,7 @@ import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
+import com.trvankiet.app.dto.response.FriendOfUserResponse;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.jwt.service.JwtService;
@@ -101,6 +102,15 @@ public class UserController {
         log.info("UserController Get, UserDto, getFriendRequests");
         List<FriendRequestDto> friendRequests = friendRequestClientService.getFriendRequests(authorizationHeader).getBody();
         return userService.getFriendRequests(friendRequests);
+    }
+
+    @GetMapping("/friends-of-user")
+    public ResponseEntity<GenericResponse> getFriendsOfUser(@RequestHeader("Authorization") String authorizationHeader
+                                                            ,@RequestParam String uId) {
+        log.info("UserController Get, UserDto, getFriendsOfUser");
+        ResponseEntity<List<FriendOfUserResponse>> friendOfUserResponses = friendshipClientService.getFriendsOfUser(authorizationHeader, uId);
+
+        return userService.getFriendsOfUser(friendOfUserResponses.getBody());
     }
 
 }

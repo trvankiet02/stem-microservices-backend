@@ -1,9 +1,11 @@
 package com.trvankiet.app.service.impl;
 
+import com.trvankiet.app.dto.response.FriendOfUserResponse;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.FriendRequest;
 import com.trvankiet.app.entity.Friendship;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.FriendRequestRepository;
 import com.trvankiet.app.repository.FriendshipRepository;
 import com.trvankiet.app.service.FriendshipService;
@@ -91,5 +93,23 @@ public class FriendshipServiceImpl implements FriendshipService {
                 .message("Không phải bạn bè")
                 .result(false)
                 .build());
+    }
+
+    @Override
+    public ResponseEntity<List<FriendOfUserResponse>> getFriendsOfUser(String userId, String friendId) {
+        log.info("FriendshipServiceImpl, getFriendsOfUser");
+        Friendship friendship = friendshipRepository.findByAuthorId(friendId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng này!"));
+        Friendship user = friendshipRepository.findByAuthorId(userId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng này!"));
+        List<FriendOfUserResponse> friendOfUserResponses = friendship
+                .getFriendIds()
+                .stream()
+                .map(uId -> FriendOfUserResponse.builder()
+                        .userId(uId)
+                        .isFriendOfMe(user.getFriendIds().contains(uId))
+                        .build())
+                .toList();
+        return ResponseEntity.ok(friendOfUserResponses);
     }
 }

@@ -63,6 +63,14 @@ public class GroupController {
         return groupService.valiadateUserInGroup(userId, groupId);
     }
 
+    @GetMapping("/get-group-by-user")
+    public ResponseEntity<List<String>> getGroupByUserId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("GroupController, getGroupByUserId");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.getGroupByUserId(userId);
+    }
+
     @PutMapping("/{groupId}/config")
     public ResponseEntity<GenericResponse> updateGroupConfig(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("groupId") String groupId

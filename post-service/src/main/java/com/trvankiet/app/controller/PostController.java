@@ -34,6 +34,7 @@ public class PostController {
     private final PostService postService;
     private final JwtService jwtService;
     private final FileClientService fileClientService;
+    private final GroupClientService groupClientService;
 
     @GetMapping
     public ResponseEntity<GenericResponse> getPostInGroup(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
@@ -90,6 +91,17 @@ public class PostController {
     , @RequestParam("type") Optional<String> type) {
         log.info("PostController, searchPost");
         return postService.searchPost(query, type);
+    }
+
+    @GetMapping("/home-posts")
+    public ResponseEntity<GenericResponse> getHomePost (@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                        @RequestParam(value = "page", defaultValue = "0") int page,
+                                                        @RequestParam(value = "size", defaultValue = "10") int size) {
+        log.info("PostController, getHomePost");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        ResponseEntity<List<String>> groupIds = groupClientService.getGroupByUserId(authorizationHeader);
+        return postService.getHomePost(groupIds.getBody(), page, size);
     }
 
 

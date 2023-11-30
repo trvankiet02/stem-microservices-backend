@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -109,6 +110,24 @@ public class EventServiceImpl implements EventService {
                 .statusCode(200)
                 .message("Xóa sự kiện thành công")
                 .result(null)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getHomeEvents(String userId) {
+        log.info("EventServiceImpl, getHomeEvents");
+        // get all group which user is member then get events
+        List<GroupMember> groupMembers = groupMemberRepository.findAllByUserId(userId);
+        List<EventDto> events = eventRepository.findAllByGroupIn(groupMembers.stream().map(GroupMember::getGroup).toList())
+                .stream()
+                .map(mappingService::mapToEventDto)
+                .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
+                .toList();
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách sự kiện thành công")
+                .result(events)
                 .build());
     }
 }

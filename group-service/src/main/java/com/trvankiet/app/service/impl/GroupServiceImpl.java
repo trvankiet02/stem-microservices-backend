@@ -301,4 +301,13 @@ public class GroupServiceImpl implements GroupService {
                 .result(true)
                 .build());
     }
+
+    @Override
+    public ResponseEntity<List<String>> getGroupByUserId(String userId) {
+        log.info("GroupServiceImpl, getGroupByUserId");
+        List<GroupMember> groupMembers = groupMemberRepository.findAllByUserId(userId);
+        return ResponseEntity.ok(groupMembers.stream()
+                .map(groupMember -> groupMember.getGroup().getId())
+                .toList());
+    }
 }

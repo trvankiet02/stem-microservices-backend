@@ -1,5 +1,6 @@
 package com.trvankiet.app.service.impl;
 
+import com.trvankiet.app.constant.StatusEnum;
 import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.entity.ChatUser;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,5 +58,32 @@ public class ChatUserServiceImpl implements ChatUserService {
             return ResponseEntity.ok(null);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @Override
+    public void saveChatUser(ChatUser chatUser) {
+        log.info("ChatUserServiceImpl: saveChatUser");
+        chatUser.setStatus(StatusEnum.ONLINE);
+        chatUserRepository.save(chatUser);
+    }
+
+    @Override
+    public void disconnectChatUser(ChatUser chatUser) {
+        log.info("ChatUserServiceImpl: disconnectChatUser");
+        ChatUser storedChatUser = chatUserRepository.findById(chatUser.getId())
+                .orElse(null);
+        if (storedChatUser != null) {
+            storedChatUser.setStatus(StatusEnum.OFFLINE);
+            chatUserRepository.save(storedChatUser);
+        }
+    }
+
+    @Override
+    public List<ChatUser> findOnlineChatUsers(List<String> userIds) {
+        log.info("ChatUserServiceImpl: findOnlineChatUsers");
+        return chatUserRepository.findAllById(userIds)
+                .stream()
+                .filter(chatUser -> chatUser.getStatus().equals(StatusEnum.ONLINE))
+                .toList();
     }
 }

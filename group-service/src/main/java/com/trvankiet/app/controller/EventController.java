@@ -58,4 +58,12 @@ public class EventController {
         return eventService.deleteEvent(userId, eventId);
     }
 
+    @GetMapping("/home-events")
+    public ResponseEntity<GenericResponse> getHomeEvents(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("EventController, getHomeEvents");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return eventService.getHomeEvents(userId);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.trvankiet.app.service.client;
 
 import com.trvankiet.app.dto.FriendRequestDto;
+import com.trvankiet.app.dto.response.FriendOfUserResponse;
 import com.trvankiet.app.dto.response.GenericResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
@@ -17,4 +18,7 @@ public interface FriendshipClientService {
 
     @PostMapping
     ResponseEntity<String> createFriendship(@RequestParam String userId);
+    @GetMapping("/list-friends")
+    ResponseEntity<List<FriendOfUserResponse>> getFriendsOfUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestParam String friendId);
 }
