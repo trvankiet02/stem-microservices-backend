@@ -11,8 +11,7 @@ import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
-import com.trvankiet.app.dto.response.ChatUser;
-import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.dto.response.*;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
@@ -303,10 +302,42 @@ public class UserServiceImpl implements UserService {
         List<String> userIds = friendRequests.stream().map(FriendRequestDto::getSenderId).toList();
         List<User> users = userRepository.findAllById(userIds);
         List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
+        //map SenderId to UserDto and return friendRequests
+        List<FriendRequestResponse> friendRequestResponses = friendRequests.stream().map(friendRequestDto -> {
+            UserDto sender = userDtos.stream().filter(userDto -> userDto.getId().equals(friendRequestDto.getSenderId())).findFirst().orElse(null);
+            return FriendRequestResponse.builder()
+                    .id(friendRequestDto.getId())
+                    .userDto(sender)
+                    .status(friendRequestDto.getStatus())
+                    .createdAt(friendRequestDto.getCreatedAt() == null ? null : friendRequestDto.getCreatedAt())
+                    .updatedAt(friendRequestDto.getUpdatedAt() == null ? null : friendRequestDto.getUpdatedAt())
+                    .build();
+        }).toList();
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách lời mời kết bạn thành công!")
                 .result(userDtos)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getFriendsOfUser(List<FriendOfUserResponse> body) {
+        log.info("UserServiceImpl, ResponseEntity<List<UserDto>>, getFriendsOfUser");
+        List<FriendResponse> friendReponse = body.stream().map(friendOfUserResponse -> {
+            User user = userRepository.findById(friendOfUserResponse.getUserId()).orElse(null);
+            if (user == null) {
+                return null;
+            }
+            return FriendResponse.builder()
+                    .userDto(mapperService.mapToUserDto(user))
+                    .isFriend(friendOfUserResponse.getIsFriendOfMe())
+                    .build();
+        }).toList();
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách bạn bè thành công!")
+                .result(friendReponse)
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }

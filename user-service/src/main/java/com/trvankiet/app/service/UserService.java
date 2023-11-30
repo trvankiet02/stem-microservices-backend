@@ -5,6 +5,7 @@ import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
+import com.trvankiet.app.dto.response.FriendOfUserResponse;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.User;
 import org.springframework.http.ResponseEntity;
@@ -49,4 +50,6 @@ public interface UserService {
     ResponseEntity<GenericResponse> getFriends(List<String> friendIds);
 
     ResponseEntity<GenericResponse> getFriendRequests(List<FriendRequestDto> friendRequests);
+
+    ResponseEntity<GenericResponse> getFriendsOfUser(List<FriendOfUserResponse> body);
 }
