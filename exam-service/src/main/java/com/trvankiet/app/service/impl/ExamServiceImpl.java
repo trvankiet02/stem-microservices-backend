@@ -287,6 +287,35 @@ public class ExamServiceImpl implements ExamService {
         }
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> findAllExams(String userId, String groupId) {
+        log.info("ExamServiceImpl, findAllExams");
+        String role = groupMemberClientService.getRoleByGroupIdAndUserId(groupId, userId);
+        if (role.isEmpty())
+            throw new NotFoundException("Group not found");
+        List<Exam> exams = examRepository.findAllByGroupId(groupId);
+        if (exams.isEmpty())
+            return ResponseEntity.ok().body(
+                    GenericResponse.builder()
+                            .result(true)
+                            .statusCode(200)
+                            .message("Lấy danh sách đề thi thành công!")
+                            .result(List.of())
+                            .build()
+            );
+        List<ExamDto> examDtos = exams.stream()
+                .map(mapperService::mapToExamDto)
+                .toList();
+        return ResponseEntity.ok().body(
+                GenericResponse.builder()
+                        .result(true)
+                        .statusCode(200)
+                        .message("Lấy danh sách đề thi thành công!")
+                        .result(examDtos)
+                        .build()
+        );
+    }
+
     private static boolean isCorrectAnswer(XWPFParagraph paragraph) {
         // Kiểm tra xem đoạn văn bản có được in đậm hay không
         for (XWPFRun run : paragraph.getRuns()) {

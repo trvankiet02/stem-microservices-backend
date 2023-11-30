@@ -316,7 +316,7 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách lời mời kết bạn thành công!")
-                .result(userDtos)
+                .result(friendRequestResponses)
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }

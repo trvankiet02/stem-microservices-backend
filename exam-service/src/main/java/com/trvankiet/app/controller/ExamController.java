@@ -27,10 +27,13 @@ public class ExamController {
     private final ExamService examService;
     private final JwtService jwtService;
 
-    @GetMapping
-    public ResponseEntity<GenericResponse> findAllExams() {
-        log.info("ExamController, getAllExams");
-        return examService.findAllExams();
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<GenericResponse> findAllExams(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @PathVariable("groupId") String groupId) {
+        log.info("ExamController, findAllExams");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return examService.findAllExams(userId, groupId);
     }
 
     @PostMapping

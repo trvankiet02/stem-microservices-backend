@@ -13,5 +13,6 @@ public interface ExamRepository extends MongoRepository<Exam, String> {
             "{exam_name: {$regex: ?0, $options: 'i'}}, " +
             "{exam_description: {$regex: ?0, $options: 'i'}}]}")
     List<Exam> searchExam(String query);
+    List<Exam> findAllByGroupId(String groupId);
 
 }
