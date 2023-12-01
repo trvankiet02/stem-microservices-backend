@@ -1,5 +1,6 @@
 package com.trvankiet.app.controller;
 
+import com.trvankiet.app.dto.ChatMessageDto;
 import com.trvankiet.app.entity.ChatMessage;
 import com.trvankiet.app.entity.ChatUser;
 import com.trvankiet.app.service.ChatService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -54,8 +56,21 @@ public class ChatController {
     }
 
     @MessageMapping("/private-message")
-    public ChatMessage sendPrivateMessage(@Payload ChatMessage chatMessage) {
+    public ChatMessage sendPrivateMessage(@Payload ChatMessageDto chatMessageDto) {
         log.info("ChatController, sendPrivateMessage");
-        return chatService.sendPrivateMessage(chatMessage);
+        return chatService.saveChatMessageDto(chatMessageDto);
     }
+
+    @MessageMapping("/room-message/send/{roomId}")
+    public ChatMessage sendRoomMessage(@Payload ChatMessageDto chatMessageDto, @DestinationVariable String roomId) {
+        log.info("ChatController, sendRoomMessage");
+        return chatService.saveChatRoomMessageDto(chatMessageDto, roomId);
+    }
+
+    @MessageMapping("/delete-message")
+    public void deleteChatMessage(@Payload ChatMessageDto chatMessageDto) {
+        log.info("ChatController, deleteChatMessage");
+        chatService.deleteChatMessage(chatMessageDto);
+    }
+
 }

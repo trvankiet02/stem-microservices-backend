@@ -306,8 +306,33 @@ public class GroupServiceImpl implements GroupService {
     public ResponseEntity<List<String>> getGroupByUserId(String userId) {
         log.info("GroupServiceImpl, getGroupByUserId");
         List<GroupMember> groupMembers = groupMemberRepository.findAllByUserId(userId);
-        return ResponseEntity.ok(groupMembers.stream()
+        List<String> groupIds = new ArrayList<>(groupMembers.stream()
                 .map(groupMember -> groupMember.getGroup().getId())
                 .toList());
+        UserDto userDto = userClientService.getUserDtoByUserId(userId);
+        if (userDto.getRole().equals("TEACHER")) {
+            userDto.getSubjects().forEach(subject -> {
+                List<Group> groups = groupRepository.findAllBySubjectAndConfigTypeAndConfigAccessibility(subject, GroupType.CLASS.name(), GroupAccessType.PUBLIC.name());
+                groups.forEach(group -> {
+                    if (!groupIds.contains(group.getId())) {
+                        groupIds.add(group.getId());
+                    }
+                });
+            });
+        } else if (userDto.getRole().equals("STUDENT")) {
+            List<Group> studentGroups = groupRepository.findAllByGradeAndConfigTypeAndConfigAccessibility(userDto.getGrade(), GroupType.CLASS.name(), GroupAccessType.PUBLIC.name());
+            studentGroups.forEach(group -> {
+                if (!groupIds.contains(group.getId())) {
+                    groupIds.add(group.getId());
+                }
+            });
+        }
+        List<Group> groups = groupRepository.findAllByConfigAccessibility(GroupAccessType.PUBLIC.name());
+        groups.forEach(group -> {
+            if (!groupIds.contains(group.getId())) {
+                groupIds.add(group.getId());
+            }
+        });
+        return ResponseEntity.ok(groupIds);
     }
 }

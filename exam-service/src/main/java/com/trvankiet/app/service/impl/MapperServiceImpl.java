@@ -71,7 +71,7 @@ public class MapperServiceImpl implements MapperService {
         return SubmissionDto.builder()
                 .id(submission.getId())
                 .authorId(submission.getAuthorId())
-                .score(submission.getScore())
+                .score(submission.getScore() == null ? null : submission.getScore())
                 .examDto(mapToExamDto(submission.getExam()))
                 .startedAt(submission.getStartedAt() == null
                         ? null : DateUtil.date2String(submission.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
@@ -89,8 +89,8 @@ public class MapperServiceImpl implements MapperService {
         log.info("Mapping SubmissionDetail to SubmissionDetailDto");
         return SubmissionDetailDto.builder()
                 .id(submissionDetail.getId())
-                .answer(submissionDetail.getAnswer())
-                .score(submissionDetail.getScore())
+                .answer(submissionDetail.getAnswer() == null ? null : submissionDetail.getAnswer())
+                .score(submissionDetail.getScore() == null ? null : submissionDetail.getScore())
                 .questionDto(mapToQuestionDto(submissionDetail.getQuestion()))
                 .submissionDto(mapToSubmissionDto(submissionDetail.getSubmission()))
                 .createdAt(submissionDetail.getCreatedAt() == null

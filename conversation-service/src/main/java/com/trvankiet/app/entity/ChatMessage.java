@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 @Document(collection = "chat_messages")
 @NoArgsConstructor
@@ -29,7 +28,7 @@ public class ChatMessage implements Serializable {
 
     @DocumentReference
     @Field(name = "room_id")
-    private ChatRoom roomId;
+    private ChatRoom chatRoom;
 
     @DocumentReference
     @Field(name = "sender_id")
@@ -42,8 +41,12 @@ public class ChatMessage implements Serializable {
     @Field(name = "message_content")
     private String content;
 
-    @Field(name = "ref_urls")
-    private List<String> refUrls;
+    @Field(name = "ref_url")
+    private String refUrl;
+
+    @Builder.Default
+    @Field(name = "is_deleted")
+    private Boolean isDeleted = false;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

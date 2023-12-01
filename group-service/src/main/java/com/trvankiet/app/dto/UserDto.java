@@ -1,7 +1,6 @@
 package com.trvankiet.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +30,8 @@ public class UserDto implements Serializable {
     private String district;
     private String province;
     private String school;
+
+    private Integer grade;
     List<String> subjects;
 
     List<AnotherUserDto> parents;

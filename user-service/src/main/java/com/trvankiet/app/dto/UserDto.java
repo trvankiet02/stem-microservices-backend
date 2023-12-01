@@ -39,6 +39,8 @@ public class UserDto implements Serializable {
     private String district;
     private String province;
     private String school;
+
+    private Integer grade;
     List<String> subjects;
 
     List<AnotherUserDto> parents;

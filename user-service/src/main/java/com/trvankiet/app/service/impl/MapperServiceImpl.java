@@ -29,6 +29,7 @@ public class MapperServiceImpl implements MapperService {
                 .district(user.getDistrict() != null ? user.getDistrict() : null)
                 .province(user.getProvince() != null ? user.getProvince() : null)
                 .school(user.getSchool() != null ? user.getSchool() : null)
+                .grade(user.getGrade() != null ? user.getGrade() : null)
                 .subjects(user.getSubjects())
                 .parents(user.getParents().isEmpty() ?
                         null : user.getParents().stream().map(this::mapToAnotherUserDto).toList())

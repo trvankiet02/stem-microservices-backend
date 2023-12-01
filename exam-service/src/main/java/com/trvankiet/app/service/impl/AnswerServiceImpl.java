@@ -99,4 +99,15 @@ public class AnswerServiceImpl implements AnswerService {
                 .message("Xóa câu trả lời thành công!")
                 .build());
     }
+
+    @Override
+    public String getCorrectAnswer(String questionId) {
+        log.info("AnswerServiceImpl, getCorrectAnswer, String");
+        Answer answer = answerRepository.findByQuestionIdAndIsCorrectTrue(questionId)
+                .orElse(null);
+        if (answer == null) {
+            return "***";
+        }
+        return answer.getContent();
+    }
 }
