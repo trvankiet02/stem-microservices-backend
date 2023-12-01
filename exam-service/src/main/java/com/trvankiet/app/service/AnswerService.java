@@ -12,4 +12,5 @@ public interface AnswerService {
     ResponseEntity<GenericResponse> updateAnswerByAnswerId(String userId, String answerId, UpdateAnswerDetailRequest updateAnswerDetailRequest);
 
     ResponseEntity<GenericResponse> deleteAnswerByAnswerId(String userId, String answerId);
+    String getCorrectAnswer(String questionId);
 }

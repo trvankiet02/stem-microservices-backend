@@ -2,6 +2,8 @@ package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.request.DeleteSubmissionDetailRequest;
 import com.trvankiet.app.dto.request.SubmissionDetailUpdateRequest;
+import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.dto.response.SubmissionResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.SubmissionDetailService;
 import jakarta.validation.Valid;
@@ -36,6 +38,15 @@ public class SubmissionDetailController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return submissionDetailService.deleteAnswer(userId, deleteSubmissionDetailRequest);
+    }
+
+    @GetMapping("/detail/{submissionId}")
+    public ResponseEntity<GenericResponse> getSubmissionDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+        , @PathVariable("submissionId") String submissionId) {
+        log.info("SubmissionDetailController, getSubmissionDetail");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return submissionDetailService.getSubmissionDetail(userId, submissionId);
     }
 
 }

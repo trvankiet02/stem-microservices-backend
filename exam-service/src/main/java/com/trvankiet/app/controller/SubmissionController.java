@@ -45,6 +45,24 @@ public class SubmissionController {
         return submissionService.continueSubmissionById(userId, submissionId);
     }
 
+    @GetMapping("/list/{examId}")
+    public ResponseEntity<GenericResponse> getListSubmissionByExamId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
+            , @PathVariable("examId") String examId) {
+        log.info("SubmissionController, getListSubmissionByExamId");
+        String accessToken = authorizationToken.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return submissionService.getListSubmissionByExamId(userId, examId);
+    }
+
+    @GetMapping("/list/children/{examId}")
+    public ResponseEntity<GenericResponse> getListSubmissionByExamIdForParent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
+            , @PathVariable("examId") String examId) {
+        log.info("SubmissionController, getListSubmissionByExamIdForParent");
+        String accessToken = authorizationToken.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return submissionService.getListSubmissionByExamIdForParent(userId, examId);
+    }
+
     // Get list of submissions of class for teacher
     // Get result of a submission for student and parent of student
     // Get list exam and submission of student for student and parent of student

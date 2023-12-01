@@ -11,9 +11,9 @@ import java.util.Optional;
 @Repository
 public interface GroupRepository extends MongoRepository<Group, String> {
 
-    List<Group> findAllByNameAndConfigTypeAndConfigAccessibilityAndGradeAndSubject(
-            String query, String type, String accessibility, Integer grade, String subject
-    );
+    List<Group> findAllBySubjectAndConfigTypeAndConfigAccessibility(String subject, String type, String accessibility);
+    List<Group> findAllByGradeAndConfigTypeAndConfigAccessibility(Integer grade, String type, String accessibility);
+    List<Group> findAllByConfigAccessibility(String accessibility);
 
     @Query("{'$and':[ {'$or':[ {'group_name': {$regex: ?0, $options: 'i'}}, {'group_description': {$regex: ?0, $options: 'i'}} ]}, {'$or':[ {'class_grade': ?1}, {'class_subject': ?2} ]} ]}")
     List<Group> customSearch(String query, Integer grade, String subject);

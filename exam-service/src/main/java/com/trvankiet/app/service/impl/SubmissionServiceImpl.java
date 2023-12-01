@@ -1,7 +1,10 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.QuestionTypeEnum;
+import com.trvankiet.app.dto.AnotherUserDto;
 import com.trvankiet.app.dto.QuestionDto;
+import com.trvankiet.app.dto.SubmissionDto;
+import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.response.AnswerSubmissionResponse;
 import com.trvankiet.app.dto.response.ExamSubmissionResponse;
 import com.trvankiet.app.dto.response.GenericResponse;
@@ -14,6 +17,7 @@ import com.trvankiet.app.repository.*;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.SubmissionService;
 import com.trvankiet.app.service.client.GroupMemberClientService;
+import com.trvankiet.app.service.client.UserClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +39,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final MapperService mapperService;
     private final GroupMemberClientService groupMemberClientService;
     private final AnswerRepository answerRepository;
+    private final UserClientService userClientService;
 
 
     @Override
@@ -333,6 +338,53 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .statusCode(200)
                 .message("Tạo bài thi thành công!")
                 .result(examSubmissionResponse)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getListSubmissionByExamId(String userId, String examId) {
+        log.info("SubmissionServiceImpl, getListSubmissionByExamId");
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy bài thi!"));
+        List<SubmissionDto> submissions = submissionRepository.findAllByExamId(exam.getId())
+                .stream()
+                .map(mapperService::mapToSubmissionDto)
+                .toList();
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách bài thi thành công!")
+                .result(submissions)
+                .build());
+
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getListSubmissionByExamIdForParent(String userId, String examId) {
+        log.info("SubmissionServiceImpl, getListSubmissionByExamIdForParent");
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy bài thi!"));
+        UserDto userDto = userClientService.getUserDtoByUserId(userId);
+        if (!userDto.getRole().equals("PARENT")) {
+            throw new ForbiddenException("Bạn không có quyền truy cập!");
+        }
+        List<Submission> result = new ArrayList<>();
+        if (userDto.getChildren().isEmpty())
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Lấy danh sách bài thi thành công!")
+                    .result(result)
+                    .build());
+        userDto.getChildren().forEach(child -> {
+            Optional<Submission> optionalSubmission = submissionRepository.findAllByExamIdAndAuthorId(exam.getId(), child.getId());
+            optionalSubmission.ifPresent(result::add);
+        });
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách bài thi thành công!")
+                .result(result)
                 .build());
     }
 }
