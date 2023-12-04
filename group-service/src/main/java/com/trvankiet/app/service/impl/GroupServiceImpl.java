@@ -311,30 +311,37 @@ public class GroupServiceImpl implements GroupService {
                 .map(groupMember -> groupMember.getGroup().getId())
                 .toList());
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
+        List<GroupConfig> classAndPublicConfig = groupConfigRepository.findAllByTypeAndAccessibility(GroupType.CLASS.name(),
+                GroupAccessType.PUBLIC.name());
         if (userDto.getRole().equals("TEACHER")) {
             userDto.getSubjects().forEach(subject -> {
-                List<Group> groups = groupRepository.findAllBySubjectAndConfigTypeAndConfigAccessibility(subject, GroupType.CLASS.name(),
-                        GroupAccessType.PUBLIC.name());
-                groups.forEach(group -> {
+                classAndPublicConfig.forEach(groupConfig -> {
+                    List<Group> groupsBySubject = groupRepository.findAllBySubjectAndConfigId(subject, groupConfig.getId());
+                    groupsBySubject.forEach(group -> {
+                        if (!groupIds.contains(group.getId())) {
+                            groupIds.add(group.getId());
+                        }
+                    });
+                });
+            });
+        } else if (userDto.getRole().equals("STUDENT")) {
+            classAndPublicConfig.forEach(groupConfig -> {
+                List<Group> groupsByGrade = groupRepository.findAllByGradeAndConfigId(userDto.getGrade(), groupConfig.getId());
+                groupsByGrade.forEach(group -> {
                     if (!groupIds.contains(group.getId())) {
                         groupIds.add(group.getId());
                     }
                 });
             });
-        } else if (userDto.getRole().equals("STUDENT")) {
-            List<Group> studentGroups = groupRepository.findAllByGradeAndConfigTypeAndConfigAccessibility(userDto.getGrade(),
-                    GroupType.CLASS.name(), GroupAccessType.PUBLIC.name());
-            studentGroups.forEach(group -> {
+        }
+        List<GroupConfig> publicConfig = groupConfigRepository.findAllByAccessibility(GroupAccessType.PUBLIC.name());
+        publicConfig.forEach(groupConfig -> {
+            List<Group> groupsByConfig = groupRepository.findAllByConfigId(groupConfig.getId());
+            groupsByConfig.forEach(group -> {
                 if (!groupIds.contains(group.getId())) {
                     groupIds.add(group.getId());
                 }
             });
-        }
-        List<Group> groups = groupRepository.findAllByConfigAccessibility(GroupAccessType.PUBLIC.name());
-        groups.forEach(group -> {
-            if (!groupIds.contains(group.getId())) {
-                groupIds.add(group.getId());
-            }
         });
         return ResponseEntity.ok(groupIds);
     }
