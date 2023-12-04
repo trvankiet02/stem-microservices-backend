@@ -120,6 +120,24 @@ public class GroupController {
         return groupService.deleteGroup(userId, groupId);
     }
 
+    @GetMapping(value = "/suggested-groups")
+    public ResponseEntity<GenericResponse> suggestGroups(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("GroupController, suggestGroup");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.suggestGroups(userId);
+    }
+
+    @GetMapping(value = "/suggested-classes")
+    public ResponseEntity<GenericResponse> suggestClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("GroupController, suggestClass");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.suggestClasses(userId);
+    }
+
+
+
     @GetMapping("/search")
     public ResponseEntity<List<GroupDto>> searchGroup(@RequestParam("query") Optional<String> query
                                                 , @RequestParam("type") Optional<String> type
@@ -129,5 +147,6 @@ public class GroupController {
         log.info("GroupController, searchGroup");
         return groupService.searchGroup(query, type, accessibility, grade, subject);
     }
+
 
 }

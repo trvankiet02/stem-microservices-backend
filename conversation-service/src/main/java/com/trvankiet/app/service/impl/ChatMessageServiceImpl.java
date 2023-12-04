@@ -57,4 +57,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     public Optional<ChatMessage> findById(String id) {
         return chatMessageRepository.findById(id);
     }
+
+    @Override
+    public void save(ChatMessage chatMessage) {
+
+    }
 }

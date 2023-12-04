@@ -9,6 +9,7 @@ import com.trvankiet.app.dto.request.GroupConfigRequest;
 import com.trvankiet.app.dto.request.GroupCreateRequest;
 import com.trvankiet.app.dto.request.UpdateDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.dto.response.SuggestGroupResponse;
 import com.trvankiet.app.entity.Group;
 import com.trvankiet.app.entity.GroupConfig;
 import com.trvankiet.app.entity.GroupMember;
@@ -312,7 +313,8 @@ public class GroupServiceImpl implements GroupService {
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
         if (userDto.getRole().equals("TEACHER")) {
             userDto.getSubjects().forEach(subject -> {
-                List<Group> groups = groupRepository.findAllBySubjectAndConfigTypeAndConfigAccessibility(subject, GroupType.CLASS.name(), GroupAccessType.PUBLIC.name());
+                List<Group> groups = groupRepository.findAllBySubjectAndConfigTypeAndConfigAccessibility(subject, GroupType.CLASS.name(),
+                        GroupAccessType.PUBLIC.name());
                 groups.forEach(group -> {
                     if (!groupIds.contains(group.getId())) {
                         groupIds.add(group.getId());
@@ -320,7 +322,8 @@ public class GroupServiceImpl implements GroupService {
                 });
             });
         } else if (userDto.getRole().equals("STUDENT")) {
-            List<Group> studentGroups = groupRepository.findAllByGradeAndConfigTypeAndConfigAccessibility(userDto.getGrade(), GroupType.CLASS.name(), GroupAccessType.PUBLIC.name());
+            List<Group> studentGroups = groupRepository.findAllByGradeAndConfigTypeAndConfigAccessibility(userDto.getGrade(),
+                    GroupType.CLASS.name(), GroupAccessType.PUBLIC.name());
             studentGroups.forEach(group -> {
                 if (!groupIds.contains(group.getId())) {
                     groupIds.add(group.getId());
@@ -334,5 +337,107 @@ public class GroupServiceImpl implements GroupService {
             }
         });
         return ResponseEntity.ok(groupIds);
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> suggestGroups(String userId) {
+        log.info("GroupServiceImpl, suggestGroups");
+        List<Group> groupHasUser = groupMemberRepository.findAllByUserId(userId).stream()
+                .map(GroupMember::getGroup)
+                .filter(group -> !group.getConfig().getType().equals(GroupType.DISCUSSION.name()))
+                .toList();
+        List<GroupConfig> groupConfigs = groupConfigRepository.findAllByTypeAndAccessibility(GroupType.DISCUSSION.name(),
+                GroupAccessType.PUBLIC.name());
+        List<SuggestGroupResponse> suggestGroupResponses = new ArrayList<>();
+        groupConfigs.forEach(groupConfig -> {
+            List<Group> groups = groupRepository.findAllByConfigId(groupConfig.getId());
+            groups.forEach(group -> {
+                if (!groupHasUser.contains(group)) {
+                    suggestGroupResponses.add(SuggestGroupResponse.builder()
+                            .groupDto(mapperService.mapToGroupDto(group))
+                            .isMember(false)
+                            .build());
+                }
+                suggestGroupResponses.add(SuggestGroupResponse.builder()
+                        .groupDto(mapperService.mapToGroupDto(group))
+                        .isMember(true)
+                        .build());
+            });
+        });
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách nhóm thành công!")
+                .result(suggestGroupResponses)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> suggestClasses(String userId) {
+        log.info("GroupServiceImpl, suggestClasses");
+        List<Group> groups = groupMemberRepository.findAllByUserId(userId).stream()
+                .map(GroupMember::getGroup)
+                .filter(group -> group.getConfig().getType().equals(GroupType.CLASS.name()))
+                .toList();
+        List<GroupConfig> classAndPublicConfig = groupConfigRepository.findAllByTypeAndAccessibility(GroupType.CLASS.name(),
+                GroupAccessType.PUBLIC.name());
+        List<SuggestGroupResponse> suggestGroupResponses = new ArrayList<>();
+        UserDto userDto = userClientService.getUserDtoByUserId(userId);
+        if ("TEACHER".equals(userDto.getRole())) {
+            userDto.getSubjects().forEach(subject -> {
+                classAndPublicConfig.forEach(groupConfig -> {
+                    List<Group> groupsBySubject = groupRepository.findAllBySubjectAndConfigId(subject, groupConfig.getId());
+                    groupsBySubject.forEach(group -> {
+                        if (!groups.contains(group)) {
+                            suggestGroupResponses.add(SuggestGroupResponse.builder()
+                                    .groupDto(mapperService.mapToGroupDto(group))
+                                    .isMember(false)
+                                    .build());
+                        }
+                        suggestGroupResponses.add(SuggestGroupResponse.builder()
+                                .groupDto(mapperService.mapToGroupDto(group))
+                                .isMember(true)
+                                .build());
+                    });
+                });
+            });
+        } else if ("STUDENT".equals(userDto.getRole())) {
+            classAndPublicConfig.forEach(groupConfig -> {
+                List<Group> groupsByGrade = groupRepository.findAllByGradeAndConfigId(userDto.getGrade(), groupConfig.getId());
+                groupsByGrade.forEach(group -> {
+                    if (!groups.contains(group)) {
+                        suggestGroupResponses.add(SuggestGroupResponse.builder()
+                                .groupDto(mapperService.mapToGroupDto(group))
+                                .isMember(false)
+                                .build());
+                    }
+                    suggestGroupResponses.add(SuggestGroupResponse.builder()
+                            .groupDto(mapperService.mapToGroupDto(group))
+                            .isMember(true)
+                            .build());
+                });
+            });
+        }
+        classAndPublicConfig.forEach(groupConfig -> {
+            List<Group> groupsByConfig = groupRepository.findAllByConfigId(groupConfig.getId());
+            groupsByConfig.forEach(group -> {
+                if (!groups.contains(group)) {
+                    suggestGroupResponses.add(SuggestGroupResponse.builder()
+                            .groupDto(mapperService.mapToGroupDto(group))
+                            .isMember(false)
+                            .build());
+                }
+                suggestGroupResponses.add(SuggestGroupResponse.builder()
+                        .groupDto(mapperService.mapToGroupDto(group))
+                        .isMember(true)
+                        .build());
+            });
+        });
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách lớp học thành công!")
+                .result(suggestGroupResponses)
+                .statusCode(HttpStatus.OK.value())
+                .build());
     }
 }

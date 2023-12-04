@@ -15,6 +15,13 @@ public interface GroupRepository extends MongoRepository<Group, String> {
     List<Group> findAllByGradeAndConfigTypeAndConfigAccessibility(Integer grade, String type, String accessibility);
     List<Group> findAllByConfigAccessibility(String accessibility);
 
+    List<Group> findAllByConfigTypeAndConfigAccessibility(String type, String accessibility);
+    List<Group> findAllByConfigId(String configId);
+
+    List<Group> findAllBySubjectAndConfigId(String subject, String configId);
+    List<Group> findAllByGradeAndConfigId(Integer grade, String configId);
+
+
     @Query("{'$and':[ {'$or':[ {'group_name': {$regex: ?0, $options: 'i'}}, {'group_description': {$regex: ?0, $options: 'i'}} ]}, {'$or':[ {'class_grade': ?1}, {'class_subject': ?2} ]} ]}")
     List<Group> customSearch(String query, Integer grade, String subject);
 
