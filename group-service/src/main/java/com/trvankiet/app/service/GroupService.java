@@ -36,4 +36,8 @@ public interface GroupService {
     ResponseEntity<GenericResponse> valiadateUserInGroup(String userId, String groupId);
 
     ResponseEntity<List<String>> getGroupByUserId(String userId);
+
+    ResponseEntity<GenericResponse> suggestGroups(String userId);
+
+    ResponseEntity<GenericResponse> suggestClasses(String userId);
 }
