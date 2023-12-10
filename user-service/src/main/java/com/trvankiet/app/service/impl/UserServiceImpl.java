@@ -6,6 +6,7 @@ import com.trvankiet.app.constant.RoleBasedAuthority;
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.FriendRequestDto;
+import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.dto.request.ProfileRequest;
@@ -21,7 +22,6 @@ import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.repository.UserRepository;
-import com.trvankiet.app.service.CloudinaryService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.UserService;
 import com.trvankiet.app.service.client.ChatUserClientService;
@@ -127,7 +127,6 @@ public class UserServiceImpl implements UserService {
         verificationToken.setIsExpired(true);
         verificationToken.setIsRevoked(true);
         tokenRepository.save(verificationToken);
-        String accessToken = jwtService.generateAccessToken(credential);
         ResponseEntity<String> friendIdsResponse = friendshipClientService.createFriendship(user.getId());
         CreateChatUserRequest createChatUserRequest = CreateChatUserRequest.builder()
                 .id(credential.getUser().getId())
@@ -210,9 +209,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> updateAvatar(String userId, MultipartFile avatar) throws IOException{
+    public ResponseEntity<GenericResponse> updateAvatar(String userId, MultipartFile avatar) throws IOException {
         log.info("UserServiceImpl, ResponseEntity<GenericResponse>, updateAvatar");
-        String folderName = "/user/avatar";
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         String oldAvatar = user.getAvatarUrl();
@@ -234,7 +232,7 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Cập nhật ảnh đại diện thành công")
-                .result(mapperService.mapToUserDto(user))
+                .result(newAvatar)
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
@@ -242,7 +240,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<GenericResponse> updateCover(String userId, MultipartFile cover) throws IOException {
         log.info("UserServiceImpl, ResponseEntity<GenericResponse>, updateCover");
-        String folderName = "/user/cover";
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
         String oldCover = user.getCoverUrl();
@@ -257,25 +254,25 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Cập nhật ảnh bìa thành công")
-                .result(mapperService.mapToUserDto(user))
+                .result(newCover)
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
 
     @Override
-    public ResponseEntity<List<UserDto>> searchUser(Optional<String> query, Optional<String> role, Optional<String> gender, Optional<String> school, Optional<Integer> grade, Optional<List<String>> subjects) {
+    public ResponseEntity<List<SimpleUserDto>> searchUser(Optional<String> query, Optional<String> role, Optional<String> gender, Optional<String> school, Optional<Integer> grade, Optional<List<String>> subjects) {
         log.info("UserServiceImpl, ResponseEntity<String>, searchUser");
 
-        String queryString = query.orElse(null);
+        String queryString = query.orElse("");
         RoleBasedAuthority roleBasedAuthority = role.map(RoleBasedAuthority::valueOf).orElse(null);
         Gender genderString = gender.map(Gender::valueOf).orElse(null);
         String schoolString = school.orElse(null);
         Integer gradeInteger = grade.orElse(null);
-        List<String> subjectsList = subjects.orElse(Collections.emptyList());
+        List<String> subjectsList = subjects.orElse(null);
 
         try {
             List<User> users = userRepository.searchUsers(queryString, roleBasedAuthority, genderString, schoolString, gradeInteger, subjectsList);
-            List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).collect(Collectors.toList());
+            List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).collect(Collectors.toList());
             return ResponseEntity.ok(userDtos);
         } catch (Exception e) {
             log.error("Error while executing searchUsers query", e);
@@ -287,7 +284,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<GenericResponse> getFriends(List<String> friendIds) {
         log.info("UserServiceImpl, ResponseEntity<List<UserDto>>, getFriends");
         List<User> users = userRepository.findAllById(friendIds);
-        List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
+        List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách bạn bè thành công!")
@@ -299,20 +296,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<GenericResponse> getFriendRequests(List<FriendRequestDto> friendRequests) {
         log.info("UserServiceImpl, ResponseEntity<List<UserDto>>, getFriendRequests");
-        List<String> userIds = friendRequests.stream().map(FriendRequestDto::getSenderId).toList();
-        List<User> users = userRepository.findAllById(userIds);
-        List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
-        //map SenderId to UserDto and return friendRequests
-        List<FriendRequestResponse> friendRequestResponses = friendRequests.stream().map(friendRequestDto -> {
-            UserDto sender = userDtos.stream().filter(userDto -> userDto.getId().equals(friendRequestDto.getSenderId())).findFirst().orElse(null);
-            return FriendRequestResponse.builder()
-                    .id(friendRequestDto.getId())
-                    .userDto(sender)
-                    .status(friendRequestDto.getStatus())
-                    .createdAt(friendRequestDto.getCreatedAt() == null ? null : friendRequestDto.getCreatedAt())
-                    .updatedAt(friendRequestDto.getUpdatedAt() == null ? null : friendRequestDto.getUpdatedAt())
-                    .build();
-        }).toList();
+        List<FriendRequestResponse> friendRequestResponses = friendRequests.stream()
+                .map(friendRequest -> {
+                    User user = userRepository.findById(friendRequest.getSenderId()).orElse(null);
+                    if (user == null) {
+                        return null;
+                    }
+                    return FriendRequestResponse.builder()
+                            .id(friendRequest.getId())
+                            .userDto(mapperService.mapToSimpleUserDto(user))
+                            .status(friendRequest.getStatus())
+                            .createdAt(friendRequest.getCreatedAt() == null ? null : friendRequest.getCreatedAt())
+                            .updatedAt(friendRequest.getUpdatedAt() == null ? null : friendRequest.getUpdatedAt())
+                            .build();
+                }).toList();
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách lời mời kết bạn thành công!")
@@ -324,22 +321,29 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<GenericResponse> getFriendsOfUser(List<FriendOfUserResponse> body) {
         log.info("UserServiceImpl, ResponseEntity<List<UserDto>>, getFriendsOfUser");
-        List<FriendResponse> friendReponse = body.stream().map(friendOfUserResponse -> {
+        List<FriendResponse> friendResponse = body.stream().map(friendOfUserResponse -> {
             User user = userRepository.findById(friendOfUserResponse.getUserId()).orElse(null);
             if (user == null) {
                 return null;
             }
             return FriendResponse.builder()
-                    .userDto(mapperService.mapToUserDto(user))
+                    .userDto(mapperService.mapToSimpleUserDto(user))
                     .isFriend(friendOfUserResponse.getIsFriendOfMe())
                     .build();
         }).toList();
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách bạn bè thành công!")
-                .result(friendReponse)
+                .result(friendResponse)
                 .statusCode(HttpStatus.OK.value())
                 .build());
+    }
+
+    @Override
+    public SimpleUserDto getSimpleUserDto(String uId) {
+        User user = userRepository.findById(uId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản!"));
+        return mapperService.mapToSimpleUserDto(user);
     }
 
 
@@ -361,7 +365,6 @@ public class UserServiceImpl implements UserService {
 
         return verificationToken;
     }
-
 
 
 }

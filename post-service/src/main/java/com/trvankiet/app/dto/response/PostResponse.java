@@ -11,7 +11,7 @@ import lombok.Data;
 public class PostResponse {
 
     @JsonProperty("post")
-    private PostDetailResponse postDetailResponse;
+    private PostDto postDto;
 
     @JsonProperty("reaction")
     private ReactionDto reactionDto;

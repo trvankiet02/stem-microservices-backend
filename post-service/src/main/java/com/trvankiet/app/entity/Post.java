@@ -1,6 +1,7 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.trvankiet.app.constant.PostTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,23 +34,17 @@ public class Post implements Serializable {
     @Field(name = "author_id")
     private String authorId;
 
-    @DocumentReference
     @Field(name = "post_type")
-    private PostType type;
+    private PostTypeEnum type;
 
     @Field(name = "post_content")
     private String content;
 
+    @Field(name = "post_is_public")
+    private Boolean isPublic;
+
     @Field(name = "ref_urls")
     private List<String> refUrls;
-
-    @DocumentReference
-    @Field(name = "reactions")
-    private List<Reaction> reactions;
-
-    @DocumentReference
-    @Field(name = "comments")
-    private List<Comment> comments;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

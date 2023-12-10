@@ -1,6 +1,7 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.trvankiet.app.constant.GroupMemberRoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,9 +44,8 @@ public class GroupMember implements Serializable {
     @Field(name = "group_id")
     private Group group;
 
-    @DocumentReference
-    @Field(name = "group_member_role_id")
-    private GroupMemberRole groupMemberRole;
+    @Field(name = "group_member_role")
+    private GroupMemberRoleType role;
 
     @DocumentReference
     @Field(name = "group_member_request_id")

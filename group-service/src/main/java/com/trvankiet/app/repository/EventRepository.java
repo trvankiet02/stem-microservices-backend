@@ -14,5 +14,5 @@ import java.util.Optional;
 public interface EventRepository extends MongoRepository<Event, String> {
     List<Event> findAllByGroupId(String groupId);
 
-    List<Event> findAllByGroupIn(List<Group> groups);
+    List<Event> findAllByGroupInOrderByCreatedAtDesc(List<Group> groups);
 }

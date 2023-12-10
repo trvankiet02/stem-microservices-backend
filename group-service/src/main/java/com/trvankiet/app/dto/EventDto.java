@@ -10,7 +10,7 @@ public class EventDto {
 
     private String id;
     @JsonProperty("author")
-    private UserDto userDto;
+    private SimpleUserDto userDto;
     @JsonProperty("group")
     private GroupDto groupDto;
     private String name;

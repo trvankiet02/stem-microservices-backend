@@ -4,6 +4,7 @@ import com.trvankiet.app.constant.GroupAccessType;
 import com.trvankiet.app.constant.GroupMemberRoleType;
 import com.trvankiet.app.constant.GroupType;
 import com.trvankiet.app.dto.GroupDto;
+import com.trvankiet.app.dto.SimpleGroupDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.GroupConfigRequest;
 import com.trvankiet.app.dto.request.GroupCreateRequest;
@@ -11,22 +12,22 @@ import com.trvankiet.app.dto.request.UpdateDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.dto.response.SuggestGroupResponse;
 import com.trvankiet.app.entity.Group;
-import com.trvankiet.app.entity.GroupConfig;
 import com.trvankiet.app.entity.GroupMember;
-import com.trvankiet.app.entity.GroupMemberRole;
 import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
-import com.trvankiet.app.repository.GroupConfigRepository;
 import com.trvankiet.app.repository.GroupMemberRepository;
-import com.trvankiet.app.repository.GroupMemberRoleRepository;
 import com.trvankiet.app.repository.GroupRepository;
 import com.trvankiet.app.service.GroupService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.client.FileClientService;
 import com.trvankiet.app.service.client.UserClientService;
-import com.trvankiet.app.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -43,33 +44,29 @@ public class GroupServiceImpl implements GroupService {
     private final UserClientService userClientService;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
-    private final GroupMemberRoleRepository groupMemberRoleRepository;
-    private final GroupConfigRepository groupConfigRepository;
     private final MapperService mapperService;
     private final FileClientService fileClientService;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public ResponseEntity<GenericResponse> createGroup(String userId, GroupCreateRequest groupCreateRequest) {
         log.info("GroupServiceImpl, createGroup");
-        UserDto userDto = userClientService.getUserDtoByUserId(userId);
         Date now = new Date();
-
-        GroupConfig groupConfig = groupConfigRepository.findByTypeAndAccessibilityAndMemberMode(
-                        groupCreateRequest.getTypeName(),
-                        groupCreateRequest.getAccessibilityName(),
-                        groupCreateRequest.getMemberModeName())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy cấu hình nhóm!"));
 
         Group group = Group.builder()
                 .id(UUID.randomUUID().toString())
                 .name(groupCreateRequest.getName())
-                .description(groupCreateRequest.getDescription())
+                .description(groupCreateRequest.getDescription() == null ?
+                        null : groupCreateRequest.getDescription())
                 .authorId(userId)
-                .config(groupConfig)
+                .isClass(groupCreateRequest.getIsClass())
+                .isPublic(groupCreateRequest.getIsPublic())
+                .isAcceptAllRequest(groupCreateRequest.getIsAcceptAllRequest())
                 .createdAt(now)
                 .build();
 
-        if (groupConfig.getType().equals(GroupType.CLASS.toString())) {
+        if (groupCreateRequest.getIsClass()) {
+            UserDto userDto = userClientService.getUserDtoByUserId(userId);
             if (userDto.getRole().equals("TEACHER")) {
                 group.setSubject(groupCreateRequest.getSubject());
                 group.setGrade(groupCreateRequest.getGrade());
@@ -79,23 +76,18 @@ public class GroupServiceImpl implements GroupService {
         }
 
         group = groupRepository.save(group);
-
-        GroupMemberRole groupOwnerRole = groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_OWNER.getCode())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên nhóm!"));
-
-        GroupMember groupMember = groupMemberRepository
-                .save(GroupMember.builder()
-                        .id(UUID.randomUUID().toString())
-                        .userId(userId)
-                        .group(group)
-                        .groupMemberRole(groupOwnerRole)
-                        .createdAt(now)
-                        .build());
+        groupMemberRepository.save(GroupMember.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(userId)
+                .group(group)
+                .role(GroupMemberRoleType.GROUP_OWNER)
+                .createdAt(now)
+                .build());
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Tạo nhóm thành công!")
-                .result(mapperService.mapToGroupDto(group))
+                .result(group.getId())
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
@@ -121,27 +113,9 @@ public class GroupServiceImpl implements GroupService {
         Map<String, Object> result = new HashMap<>();
         result.put("group", groupDto);
 
-        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, groupId).orElse(null);
+        groupMemberRepository.findByUserIdAndGroupId(userId, groupId)
+                .ifPresent(groupMember -> result.put("user", mapperService.mapToGroupMemberDto(groupMember)));
 
-        if (group.getConfig().getAccessibility().equals(GroupAccessType.PUBLIC.toString())) {
-            if (groupMember != null) {
-                result.put("user", mapperService.mapToGroupMemberDto(groupMember));
-            }
-            // result.put("posts", List<Post> getPostsByGroupId(groupId));
-            if (group.getConfig().getType().equals(GroupType.CLASS.toString())) {
-                // result.put("events", List<Event> getEventsByGroupId(groupId));
-                // result.put("exams", List<Exam> getExamsByGroupId(groupId));
-            }
-        } else {
-            if (groupMember != null) {
-                result.put("user", mapperService.mapToGroupMemberDto(groupMember));
-                // result.put("posts", List<Post> getPostsByGroupId(groupId));
-                if (group.getConfig().getType().equals(GroupType.CLASS.toString())) {
-                    // result.put("events", List<Event> getEventsByGroupId(groupId));
-                    // result.put("exams", List<Exam> getExamsByGroupId(groupId));
-                }
-            }
-        }
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Truy cập nhóm thành công!")
@@ -154,9 +128,11 @@ public class GroupServiceImpl implements GroupService {
     public ResponseEntity<GenericResponse> getGroupsByUserId(String userId) {
         log.info("GroupServiceImpl, getGroupsByUserId");
         Map<String, List<GroupDto>> result = new HashMap<>();
-        List<com.trvankiet.app.entity.GroupMemberRole> groupMemberRoles = groupMemberRoleRepository.findAll();
-        for (com.trvankiet.app.entity.GroupMemberRole role : groupMemberRoles) {
-            result.put(role.getName(), groupMemberRepository.findByUserIdAndGroupMemberRole(userId, role).stream()
+        List<GroupMemberRoleType> groupMemberRoles = List.of(GroupMemberRoleType.GROUP_OWNER,
+                GroupMemberRoleType.GROUP_ADMIN,
+                GroupMemberRoleType.GROUP_MEMBER);
+        for (GroupMemberRoleType role : groupMemberRoles) {
+            result.put(role.name(), groupMemberRepository.findAllByUserIdAndRole(userId, role).stream()
                     .map(groupMember -> mapperService.mapToGroupDto(groupMember.getGroup()))
                     .collect(Collectors.toList()));
         }
@@ -176,13 +152,10 @@ public class GroupServiceImpl implements GroupService {
         if (!group.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thay đổi cấu hình nhóm!");
         }
-        GroupConfig groupConfig = groupConfigRepository.findByTypeAndAccessibilityAndMemberMode(
-                        groupConfigRequest.getTypeCode(),
-                        groupConfigRequest.getAccessibilityCode(),
-                        groupConfigRequest.getMemberModeCode())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy cấu hình nhóm!"));
-        group.setConfig(groupConfig);
+        group.setIsPublic(groupConfigRequest.getIsPublic());
+        group.setIsAcceptAllRequest(groupConfigRequest.getIsAcceptAllRequest());
         groupRepository.save(group);
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Cập nhật cấu hình nhóm thành công!")
@@ -259,21 +232,54 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseEntity<GenericResponse> deleteGroup(String userId, String groupId) {
-        return null;
+        log.info("GroupServiceImpl, deleteGroup");
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy nhóm!"));
+        if (!group.getAuthorId().equals(userId)) {
+            throw new ForbiddenException("Bạn không có quyền xóa nhóm!");
+        }
+        groupRepository.delete(group);
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Xóa nhóm thành công!")
+                .result(null)
+                .statusCode(HttpStatus.OK.value())
+                .build());
     }
 
     @Override
     public ResponseEntity<List<GroupDto>> searchGroup(
-            Optional<String> query, Optional<String> type, Optional<String> accessibility,
+            Optional<String> query, Optional<Boolean> isClass, Optional<Boolean> isPublic,
             Optional<Integer> grade, Optional<String> subject) {
         log.info("GroupServiceImpl, searchGroup");
 
-        List<Group> groups = groupRepository.searchGroupByQuery(query.orElse(""));
+        String queryValue = query.orElse("");
+        Boolean typeValue = isClass.orElse(null);
+        Integer gradeValue = grade.orElse(null);
+        String subjectValue = subject.orElse(null);
 
-        type.ifPresent(typeValue -> groups.removeIf(group -> !group.getConfig().getType().equals(typeValue)));
-        accessibility.ifPresent(accessibilityValue -> groups.removeIf(group -> !group.getConfig().getAccessibility().equals(accessibilityValue)));
-        grade.ifPresent(gradeValue -> groups.removeIf(group -> group.getGrade() == null || !group.getGrade().equals(gradeValue)));
-        subject.ifPresent(subjectValue -> groups.removeIf(group -> group.getSubject() == null || !group.getSubject().equals(subjectValue)));
+        Query searchQuery = new Query();
+
+        Criteria queryCriteria = new Criteria().orOperator(
+                Criteria.where("group_name").regex(queryValue, "i"),
+                Criteria.where("group_description").regex(queryValue, "i")
+        );
+
+        searchQuery.addCriteria(queryCriteria);
+
+        if (typeValue != null) {
+            searchQuery.addCriteria(Criteria.where("isClass").is(typeValue));
+        }
+
+        if (gradeValue != null) {
+            searchQuery.addCriteria(Criteria.where("grade").is(gradeValue));
+        }
+
+        if (subjectValue != null) {
+            searchQuery.addCriteria(Criteria.where("subject").regex(subjectValue, "i"));
+        }
+
+        List<Group> groups = mongoTemplate.find(searchQuery, Group.class);
 
         List<GroupDto> groupDtos = groups.stream()
                 .map(mapperService::mapToGroupDto)
@@ -311,66 +317,62 @@ public class GroupServiceImpl implements GroupService {
                 .map(groupMember -> groupMember.getGroup().getId())
                 .toList());
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
-        List<GroupConfig> classAndPublicConfig = groupConfigRepository.findAllByTypeAndAccessibility(GroupType.CLASS.name(),
-                GroupAccessType.PUBLIC.name());
         if (userDto.getRole().equals("TEACHER")) {
             userDto.getSubjects().forEach(subject -> {
-                classAndPublicConfig.forEach(groupConfig -> {
-                    List<Group> groupsBySubject = groupRepository.findAllBySubjectAndConfigId(subject, groupConfig.getId());
-                    groupsBySubject.forEach(group -> {
-                        if (!groupIds.contains(group.getId())) {
-                            groupIds.add(group.getId());
-                        }
-                    });
-                });
-            });
-        } else if (userDto.getRole().equals("STUDENT")) {
-            classAndPublicConfig.forEach(groupConfig -> {
-                List<Group> groupsByGrade = groupRepository.findAllByGradeAndConfigId(userDto.getGrade(), groupConfig.getId());
-                groupsByGrade.forEach(group -> {
+                List<Group> groupsBySubject = groupRepository.findAllBySubjectAndIsPublic(subject, true);
+                groupsBySubject.forEach(group -> {
                     if (!groupIds.contains(group.getId())) {
                         groupIds.add(group.getId());
                     }
                 });
             });
-        }
-        List<GroupConfig> publicConfig = groupConfigRepository.findAllByAccessibility(GroupAccessType.PUBLIC.name());
-        publicConfig.forEach(groupConfig -> {
-            List<Group> groupsByConfig = groupRepository.findAllByConfigId(groupConfig.getId());
-            groupsByConfig.forEach(group -> {
+        } else if (userDto.getRole().equals("STUDENT")) {
+            List<Group> groupsByGrade = groupRepository.findAllByGradeAndIsPublic(userDto.getGrade(), true);
+            groupsByGrade.forEach(group -> {
                 if (!groupIds.contains(group.getId())) {
                     groupIds.add(group.getId());
                 }
             });
+        }
+        List<Group> suggestGroups = groupRepository.findAllByIsClassAndIsPublic(false, true);
+        suggestGroups.forEach(group -> {
+            if (!groupIds.contains(group.getId())) {
+                groupIds.add(group.getId());
+            }
         });
         return ResponseEntity.ok(groupIds);
     }
 
     @Override
-    public ResponseEntity<GenericResponse> suggestGroups(String userId) {
+    public ResponseEntity<GenericResponse> suggestGroups(String userId, Integer page, Integer size) {
         log.info("GroupServiceImpl, suggestGroups");
-        List<Group> groupHasUser = groupMemberRepository.findAllByUserId(userId).stream()
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+
+        List<Group> groups = groupMemberRepository.findAllByUserId(userId).stream()
                 .map(GroupMember::getGroup)
-                .filter(group -> !group.getConfig().getType().equals(GroupType.DISCUSSION.name()))
+                .filter(group -> !group.getIsClass())
                 .toList();
-        List<GroupConfig> groupConfigs = groupConfigRepository.findAllByTypeAndAccessibility(GroupType.DISCUSSION.name(),
-                GroupAccessType.PUBLIC.name());
+
+        List<Group> suggestGroups = groupRepository.findAllByIsClassAndIsPublic(false, true, pageable).toList();
+
         List<SuggestGroupResponse> suggestGroupResponses = new ArrayList<>();
-        groupConfigs.forEach(groupConfig -> {
-            List<Group> groups = groupRepository.findAllByConfigId(groupConfig.getId());
-            groups.forEach(group -> {
-                if (!groupHasUser.contains(group)) {
-                    suggestGroupResponses.add(SuggestGroupResponse.builder()
-                            .groupDto(mapperService.mapToGroupDto(group))
-                            .isMember(false)
-                            .build());
-                }
+
+        suggestGroups.forEach(group -> {
+            if (!groups.contains(group)) {
                 suggestGroupResponses.add(SuggestGroupResponse.builder()
                         .groupDto(mapperService.mapToGroupDto(group))
+                        .memberCount(groupMemberRepository.countByGroupId(group.getId()))
+                        .isMember(false)
+                        .build());
+            } else {
+                suggestGroupResponses.add(SuggestGroupResponse.builder()
+                        .groupDto(mapperService.mapToGroupDto(group))
+                        .memberCount(groupMemberRepository.countByGroupId(group.getId()))
                         .isMember(true)
                         .build());
-            });
+            }
         });
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách nhóm thành công!")
@@ -380,71 +382,81 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> suggestClasses(String userId) {
+    public ResponseEntity<GenericResponse> suggestClasses(String userId, Integer page, Integer size) {
         log.info("GroupServiceImpl, suggestClasses");
+
         List<Group> groups = groupMemberRepository.findAllByUserId(userId).stream()
                 .map(GroupMember::getGroup)
-                .filter(group -> group.getConfig().getType().equals(GroupType.CLASS.name()))
+                .filter(Group::getIsClass)
                 .toList();
-        List<GroupConfig> classAndPublicConfig = groupConfigRepository.findAllByTypeAndAccessibility(GroupType.CLASS.name(),
-                GroupAccessType.PUBLIC.name());
-        List<SuggestGroupResponse> suggestGroupResponses = new ArrayList<>();
+
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
-        if ("TEACHER".equals(userDto.getRole())) {
+
+        List<Group> suggestGroups = new ArrayList<>();
+
+        if (userDto.getRole().equals("TEACHER")) {
             userDto.getSubjects().forEach(subject -> {
-                classAndPublicConfig.forEach(groupConfig -> {
-                    List<Group> groupsBySubject = groupRepository.findAllBySubjectAndConfigId(subject, groupConfig.getId());
-                    groupsBySubject.forEach(group -> {
-                        if (!groups.contains(group)) {
-                            suggestGroupResponses.add(SuggestGroupResponse.builder()
-                                    .groupDto(mapperService.mapToGroupDto(group))
-                                    .isMember(false)
-                                    .build());
-                        }
-                        suggestGroupResponses.add(SuggestGroupResponse.builder()
-                                .groupDto(mapperService.mapToGroupDto(group))
-                                .isMember(true)
-                                .build());
-                    });
-                });
+                suggestGroups.addAll(groupRepository.findAllBySubjectAndIsPublic(subject, true, pageable).toList());
             });
-        } else if ("STUDENT".equals(userDto.getRole())) {
-            classAndPublicConfig.forEach(groupConfig -> {
-                List<Group> groupsByGrade = groupRepository.findAllByGradeAndConfigId(userDto.getGrade(), groupConfig.getId());
-                groupsByGrade.forEach(group -> {
-                    if (!groups.contains(group)) {
-                        suggestGroupResponses.add(SuggestGroupResponse.builder()
-                                .groupDto(mapperService.mapToGroupDto(group))
-                                .isMember(false)
-                                .build());
+        } else if (userDto.getRole().equals("STUDENT")) {
+            suggestGroups.addAll(groupRepository.findAllByGradeAndIsPublic(userDto.getGrade(), true, pageable).toList());
+        } else if (userDto.getRole().equals("PARENT")) {
+            if (userDto.getChildren() != null) {
+                userDto.getChildren().forEach(child -> {
+                    UserDto childDto = userClientService.getUserDtoByUserId(child.getId());
+                    Pageable newPageable = Pageable.ofSize(size).withPage(page / userDto.getChildren().size());
+                    if (childDto.getRole().equals("STUDENT")) {
+                        suggestGroups.addAll(groupRepository.findAllByGradeAndIsPublic(childDto.getGrade(), true, newPageable).toList());
                     }
-                    suggestGroupResponses.add(SuggestGroupResponse.builder()
-                            .groupDto(mapperService.mapToGroupDto(group))
-                            .isMember(true)
-                            .build());
                 });
-            });
+            }
         }
-        classAndPublicConfig.forEach(groupConfig -> {
-            List<Group> groupsByConfig = groupRepository.findAllByConfigId(groupConfig.getId());
-            groupsByConfig.forEach(group -> {
-                if (!groups.contains(group)) {
-                    suggestGroupResponses.add(SuggestGroupResponse.builder()
-                            .groupDto(mapperService.mapToGroupDto(group))
-                            .isMember(false)
-                            .build());
-                }
+
+        List<SuggestGroupResponse> suggestGroupResponses = new ArrayList<>();
+
+        suggestGroups.forEach(group -> {
+            if (!groups.contains(group)) {
                 suggestGroupResponses.add(SuggestGroupResponse.builder()
                         .groupDto(mapperService.mapToGroupDto(group))
+                        .memberCount(groupMemberRepository.countByGroupId(group.getId()))
+                        .isMember(false)
+                        .build());
+            } else {
+                suggestGroupResponses.add(SuggestGroupResponse.builder()
+                        .groupDto(mapperService.mapToGroupDto(group))
+                        .memberCount(groupMemberRepository.countByGroupId(group.getId()))
                         .isMember(true)
                         .build());
-            });
+            }
         });
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách lớp học thành công!")
                 .result(suggestGroupResponses)
                 .statusCode(HttpStatus.OK.value())
                 .build());
+    }
+
+    @Override
+    public SimpleGroupDto getSimpleGroupDto(String userId, String groupId) {
+        log.info("GroupServiceImpl, getSimpleGroupDto");
+        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, groupId)
+                .orElseThrow(() -> new NotFoundException("Nhóm không tồn tại hoặc bạn không phải thành viên của nhóm!"));
+
+        Group group = groupMember.getGroup();
+
+        return SimpleGroupDto.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .description(group.getDescription())
+                .avatarUrl(group.getAvatarUrl())
+                .coverUrl(group.getCoverUrl())
+                .isPublic(group.getIsPublic())
+                .build();
+
+
     }
 }

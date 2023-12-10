@@ -5,9 +5,9 @@ import com.trvankiet.app.exception.wrapper.BadRequestException;
 
 public class TokenUtil {
 
-    public static boolean tokenIsNotExpiredAndRevoked(Token token) {
+    public static boolean tokenIsExpiredOrRevoked(Token token) {
         if (token == null)
-            throw new BadRequestException("Token rỗng!");
-        return !token.getIsRevoked() && !token.getIsExpired();
+            return false;
+        return token.getIsRevoked() || token.getIsExpired();
     }
 }

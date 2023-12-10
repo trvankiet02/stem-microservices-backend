@@ -10,9 +10,9 @@ public class RelationshipDto {
 
     private String id;
     @JsonProperty("parent")
-    private UserDto parentDto;
+    private SimpleUserDto parentDto;
     @JsonProperty("student")
-    private UserDto studentDto;
+    private SimpleUserDto studentDto;
     private boolean isAccepted;
 
 }

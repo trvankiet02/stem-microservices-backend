@@ -5,5 +5,4 @@ import org.springframework.context.annotation.Bean;
 
 public interface ProviderService {
 
-    InitializingBean sendDatabase();
 }

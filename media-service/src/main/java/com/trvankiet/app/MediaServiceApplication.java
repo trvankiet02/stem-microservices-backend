@@ -1,5 +1,6 @@
 package com.trvankiet.app;
 
+import com.trvankiet.app.constant.FileEnum;
 import com.trvankiet.app.entity.FileType;
 import com.trvankiet.app.repository.FileTypeRepository;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -29,42 +30,51 @@ public class MediaServiceApplication {
     InitializingBean sendDatabase() {
         return () -> {
             Date now = new Date();
-            if (fileTypeRepository.findByName("Image").isEmpty()) {
+            if (fileTypeRepository.findByName(FileEnum.IMAGE.getId()).isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .id("image")
-                                .name("Image")
+                                .id(FileEnum.IMAGE.getId())
+                                .name(FileEnum.IMAGE.getName())
                                 .extension(List.of("jpg", "png", "jpeg"))
                                 .createdAt(now)
                                 .build()
                 );
             }
-            if (fileTypeRepository.findByName("Video").isEmpty()) {
+            if (fileTypeRepository.findByName(FileEnum.VIDEO.getId()).isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .id("video")
-                                .name("VIDEO")
+                                .id(FileEnum.VIDEO.getId())
+                                .name(FileEnum.VIDEO.getName())
                                 .extension(List.of("mp4", "avi", "mkv"))
                                 .createdAt(now)
                                 .build()
                 );
             }
-            if (fileTypeRepository.findByName("Audio").isEmpty()) {
+            if (fileTypeRepository.findByName(FileEnum.AUDIO.getId()).isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .id("audio")
-                                .name("Audio")
+                                .id(FileEnum.AUDIO.getId())
+                                .name(FileEnum.AUDIO.getName())
                                 .extension(List.of("mp3", "wav", "ogg"))
                                 .createdAt(now)
                                 .build()
                 );
             }
-            if (fileTypeRepository.findByName("Document").isEmpty()) {
+            if (fileTypeRepository.findById(FileEnum.DOCUMENT.getId()).isEmpty()) {
                 fileTypeRepository.save(
                         FileType.builder()
-                                .id("document")
-                                .name("Document")
+                                .id(FileEnum.DOCUMENT.getId())
+                                .name(FileEnum.DOCUMENT.getName())
                                 .extension(List.of("doc", "docx", "pdf"))
+                                .createdAt(now)
+                                .build()
+                );
+            }
+            if (fileTypeRepository.findById(FileEnum.EXAM.getId()).isEmpty()) {
+                fileTypeRepository.save(
+                        FileType.builder()
+                                .id(FileEnum.EXAM.getId())
+                                .name(FileEnum.EXAM.getName())
                                 .createdAt(now)
                                 .build()
                 );

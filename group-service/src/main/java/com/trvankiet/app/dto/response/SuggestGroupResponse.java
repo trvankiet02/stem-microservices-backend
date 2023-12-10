@@ -13,6 +13,7 @@ public class SuggestGroupResponse implements Serializable {
 
     @JsonProperty("group")
     private GroupDto groupDto;
+    public Integer memberCount;
     private Boolean isMember;
 
 }

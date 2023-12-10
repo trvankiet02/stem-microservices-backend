@@ -30,7 +30,8 @@ public class RouteConfig {
             "message-service", pathConfig(List.of("messages")),
             "notification-service", pathConfig(List.of("notifications")),
             "post-service", pathConfig(List.of("posts", "comments", "reactions")),
-            "user-service", pathConfig(List.of("users", "credentials", "tokens", "auth", "relationships")),
+            "user-service", pathConfig(List.of("users", "credentials", "tokens", "auth", "relationships"
+            , "addresses", "subjects")),
             "exam-service", pathConfig(List.of("exams", "questions",
                     "answers", "submissions", "submission-details")
             )

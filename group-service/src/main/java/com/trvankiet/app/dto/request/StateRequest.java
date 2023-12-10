@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class StateRequest {
-    private String stateCode;
+    private Boolean isAccept;
 }

@@ -9,7 +9,7 @@ import java.util.List;
 public class PostCreateRequest {
 
     private String content;
-    private String typeCode;
+    private String typeName;
     private List<MultipartFile> mediaFiles;
     private String groupId;
 

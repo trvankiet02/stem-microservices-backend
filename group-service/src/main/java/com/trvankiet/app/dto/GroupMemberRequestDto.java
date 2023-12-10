@@ -9,10 +9,8 @@ import lombok.Data;
 public class GroupMemberRequestDto {
 
     private String id;
-    @JsonProperty("group")
-    private GroupDto groupDto;
     @JsonProperty("user")
-    private UserDto userDto;
+    private SimpleUserDto userDto;
     private String state;
     @JsonProperty("invitation")
     private GroupMemberInvitationDto invitationDto;

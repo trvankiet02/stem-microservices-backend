@@ -36,15 +36,23 @@ public class CommentController {
         return commentService.getComments(postId, page, size);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/commentPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> createComment(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                          @ModelAttribute CommentPostRequest commentPostRequest) {
-        log.info("PostController, createComment({})", commentPostRequest);
+        log.info("PostController, createComment()");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(commentPostRequest.getMediaFiles()) ?
-                fileClientService.uploadCommentFiles(authorizationHeader, commentPostRequest.getMediaFiles()) : new ArrayList<>();
-        return commentService.createComment(userId, fileDtos, commentPostRequest);
+        return commentService.createComment(userId, authorizationHeader, commentPostRequest);
+    }
+
+    @PostMapping(value = "/repComment/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<GenericResponse> createRepComment(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                            @ModelAttribute UpdateCommentRequest updateCommentRequest,
+                                                            @PathVariable("commentId") String commentId) {
+        log.info("PostController, createRepComment()");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return commentService.createRepComment(userId, commentId, authorizationHeader, updateCommentRequest);
     }
 
     @PutMapping(value = "/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -54,9 +62,7 @@ public class CommentController {
         log.info("PostController, updateComment({})", updateCommentRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(updateCommentRequest.getMediaFiles()) ?
-                fileClientService.uploadCommentFiles(authorizationHeader, updateCommentRequest.getMediaFiles()) : new ArrayList<>();
-        return commentService.updateComment(userId, commentId, fileDtos, updateCommentRequest);
+        return commentService.updateComment(userId, commentId, authorizationHeader, updateCommentRequest);
     }
 
     @DeleteMapping("/{commentId}")

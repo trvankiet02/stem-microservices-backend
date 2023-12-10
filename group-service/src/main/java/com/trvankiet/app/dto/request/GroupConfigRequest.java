@@ -1,12 +1,14 @@
 package com.trvankiet.app.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class GroupConfigRequest {
-
-    private String typeCode;
-    private String accessibilityCode;
-    private String memberModeCode;
+;
+    @NotNull(message = "accessibilityCode is required")
+    private Boolean isPublic;
+    @NotNull(message = "isAcceptAllRequest is required")
+    private Boolean isAcceptAllRequest;
 
 }

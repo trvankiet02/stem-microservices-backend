@@ -8,4 +8,6 @@ public interface ReactionService {
     ResponseEntity<GenericResponse> reactPost(String userId, ReactionRequest reactionRequest);
 
     ResponseEntity<GenericResponse> deleteReaction(String userId, String reactionId);
+
+    ResponseEntity<GenericResponse> getReactionsByPostId(String postId);
 }

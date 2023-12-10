@@ -1,6 +1,8 @@
 package com.trvankiet.app.repository;
 
 import com.trvankiet.app.entity.Group;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -10,20 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface GroupRepository extends MongoRepository<Group, String> {
-
-    List<Group> findAllBySubjectAndConfigTypeAndConfigAccessibility(String subject, String type, String accessibility);
-    List<Group> findAllByGradeAndConfigTypeAndConfigAccessibility(Integer grade, String type, String accessibility);
-    List<Group> findAllByConfigAccessibility(String accessibility);
-
-    List<Group> findAllByConfigTypeAndConfigAccessibility(String type, String accessibility);
-    List<Group> findAllByConfigId(String configId);
-
-    List<Group> findAllBySubjectAndConfigId(String subject, String configId);
-    List<Group> findAllByGradeAndConfigId(Integer grade, String configId);
-
-
-    @Query("{'$and':[ {'$or':[ {'group_name': {$regex: ?0, $options: 'i'}}, {'group_description': {$regex: ?0, $options: 'i'}} ]}, {'$or':[ {'class_grade': ?1}, {'class_subject': ?2} ]} ]}")
-    List<Group> customSearch(String query, Integer grade, String subject);
 
     @Query("{'$or': " +
             "[" +
@@ -36,17 +24,20 @@ public interface GroupRepository extends MongoRepository<Group, String> {
 
     @Query("{" +
             "'$and': [" +
-            "{'$or': [" +
-            "{'group_name': {$regex: ?0, $options:'i'}}, " +
-            "{'group_description': {$regex: ?0, $options:'i'}}" +
-            "]}, " +
-            "{'$or': [" +
-            "{'class_grade': ?1}, " +
-            "{'class_grade': { $exists: false }}" +
-            "]}" +
+            "   {'$or': [ {'group_name': {$regex: ?0, $options:'i'}}, {'group_description': {$regex: ?0, $options:'i'}} ]}, " +
+            "   {'isClass': ?1}, " +
+            "   {'isPublic': ?2}, " +
+            "   {'isAcceptAllRequest': ?3}, " +
+            "   {'class_grade': ?4} " +
             "]" +
-            "}"
-    )
-    List<Group> searchGroups(String query, Integer grade);
+            "}")
+    List<Group> searchGroupByQueryAndIsClassAndIsPublicAndIsAcceptAllRequest(String query, Boolean isClass, Boolean isPublic, Boolean isAcceptAllRequest, Integer grade);
 
+    List<Group> findAllBySubjectAndIsPublic(String subject, Boolean isPublic);
+    List<Group> findAllByGradeAndIsPublic(Integer grade, Boolean isPublic);
+    List<Group> findAllByIsClassAndIsPublic(Boolean isClass, Boolean isPublic);
+    Page<Group> findAllByIsClassAndIsPublic(Boolean isClass, Boolean isPublic, Pageable pageable);
+
+    Page<Group> findAllBySubjectAndIsPublic(String subject, Boolean isPublic, Pageable pageable);
+    Page<Group> findAllByGradeAndIsPublic(Integer grade, Boolean isPublic, Pageable pageable);
 }

@@ -37,9 +37,8 @@ public class GroupMemberInvitation implements Serializable {
     @Field(name = "to_user_id")
     private String toUserId;
 
-    @DocumentReference
-    @Field(name = "state_id")
-    private State state;
+    @Field(name = "state")
+    private StateType state;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

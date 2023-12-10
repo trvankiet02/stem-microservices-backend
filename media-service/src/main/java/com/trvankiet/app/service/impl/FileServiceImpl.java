@@ -1,6 +1,7 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.AppConstant;
+import com.trvankiet.app.constant.FileEnum;
 import com.trvankiet.app.dto.FileDto;
 import com.trvankiet.app.dto.request.DeleteRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
@@ -17,6 +18,9 @@ import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,18 +41,44 @@ public class FileServiceImpl implements FileService {
     private final MapperService mapperService;
 
     @Override
-    public List<FileDto> uploadPostFiles(String userId, List<MultipartFile> mediaFiles) throws IOException {
-        return this.uploadMediaFile(userId, mediaFiles, "/posts");
+    public List<FileDto> uploadPostFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException {
+        return this.uploadMediaFile(userId, mediaFiles, "/posts", groupId);
     }
 
     @Override
-    public List<FileDto> uploadCommentFiles(String userId, List<MultipartFile> mediaFiles) throws IOException {
-        return this.uploadMediaFile(userId, mediaFiles, "/comments");
+    public List<FileDto> uploadCommentFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException {
+        return this.uploadMediaFile(userId, mediaFiles, "/comments", groupId);
     }
 
     @Override
-    public List<FileDto> uploadDocumentFiles(String userId, List<MultipartFile> mediaFiles) throws IOException {
-        return this.uploadMediaFile(userId, mediaFiles, "/documents");
+    public List<FileDto> uploadDocumentFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException {
+        return this.uploadMediaFile(userId, mediaFiles, "/documents", groupId);
+    }
+
+    @Override
+    public List<FileDto> uploadExamFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException {
+        log.info("FileServiceImpl, uploadExamFiles");
+        List<FileDto> fileDtos = new ArrayList<>();
+        FileType examType = fileTypeRepository.findById(FileEnum.EXAM.getId())
+                .orElseThrow(() -> new NotFoundException("File type not found"));
+        for (MultipartFile mediaFile : mediaFiles) {
+            if (mediaFile.getOriginalFilename() != null) {
+                String fileName = mediaFile.getOriginalFilename();
+                Date now = new Date();
+                String name = DateUtil.date2String(now, AppConstant.FULL_DATE_TIME_FORMAT) + "_" + fileName;
+                File file = fileRepository.save(File.builder()
+                        .id(UUID.randomUUID().toString())
+                        .authorId(userId)
+                        .groupId(groupId)
+                        .refUrl(cloudinaryService.uploadMediaFile(mediaFile, name, "/exams"))
+                        .type(examType)
+                        .createdAt(now)
+                        .build());
+                FileDto fileDto = mapperService.mapToFileDto(file);
+                fileDtos.add(fileDto);
+            }
+        }
+        return fileDtos;
     }
 
     @Override
@@ -64,6 +94,11 @@ public class FileServiceImpl implements FileService {
     @Override
     public ResponseEntity<GenericResponse> deleteDocumentFiles(String userId, DeleteRequest deleteRequest) {
         return this.deleteMediaFiles(userId, deleteRequest, "/documents");
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> deleteExamFiles(String userId, DeleteRequest deleteRequest) {
+        return null;
     }
 
     @Override
@@ -106,6 +141,61 @@ public class FileServiceImpl implements FileService {
         cloudinaryService.deleteImage(refUrl, "/groups/covers");
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getUserImage(String userId, Integer page, Integer size) {
+        log.info("FileServiceImpl, getUserImage");
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        List<FileDto> files = fileRepository.findAllByAuthorIdAndTypeId(userId, FileEnum.IMAGE.getId(), pageable)
+                .stream()
+                .map(mapperService::mapToFileDto)
+                .toList();
+
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .message("Get user image successfully")
+                .result(files)
+                .statusCode(200)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getGroupImage(String userId, Integer page, Integer size) {
+        log.info("FileServiceImpl, getGroupImage");
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        List<FileDto> files = fileRepository.findAllByGroupIdAndTypeIdIn(userId, List.of(FileEnum.IMAGE.getId(), FileEnum.VIDEO.getId()), pageable)
+                .stream()
+                .map(mapperService::mapToFileDto)
+                .toList();
+
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .message("Get group image successfully")
+                .result(files)
+                .statusCode(200)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getGroupDocument(String userId, Integer page, Integer size) {
+        log.info("FileServiceImpl, getGroupDocument");
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        List<FileDto> files = fileRepository.findAllByGroupIdAndTypeId(userId, FileEnum.DOCUMENT.getId(), pageable)
+                .stream()
+                .map(mapperService::mapToFileDto)
+                .toList();
+
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .message("Get group document successfully")
+                .result(files)
+                .statusCode(200)
+                .build());
+    }
+
     public String getFileExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
@@ -121,16 +211,18 @@ public class FileServiceImpl implements FileService {
      * @return
      * @throws IOException
      */
-    public List<FileDto> uploadMediaFile(String userId, List<MultipartFile> mediaFiles, String folder) throws IOException {
+    public List<FileDto> uploadMediaFile(String userId, List<MultipartFile> mediaFiles,
+                                         String folder, String groupId) throws IOException {
         List<FileDto> fileDtos = new ArrayList<>();
         for (MultipartFile mediaFile : mediaFiles) {
             if (mediaFile.getOriginalFilename() != null) {
                 String fileName = mediaFile.getOriginalFilename();
                 Date now = new Date();
-                String name = DateUtil.date2String(now, AppConstant.FULL_DATE_TIME_FORMAT) + "_" + getFileName(fileName);
+                String name = DateUtil.date2String(now, AppConstant.FULL_DATE_TIME_FORMAT) + "_" + fileName;
                 File file = fileRepository.save(File.builder()
                         .id(UUID.randomUUID().toString())
                         .authorId(userId)
+                        .groupId(groupId)
                         .refUrl(cloudinaryService.uploadMediaFile(mediaFile, name, folder))
                         .type(fileTypeRepository.findByExtensionContaining(getFileExtension(fileName))
                                 .orElseThrow(() -> new NotFoundException("File type not found")))
@@ -142,6 +234,7 @@ public class FileServiceImpl implements FileService {
         }
         return fileDtos;
     }
+
     public String uploadImage(MultipartFile mediaFile, String folder) throws IOException {
         if (mediaFile.isEmpty() || mediaFile.getOriginalFilename() == null) {
             throw new UnsupportedMediaTypeException("File is null. Please upload a valid file.");

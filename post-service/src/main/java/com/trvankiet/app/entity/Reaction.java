@@ -1,6 +1,7 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.trvankiet.app.constant.ReactionTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,8 +31,11 @@ public class Reaction implements Serializable {
     private String authorId;
 
     @DocumentReference
+    @Field(name = "post_id")
+    private Post post;
+
     @Field(name = "reaction_type")
-    private ReactionType type;
+    private ReactionTypeEnum type;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
