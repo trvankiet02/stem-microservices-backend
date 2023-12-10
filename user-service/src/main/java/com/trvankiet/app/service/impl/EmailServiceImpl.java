@@ -6,7 +6,6 @@ import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.service.EmailService;
 import com.trvankiet.app.util.RoleUtil;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,18 +36,18 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(10);
+            Date expirationTime = new Date(System.currentTimeMillis() + 10L * 60 * 1000);
             Token verificationToken = Token.builder()
                     .token(UUID.randomUUID().toString())
                     .type(TokenType.VERIFICATION_TOKEN)
-                    .revoked(false)
-                    .expired(false)
+                    .isRevoked(false)
+                    .isExpired(false)
                     .expiredAt(expirationTime)
                     .credential(credential)
                     .build();
 
             Context context = new Context();
-            context.setVariable("role", RoleUtil.getRoleName(credential.getRole().getRoleName()));
+            context.setVariable("role", "Giáo viên");
             context.setVariable("token", verificationToken.getToken());
             String mailContent = templateEngine.process("verification-mail", context);
 
@@ -64,6 +64,7 @@ public class EmailServiceImpl implements EmailService {
             tokenRepository.save(verificationToken);
         } catch (Exception e) {
             log.error("Lỗi khi gửi email: ", e);
+            throw new RuntimeException("Lỗi khi gửi email: ", e);
         }
     }
 
@@ -75,12 +76,12 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(10);
+            Date expirationTime = new Date(System.currentTimeMillis() + 10L * 60 * 1000);
             Token resetPasswordToken = Token.builder()
                     .token(UUID.randomUUID().toString())
                     .type(TokenType.RESET_PASSWORD_TOKEN)
-                    .revoked(false)
-                    .expired(false)
+                    .isRevoked(false)
+                    .isExpired(false)
                     .expiredAt(expirationTime)
                     .credential(credential)
                     .build();
@@ -102,6 +103,7 @@ public class EmailServiceImpl implements EmailService {
             tokenRepository.save(resetPasswordToken);
         } catch (Exception e) {
             log.error("Lỗi khi gửi email: ", e);
+            throw new RuntimeException("Lỗi khi gửi email: ", e);
         }
     }
 }

@@ -1,12 +1,13 @@
 package com.trvankiet.app.util;
 
 import com.trvankiet.app.entity.Token;
-import com.trvankiet.app.exception.wrapper.TokenException;
+import com.trvankiet.app.exception.wrapper.BadRequestException;
 
 public class TokenUtil {
-    public static boolean tokenIsNotExpiredAndRevoked(Token token) {
+
+    public static boolean tokenIsExpiredOrRevoked(Token token) {
         if (token == null)
-            throw new TokenException("Token rỗng!");
-        return !token.getExpired() && !token.getRevoked();
+            return false;
+        return token.getIsRevoked() || token.getIsExpired();
     }
 }

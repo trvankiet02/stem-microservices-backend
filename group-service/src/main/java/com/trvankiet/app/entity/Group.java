@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -15,7 +14,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 @Document(collection = "groups")
 @AllArgsConstructor
@@ -26,38 +24,39 @@ public class Group implements Serializable {
 
     @Id
     @Field(name = "group_id")
-    private String groupId;
+    private String id;
 
     @Field(name = "group_name")
-    private String groupName;
+    private String name;
 
     @Field(name = "group_description")
-    private String groupDescription;
+    private String description;
 
-    @Field(name = "group_image")
-    private String groupImage;
+    @Field(name = "author_id")
+    private String authorId;
 
-    @Field(name = "group_type")
-    private String groupType;
+    @Builder.Default
+    @Field(name = "group_avatar_url")
+    private String avatarUrl = "https://res.cloudinary.com/djzwxw0ao/image/upload/v1696942528/uqbxidtwcdbqn8glt6we.jpg";
 
-    @Field(name = "group_member_mode")
-    private String groupMemberMode;
+    @Builder.Default
+    @Field(name = "group_cover_url")
+    private String coverUrl = "https://res.cloudinary.com/djzwxw0ao/image/upload/v1696942528/uqbxidtwcdbqn8glt6we.jpg";
 
-    @DocumentReference
-    @Field(name = "group_members")
-    private List<GroupMember> groupMembers;
+    @Field(name = "isClass")
+    private Boolean isClass;
+    
+    @Field(name = "isPublic")
+    private Boolean isPublic;
 
-    @DocumentReference
-    @Field(name = "group_events")
-    private List<Event> groupEvents;
+    @Field(name = "isAcceptAllRequest")
+    private Boolean isAcceptAllRequest;
 
-    @DocumentReference
-    @Field(name = "group_member_requests")
-    private List<GroupMemberRequest> groupMemberRequests;
+    @Field(name = "class_subject")
+    private String subject;
 
-    @DocumentReference
-    @Field(name = "group_member_invitations")
-    private List<GroupMemberRequest> groupMemberInvitations;
+    @Field(name = "class_grade")
+    private Integer grade;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

@@ -1,16 +1,21 @@
 package com.trvankiet.app.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-@Builder
 public class GroupCreateRequest {
-    private String groupName;
-    private String groupDescription;
-    private String groupType;
+
+    @NotNull(message = "name is required")
+    private String name;
+    private String description;
+    @NotNull(message = "isClass is required")
+    private Boolean isClass;
+    @NotNull(message = "isPublic is required")
+    private Boolean isPublic;
+    @NotNull(message = "isAcceptAllRequest is required")
+    private Boolean isAcceptAllRequest;
+    private String subject;
+    private Integer grade;
+
 }

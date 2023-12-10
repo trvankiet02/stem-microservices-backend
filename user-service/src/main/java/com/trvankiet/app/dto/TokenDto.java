@@ -1,26 +1,25 @@
 package com.trvankiet.app.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.trvankiet.app.constant.TokenType;
 import com.trvankiet.app.entity.Credential;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Date;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
 @Builder
 public class TokenDto implements Serializable {
 
-    private String tokenId;
     private String token;
-    private TokenType type;
-    private Boolean expired;
-    private Boolean revoked;
+    private String type;
+    private Boolean is_expired;
+    private Boolean is_revoked;
+    private Date expiredAt;
+    private Date createdAt;
+    private Date updatedAt;
 
 }

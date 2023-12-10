@@ -1,6 +1,7 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.trvankiet.app.constant.StateType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
@@ -23,7 +25,11 @@ public class GroupMemberInvitation implements Serializable {
 
     @Id
     @Field(name = "group_member_invitation_id")
-    private String groupMemberInvitationId;
+    private String id;
+
+    @DocumentReference
+    @Field(name = "group_id")
+    private Group group;
 
     @Field(name = "from_user_id")
     private String fromUserId;
@@ -32,7 +38,7 @@ public class GroupMemberInvitation implements Serializable {
     private String toUserId;
 
     @Field(name = "state")
-    private String state;
+    private StateType state;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

@@ -6,6 +6,7 @@ import com.trvankiet.app.service.CredentialService;
 import com.trvankiet.app.service.TokenService;
 import com.trvankiet.app.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +22,26 @@ public class AuthController {
     private final CredentialService credentialService;
     private final TokenService tokenService;
 
-    @PostMapping("/register")
-    public ResponseEntity<GenericResponse> register(@RequestBody final RegisterRequest registerRequest) {
+    @PostMapping("/register-teacher")
+    public ResponseEntity<GenericResponse> registerForTeacher(@RequestBody @Valid final TeacherRegisterRequest teacherRegisterRequest) {
         log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
-        return credentialService.register(registerRequest);
+        return credentialService.registerForTeacher(teacherRegisterRequest);
+    }
+
+    @PostMapping("/register-parent")
+    public ResponseEntity<GenericResponse> registerForParent(@RequestBody @Valid final ParentRegisterRequest parentRegisterRequest) {
+        log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
+        return credentialService.registerForParent(parentRegisterRequest);
+    }
+
+    @PostMapping("/register-student")
+    public ResponseEntity<GenericResponse> registerForStudent(@RequestBody @Valid final StudentAndParentRequest studentAndParentRequest) {
+        log.info("CredentialController Post, ResponseEntity<CredentialDto>, register");
+        return credentialService.registerForStudent(studentAndParentRequest);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<GenericResponse> login(@RequestBody final LoginRequest loginRequest) {
+    public ResponseEntity<GenericResponse> login(@RequestBody @Valid final LoginRequest loginRequest) {
         log.info("CredentialController Post, ResponseEntity<CredentialDto>, login");
         return credentialService.login(loginRequest);
     }
@@ -40,7 +53,7 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<GenericResponse> verify(@RequestParam final String token) {
+    public ResponseEntity<GenericResponse> verify(@RequestParam final @Valid @NotBlank String token) {
         log.info("CredentialController Get, ResponseEntity<CredentialDto>, verify");
         return credentialService.verify(token);
     }
@@ -53,7 +66,7 @@ public class AuthController {
     }
 
     @GetMapping("/reset-password")
-    public ResponseEntity<GenericResponse> verifyResetPassword(@RequestParam final String token) {
+    public ResponseEntity<GenericResponse> verifyResetPassword(@RequestParam @Valid @NotBlank final String token) {
         log.info("CredentialController Get, ResponseEntity<CredentialDto>, resetPassword");
         return credentialService.verifyResetPassword(token);
     }

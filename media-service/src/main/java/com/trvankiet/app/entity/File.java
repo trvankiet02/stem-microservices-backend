@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
@@ -24,16 +25,20 @@ public class File implements Serializable {
 
     @Id
     @Field(name = "file_id")
-    private String fileId;
+    private String id;
 
     @Field(name = "author_id")
-    private Integer authorId;
+    private String authorId;
 
-    @Field(name = "content")
-    private String content;
+    @Field(name = "group_id")
+    private String groupId;
 
-    @Field(name = "file_link")
-    private String fileLink;
+    @Field(name = "file_ref_url")
+    private String refUrl;
+
+    @DocumentReference
+    @Field(name = "file_type")
+    private FileType type;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

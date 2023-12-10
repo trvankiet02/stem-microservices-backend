@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
@@ -23,24 +24,28 @@ public class Event implements Serializable {
 
     @Id
     @Field(name = "event_id")
-    private String eventId;
+    private String id;
+
+    @DocumentReference
+    @Field(name = "group_id")
+    private Group group;
 
     @Field(name = "author_id")
     private String authorId;
 
     @Field(name = "event_name")
-    private String eventName;
+    private String name;
 
     @Field(name = "event_description")
-    private String eventDescription;
+    private String description;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    @Field(name = "start_date")
-    private Date startDate;
+    @Field(name = "started_at")
+    private Date startedAt;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    @Field(name = "end_date")
-    private Date endDate;
+    @Field(name = "ended_at")
+    private Date endedAt;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -51,4 +56,5 @@ public class Event implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Field(name = "updated_at")
     private Date updatedAt;
+
 }

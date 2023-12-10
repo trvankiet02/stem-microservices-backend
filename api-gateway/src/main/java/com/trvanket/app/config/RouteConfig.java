@@ -20,15 +20,23 @@ public class RouteConfig {
     private final AuthFilter authFilter;
     private final String API_V1 = "/api/v1/";
     private final Map<String, List<String>> services = Map.of(
-            "conversation-service", pathConfig(List.of("conversations")),
-            "friend-service", pathConfig(List.of("friends")),
-            "group-service", pathConfig(List.of("groups")),
-            "media-service", pathConfig(List.of("media")),
+            "conversation-service", pathConfig(List.of("chat-messages", "chat-users",
+                    "chat-rooms", "chat-notifications", "notifications")),
+            "friend-service", pathConfig(List.of("friends", "friend-requests",
+                    "friendships")),
+            "group-service", pathConfig(List.of("groups", "group-members", "events",
+                    "group-member-requests", "group-member-invitations")),
+            "media-service", pathConfig(List.of("files", "albums")),
             "message-service", pathConfig(List.of("messages")),
             "notification-service", pathConfig(List.of("notifications")),
-            "post-service", pathConfig(List.of("posts", "comments", "likes")),
-            "user-service", pathConfig(List.of("users", "credentials", "token", "auth"))
+            "post-service", pathConfig(List.of("posts", "comments", "reactions")),
+            "user-service", pathConfig(List.of("users", "credentials", "tokens", "auth", "relationships"
+            , "addresses", "subjects")),
+            "exam-service", pathConfig(List.of("exams", "questions",
+                    "answers", "submissions", "submission-details")
+            )
     );
+
     private List<String> pathConfig(List<String> paths) {
         return paths.stream()
                 .map(path -> API_V1 + path + "/**")

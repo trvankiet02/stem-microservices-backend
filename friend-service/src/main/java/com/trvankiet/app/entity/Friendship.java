@@ -23,14 +23,13 @@ public class Friendship implements Serializable {
 
     @Id
     @Field(name = "friendship_id")
-    private String friendshipId;
+    private String id;
 
     @Field(name = "author_id")
-    private Integer authorId;
+    private String authorId;
 
-    @DocumentReference
-    @Field(name = "fiends")
-    private List<Friend> friends;
+    @Field(name = "fiend_ids")
+    private List<String> friendIds;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

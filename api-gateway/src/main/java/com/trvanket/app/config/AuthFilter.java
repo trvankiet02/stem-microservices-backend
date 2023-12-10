@@ -21,13 +21,11 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilterConfig> {
 
     private final JwtService jwtService;
     @Override
     public GatewayFilter apply(AuthFilterConfig config) {
-        log.info("**AuthFilter, once per request, validating and extracting token*\n");
         return (exchange, chain) -> {
             final ServerHttpRequest request = exchange.getRequest();
 
@@ -60,7 +58,6 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilterConfig> {
     }
 
     private Mono<Void> onError(final ServerWebExchange exchange, final String err, final String body) {
-        log.error("Gateway Auth Error {}", err);
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().add("Content-Type", "application/json");

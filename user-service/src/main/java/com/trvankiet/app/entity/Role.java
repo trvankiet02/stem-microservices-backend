@@ -6,30 +6,31 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
-
+@EqualsAndHashCode(callSuper = true, exclude = {})
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 @Entity
 @Table(name = "roles")
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-@EqualsAndHashCode(callSuper = true, exclude = {"credential"})
-@Builder
 public class Role extends AbstractMappedEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "role_id")
-    private Integer roleId;
+    private String id;
+
+    @Column(name = "role_code", unique = true)
+    private String code;
 
     @Column(name = "role_name")
-    private String roleName;
+    private String name;
 
+    @Builder.Default
     @Column(name = "role_description")
-    private String roleDescription;
+    private String description = "";
 
-    @ToString.Exclude
-    @JsonIgnore
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private List<Credential> credential;
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    private List<Credential> credentials;
 
 }
