@@ -1,11 +1,13 @@
 package com.trvankiet.app.service.impl;
 
+import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.dto.*;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Relationship;
 import com.trvankiet.app.entity.Token;
 import com.trvankiet.app.entity.User;
 import com.trvankiet.app.service.MapperService;
+import com.trvankiet.app.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -75,8 +77,8 @@ public class MapperServiceImpl implements MapperService {
     public RelationshipDto mapToRelationDto(Relationship relationship) {
         return RelationshipDto.builder()
                 .id(relationship.getId())
-                .parentDto(this.mapToUserDto(relationship.getParent()))
-                .studentDto(this.mapToUserDto(relationship.getChild()))
+                .parentDto(this.mapToSimpleUserDto(relationship.getParent()))
+                .studentDto(this.mapToSimpleUserDto(relationship.getChild()))
                 .isAccepted(relationship.getIsAccepted())
                 .build();
     }
@@ -97,6 +99,20 @@ public class MapperServiceImpl implements MapperService {
                 .credentialDto(this.mapToCredentialDto(user.getCredential()))
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public SimpleUserDto mapToSimpleUserDto(User user) {
+        return SimpleUserDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .avatarUrl(user.getAvatarUrl())
+                .role(user.getRole().toString())
+                .gender(user.getGender().toString())
+                .email(user.getEmail())
+                .dob(DateUtil.date2String(user.getDob(), AppConstant.LOCAL_DATE_FORMAT))
                 .build();
     }
 }

@@ -15,25 +15,4 @@ public class ProviderServiceImpl implements ProviderService {
 
     private final ProviderRepository providerRepository;
 
-    @Override
-    public InitializingBean sendDatabase() {
-        return () -> {
-            if (providerRepository.findByCode(ProviderType.PROVIDER_LOCAL.getCode()).isEmpty())
-                providerRepository.save(Provider.builder()
-                        .code(ProviderType.PROVIDER_LOCAL.getCode())
-                        .name(ProviderType.PROVIDER_LOCAL.toString())
-                        .build());
-            if (providerRepository.findByCode(ProviderType.PROVIDER_FACEBOOK.getCode()).isEmpty())
-                providerRepository.save(Provider.builder()
-                        .code(ProviderType.PROVIDER_FACEBOOK.getCode())
-                        .name(ProviderType.PROVIDER_FACEBOOK.toString())
-                        .build());
-            if (providerRepository.findByCode(ProviderType.PROVIDER_GOOGLE.getCode()).isEmpty())
-                providerRepository.save(Provider.builder()
-                        .code(ProviderType.PROVIDER_GOOGLE.getCode())
-                        .name(ProviderType.PROVIDER_GOOGLE.toString())
-                        .build());
-        };
-    }
-
 }

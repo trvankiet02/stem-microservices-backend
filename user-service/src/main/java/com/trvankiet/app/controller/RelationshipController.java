@@ -30,12 +30,28 @@ public class RelationshipController {
         return relationService.createRelationRequest(userId, createRelationRequest);
     }
 
-    @GetMapping
+    @GetMapping("/student/relationship-requests")
     public ResponseEntity<GenericResponse> getRelationRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         log.info("RelationshipController, getRelationRequest");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return relationService.getRelationRequest(userId);
+    }
+
+    @GetMapping("/parent/relationship-requests")
+    public ResponseEntity<GenericResponse> getParentRelationRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("RelationshipController, getRelationRequest");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return relationService.getParentRelationRequest(userId);
+    }
+
+    @GetMapping
+    public ResponseEntity<GenericResponse> getRelationships(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("RelationshipController, getRelationships");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return relationService.getRelationships(userId);
     }
 
     @PutMapping("/{id}")

@@ -15,7 +15,7 @@ public class GroupMemberDto {
 
     private String id;
     @JsonProperty("user")
-    private UserDto userDto;
+    private SimpleUserDto userDto;
     private Boolean isLocked;
     private String lockedAt;
     private String lockedReason;

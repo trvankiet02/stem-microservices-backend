@@ -1,26 +1,36 @@
 package com.trvankiet.app.service.impl;
 
+import com.trvankiet.app.constant.PostTypeEnum;
 import com.trvankiet.app.dto.FileDto;
 import com.trvankiet.app.dto.PostDto;
+import com.trvankiet.app.dto.SimpleGroupDto;
+import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.request.PostCreateRequest;
 import com.trvankiet.app.dto.request.UpdatePostRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.dto.response.PostResponse;
 import com.trvankiet.app.entity.Post;
 import com.trvankiet.app.entity.Reaction;
+import com.trvankiet.app.exception.wrapper.BadRequestException;
 import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.PostRepository;
-import com.trvankiet.app.repository.PostTypeRepository;
+import com.trvankiet.app.repository.ReactionRepository;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.PostService;
+import com.trvankiet.app.service.client.FileClientService;
 import com.trvankiet.app.service.client.GroupClientService;
+import com.trvankiet.app.service.client.UserClientService;
+import com.trvankiet.app.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,60 +43,76 @@ import java.util.*;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final PostTypeRepository postTypeRepository;
     private final MapperService mapperService;
     private final GroupClientService groupClientService;
+    private final FileClientService fileClientService;
+    private final MongoTemplate mongoTemplate;
+    private final ReactionRepository reactionRepository;
 
     @Override
-    public ResponseEntity<GenericResponse> createPost(String userId, List<FileDto> fileDtos, PostCreateRequest postCreateRequest) {
+    public ResponseEntity<GenericResponse> createPost(String userId, SimpleGroupDto groupDto, List<FileDto> fileDtos,
+                                                      PostCreateRequest postCreateRequest) {
         log.info("PostServiceImpl, createPost({})", postCreateRequest);
-        if (!isUserInGroup(userId, postCreateRequest.getGroupId()))
-            throw new ForbiddenException("Bạn không có quyền đăng bài viết vào nhóm này!");
-        Post post = Post.builder()
-                .id(UUID.randomUUID().toString())
-                .groupId(postCreateRequest.getGroupId())
-                .authorId(userId)
-                .type(postTypeRepository.findByCode(postCreateRequest.getTypeCode())
-                        .orElseThrow(() -> new NotFoundException("Không tìm thấy loại bài viết!")))
-                .content(postCreateRequest.getContent())
-                .refUrls(fileDtos.stream().map(FileDto::getRefUrl).toList())
-                .reactions(new ArrayList<>())
-                .comments(new ArrayList<>())
-                .createdAt(new Date())
-                .build();
-        PostDto postDto = mapperService.mapToPostDto(postRepository.save(post));
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(GenericResponse.builder()
-                        .success(true)
-                        .statusCode(HttpStatus.OK.value())
-                        .message("Đăng bài thành công!")
-                        .result(postDto)
-                        .build());
+        try {
+            Post post = Post.builder()
+                    .id(UUID.randomUUID().toString())
+                    .groupId(postCreateRequest.getGroupId())
+                    .authorId(userId)
+                    .type(PostTypeEnum.valueOf(postCreateRequest.getTypeName()))
+                    .content(postCreateRequest.getContent())
+                    .isPublic(groupDto.getIsPublic())
+                    .refUrls(fileDtos.stream().map(FileDto::getRefUrl).toList())
+                    .createdAt(new Date())
+                    .build();
+            PostDto postDto = mapperService.mapToPostDto(postRepository.save(post));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GenericResponse.builder()
+                            .success(true)
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Đăng bài thành công!")
+                            .result(postDto)
+                            .build());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Không tìm thấy loại bài viết!");
+        }
+        catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
-    public ResponseEntity<GenericResponse> updatePost(String userId, List<FileDto> fileDtos, UpdatePostRequest updatePostRequest) {
+    public ResponseEntity<GenericResponse> updatePost(String userId, String authorizationHeader, UpdatePostRequest updatePostRequest) {
         log.info("PostServiceImpl, updatePost({})", updatePostRequest);
-        Post post = postRepository.findById(updatePostRequest.getPostId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết!"));
-        if (!post.getAuthorId().equals(userId)) {
-            throw new ForbiddenException("Bạn không có quyền chỉnh sửa bài viết này!");
+        try {
+            Post post = postRepository.findById(updatePostRequest.getPostId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết!"));
+            if (!post.getAuthorId().equals(userId)) {
+                throw new ForbiddenException("Bạn không có quyền chỉnh sửa bài viết này!");
+            }
+            List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(updatePostRequest.getMediaFiles()) ?
+                    fileClientService.uploadDocumentFiles(authorizationHeader,
+                            updatePostRequest.getMediaFiles(), post.getGroupId()) : new ArrayList<>();
+
+            post.setContent(updatePostRequest.getContent());
+            post.setType(PostTypeEnum.valueOf(updatePostRequest.getTypeName()));
+            if (!fileDtos.isEmpty()) {
+                post.setRefUrls(fileDtos.stream().map(FileDto::getRefUrl).toList());
+            }
+            post.setUpdatedAt(new Date());
+            PostDto postDto = mapperService.mapToPostDto(postRepository.save(post));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GenericResponse.builder()
+                            .success(true)
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Cập nhật bài viết thành công!")
+                            .result(postDto)
+                            .build());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Không tìm thấy loại bài viết!");
         }
-        post.setContent(updatePostRequest.getContent());
-        post.setType(postTypeRepository.findByCode(updatePostRequest.getTypeCode())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy loại bài viết!")));
-        if (!fileDtos.isEmpty()) {
-            post.setRefUrls(fileDtos.stream().map(FileDto::getRefUrl).toList());
+        catch (Exception e) {
+            throw new BadRequestException("Cập nhật bài viết thất bại!");
         }
-        post.setUpdatedAt(new Date());
-        PostDto postDto = mapperService.mapToPostDto(postRepository.save(post));
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(GenericResponse.builder()
-                        .success(true)
-                        .statusCode(HttpStatus.OK.value())
-                        .message("Cập nhật bài viết thành công!")
-                        .result(postDto)
-                        .build());
     }
 
     @Override
@@ -113,7 +139,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
         Reaction reaction = getReactionByUserIdInPost(userId, post);
         PostResponse postResponse = PostResponse.builder()
-                .postDetailResponse(mapperService.mapToPostDetailResponse(post))
+                .postDto(mapperService.mapToPostDto(post))
                 .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
                 .build();
         if (isUserInGroup(userId, post.getGroupId())) {
@@ -146,7 +172,7 @@ public class PostServiceImpl implements PostService {
                         }
                         Reaction reaction = getReactionByUserIdInPost(userId, post);
                         return PostResponse.builder()
-                                .postDetailResponse(mapperService.mapToPostDetailResponse(post))
+                                .postDto(mapperService.mapToPostDto(post))
                                 .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
                                 .build();
                     }).toList());
@@ -164,23 +190,21 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> searchPost(Optional<String> query, Optional<String> type) {
         log.info("PostServiceImpl, searchPost");
-        if (query.isPresent() && type.isPresent()) {
-            return postRepository.searchPost(query.get()).stream()
-                    .filter(post -> post.getType().getCode().equals(type.get()))
-                    .map(mapperService::mapToPostDto)
-                    .toList();
-        } else {
-            return query.map(s -> postRepository.searchPost(s).stream()
-                            .map(mapperService::mapToPostDto)
-                            .toList())
-                    .orElseGet(() -> type.map(s -> postRepository.findAll().stream()
-                                    .filter(post -> post.getType().getCode().equals(s))
-                                    .map(mapperService::mapToPostDto)
-                                    .toList())
-                            .orElseGet(() -> postRepository.findAll().stream()
-                                    .map(mapperService::mapToPostDto)
-                                    .toList()));
-        }
+        Query mongoQuery = new Query();
+        String queryValue = query.orElse("");
+        Criteria queryCriteria = new Criteria().orOperator(
+                Criteria.where("content").regex(queryValue),
+                Criteria.where("authorFirstName").regex(queryValue),
+                Criteria.where("authorLastName").regex(queryValue)
+        );
+
+        mongoQuery.addCriteria(queryCriteria);
+        mongoQuery.addCriteria(Criteria.where("isPublic").is(true));
+        mongoQuery.with(Sort.by("createdAt").descending());
+        type.ifPresent(s -> mongoQuery.addCriteria(Criteria.where("type").is(s)));
+        return mongoTemplate.find(mongoQuery, Post.class).stream()
+                .map(mapperService::mapToPostDto)
+                .toList();
     }
 
     @Override
@@ -210,7 +234,7 @@ public class PostServiceImpl implements PostService {
                     }
                     Reaction reaction = getReactionByUserIdInPost(groupIds.get(0), post);
                     return PostResponse.builder()
-                            .postDetailResponse(mapperService.mapToPostDetailResponse(post))
+                            .postDto(mapperService.mapToPostDto(post))
                             .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
                             .build();
                 }).toList());
@@ -229,9 +253,6 @@ public class PostServiceImpl implements PostService {
     }
 
     public Reaction getReactionByUserIdInPost(String userId, Post post) {
-        return post.getReactions().stream()
-                .filter(reaction -> reaction.getAuthorId().equals(userId))
-                .findFirst()
-                .orElse(null);
+        return reactionRepository.findByAuthorIdAndPostId(userId, post.getId()).orElse(null);
     }
 }

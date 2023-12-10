@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class ReactionRequest {
     private String postId;
-    private String typeCode;
+    private String typeName;
 }

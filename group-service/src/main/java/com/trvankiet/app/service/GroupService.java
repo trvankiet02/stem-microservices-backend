@@ -1,6 +1,7 @@
 package com.trvankiet.app.service;
 
 import com.trvankiet.app.dto.GroupDto;
+import com.trvankiet.app.dto.SimpleGroupDto;
 import com.trvankiet.app.dto.request.GroupConfigRequest;
 import com.trvankiet.app.dto.request.GroupCreateRequest;
 import com.trvankiet.app.dto.request.UpdateDetailRequest;
@@ -31,13 +32,15 @@ public interface GroupService {
 
     ResponseEntity<GenericResponse> deleteGroup(String userId, String groupId);
 
-    ResponseEntity<List<GroupDto>> searchGroup(Optional<String> query, Optional<String> type, Optional<String> accessibility, Optional<Integer> grade, Optional<String> subject);
+    ResponseEntity<List<GroupDto>> searchGroup(Optional<String> query, Optional<Boolean> isClass, Optional<Boolean> isPublic, Optional<Integer> grade, Optional<String> subject);
 
     ResponseEntity<GenericResponse> valiadateUserInGroup(String userId, String groupId);
 
     ResponseEntity<List<String>> getGroupByUserId(String userId);
 
-    ResponseEntity<GenericResponse> suggestGroups(String userId);
+    ResponseEntity<GenericResponse> suggestGroups(String userId, Integer page, Integer size);
 
-    ResponseEntity<GenericResponse> suggestClasses(String userId);
+    ResponseEntity<GenericResponse> suggestClasses(String userId, Integer page, Integer size);
+
+    SimpleGroupDto getSimpleGroupDto(String userId, String groupId);
 }

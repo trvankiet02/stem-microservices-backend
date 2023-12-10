@@ -1,6 +1,7 @@
 package com.trvankiet.app.service.client;
 
 import com.trvankiet.app.constant.AppConstant;
+import com.trvankiet.app.dto.SimpleGroupDto;
 import com.trvankiet.app.dto.response.GenericResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
@@ -21,4 +22,8 @@ public interface GroupClientService {
 
     @GetMapping("/get-group-by-user")
     ResponseEntity<List<String>> getGroupByUserId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader);
+
+    @GetMapping("/simpleGroupDto/{groupId}")
+    SimpleGroupDto getSimpleGroupDto(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @PathVariable("groupId") String groupId);
 }

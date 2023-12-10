@@ -30,6 +30,9 @@ public class File implements Serializable {
     @Field(name = "author_id")
     private String authorId;
 
+    @Field(name = "group_id")
+    private String groupId;
+
     @Field(name = "file_ref_url")
     private String refUrl;
 

@@ -11,4 +11,8 @@ public interface RelationService {
     ResponseEntity<GenericResponse> getRelationRequest(String userId);
 
     ResponseEntity<GenericResponse> updateRelationRequest(String userId, String id, UpdateRelationRequest updateRelationRequest);
+
+    ResponseEntity<GenericResponse> getRelationships(String userId);
+
+    ResponseEntity<GenericResponse> getParentRelationRequest(String userId);
 }

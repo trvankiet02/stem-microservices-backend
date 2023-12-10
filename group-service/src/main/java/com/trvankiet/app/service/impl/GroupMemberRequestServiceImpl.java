@@ -10,7 +10,6 @@ import com.trvankiet.app.exception.wrapper.ForbiddenException;
 import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.GroupMemberRepository;
 import com.trvankiet.app.repository.GroupMemberRequestRepository;
-import com.trvankiet.app.repository.GroupMemberRoleRepository;
 import com.trvankiet.app.repository.GroupRepository;
 import com.trvankiet.app.service.GroupMemberRequestService;
 import com.trvankiet.app.service.MapperService;
@@ -29,7 +28,6 @@ public class GroupMemberRequestServiceImpl implements GroupMemberRequestService 
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final GroupMemberRequestRepository groupMemberRequestRepository;
-    private final GroupMemberRoleRepository groupMemberRoleRepository;
     private final MapperService mappingService;
 
     @Override
@@ -39,18 +37,25 @@ public class GroupMemberRequestServiceImpl implements GroupMemberRequestService 
                 .orElseThrow(() -> new NotFoundException("Nhóm không tồn tại"));
         GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
                 .orElseThrow(() -> new NotFoundException("Bạn không thuộc nhóm này"));
-        if (groupMember.getGroupMemberRole()
-                .equals(groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_MEMBER.getCode())
-                        .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên nhóm")))) {
+        if (groupMember.getRole().equals(GroupMemberRoleType.GROUP_MEMBER)) {
             throw new ForbiddenException("Bạn không có quyền truy cập");
         }
-        String stateCodeValue = stateCode.orElse(StateType.PENDING.getCode());
-        List<GroupMemberRequestDto> groupMemberRequestDtos = groupMemberRequestRepository
-                .findAllByGroupId(groupId)
-                .stream()
-                .filter(groupMemberRequest -> groupMemberRequest.getState().getCode().equals(stateCodeValue))
-                .map(mappingService::mapToGroupMemberRequestDto)
-                .toList();
+        StateType stateCodeValue = stateCode.map(StateType::valueOf).orElse(null);
+        List<GroupMemberRequestDto> groupMemberRequestDtos;
+        if (stateCodeValue == null) {
+            groupMemberRequestDtos = groupMemberRequestRepository
+                    .findAllByGroupId(groupId)
+                    .stream()
+                    .map(mappingService::mapToGroupMemberRequestDto)
+                    .toList();
+        }
+        else {
+            groupMemberRequestDtos = groupMemberRequestRepository
+                    .findAllByGroupIdAndState(groupId, stateCodeValue)
+                    .stream()
+                    .map(mappingService::mapToGroupMemberRequestDto)
+                    .toList();
+        }
         return ResponseEntity.ok(
                 GenericResponse.builder()
                         .success(true)

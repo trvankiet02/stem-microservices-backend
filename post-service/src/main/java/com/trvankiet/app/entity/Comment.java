@@ -30,12 +30,12 @@ public class Comment implements Serializable {
     @Field(name = "author_id")
     private String authorId;
 
+    @DocumentReference
+    @Field(name = "post_id")
+    private Post post;
+
     @Field(name = "content")
     private String content;
-
-    @DocumentReference
-    @Field(name = "reactions")
-    private List<Reaction> reactions;
 
     @Field(name = "ref_urls")
     private List<String> refUrls;

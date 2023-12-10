@@ -103,7 +103,7 @@ public class ExamServiceImpl implements ExamService {
             });
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
-                            .result(true)
+                            .success(true)
                             .statusCode(200)
                             .message("Success")
                             .result(mapperService.mapToExamDto(exam))
@@ -234,7 +234,7 @@ public class ExamServiceImpl implements ExamService {
             examRepository.save(exam);
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
-                            .result(true)
+                            .success(true)
                             .statusCode(200)
                             .message("Success")
                             .result(mapperService.mapToExamDto(exam))

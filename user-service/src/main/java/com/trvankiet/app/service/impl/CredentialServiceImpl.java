@@ -202,7 +202,7 @@ public class CredentialServiceImpl implements CredentialService {
         Token verificationToken = tokenService.findByToken(token)
                 .orElseThrow(() -> new BadRequestException("Yêu cầu xác thực đã hết hạn hoặc không hợp lệ!"));
         if (verificationToken.getType().equals(TokenType.VERIFICATION_TOKEN)
-                && TokenUtil.tokenIsNotExpiredAndRevoked(verificationToken)
+                && !TokenUtil.tokenIsExpiredOrRevoked(verificationToken)
                 && !verificationToken.getExpiredAt().before(new Date())) {
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
@@ -221,7 +221,7 @@ public class CredentialServiceImpl implements CredentialService {
         Token resetPasswordToken = tokenService.findByToken(token)
                 .orElseThrow(() -> new BadRequestException("Yêu cầu xác thực đã hết hạn hoặc không hợp lệ!"));
         if (resetPasswordToken.getType().equals(TokenType.RESET_PASSWORD_TOKEN)
-                && TokenUtil.tokenIsNotExpiredAndRevoked(resetPasswordToken)
+                && !TokenUtil.tokenIsExpiredOrRevoked(resetPasswordToken)
                 && !resetPasswordToken.getExpiredAt().before(new Date())) {
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
@@ -249,7 +249,7 @@ public class CredentialServiceImpl implements CredentialService {
         }
 
         if (resetPasswordToken.getExpiredAt().before(new Date())
-                && TokenUtil.tokenIsNotExpiredAndRevoked(resetPasswordToken)) {
+                || TokenUtil.tokenIsExpiredOrRevoked(resetPasswordToken)) {
             throw new BadRequestException("Yêu cầu đã hết hạn hoặc không hợp lệ!");
         }
 
@@ -372,7 +372,6 @@ public class CredentialServiceImpl implements CredentialService {
 
         if (password.length() < 8 || password.length() > 32)
             throw new BadRequestException("Mật khẩu phải có độ dài từ 8 đến 32 ký tự!");
-        User user = null;
     }
 
     @Override
@@ -380,6 +379,11 @@ public class CredentialServiceImpl implements CredentialService {
         log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, registerForStudent");
         Map<String, CredentialDto> result = new HashMap<>();
         User student = null, parent = null;
+        if (!studentAndParentRequest.getStudent().getEmail().isEmpty() && !studentAndParentRequest.getParent().getEmail().isEmpty()) {
+            if (studentAndParentRequest.getStudent().getEmail().equals(studentAndParentRequest.getParent().getEmail())) {
+                throw new BadRequestException("Email phụ huynh và học sinh không được trùng nhau!");
+            }
+        }
         if (studentAndParentRequest.getStudent().getEmail() != null) {
             StudentRegisterRequest studentRegisterRequest = studentAndParentRequest.getStudent();
             validateEmailAndPassword(studentRegisterRequest.getEmail(), studentRegisterRequest.getPassword());
@@ -451,7 +455,7 @@ public class CredentialServiceImpl implements CredentialService {
                 GenericResponse.builder()
                         .success(true)
                         .message("Tài khoản đã được tạo thành công! Đăng nhập để sử dụng ứng dụng!")
-                        .result(result)
+                        .result(null)
                         .statusCode(HttpStatus.OK.value())
                         .build()
         );

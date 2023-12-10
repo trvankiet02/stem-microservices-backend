@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "user-service", contextId = "userClientService", path = "/api/v1/users")
 public interface UserClientService {
 
-    @GetMapping("/{uId}")
+    @GetMapping("/userDto/{uId}")
     UserDto getUserDtoByUserId(@PathVariable String uId);
 
     @GetMapping("/credentials")

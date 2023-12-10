@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileService {
-    List<FileDto> uploadPostFiles(String userId, List<MultipartFile> mediaFiles) throws IOException;
+    List<FileDto> uploadPostFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException;
 
-    List<FileDto> uploadCommentFiles(String userId, List<MultipartFile> mediaFiles) throws IOException;
+    List<FileDto> uploadCommentFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException;
 
-    List<FileDto> uploadDocumentFiles(String userId, List<MultipartFile> mediaFiles) throws IOException;
+    List<FileDto> uploadDocumentFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException;
 
     ResponseEntity<GenericResponse> deletePostFiles(String userId, DeleteRequest deleteRequest);
 
@@ -37,4 +37,14 @@ public interface FileService {
     void deleteGroupAvatar(String refUrl) throws IOException;
 
     void deleteGroupCover(String refUrl) throws IOException;
+
+    ResponseEntity<GenericResponse> getUserImage(String userId, Integer page, Integer size);
+
+    ResponseEntity<GenericResponse> getGroupImage(String userId, Integer page, Integer size);
+
+    ResponseEntity<GenericResponse> getGroupDocument(String userId, Integer page, Integer size);
+
+    List<FileDto> uploadExamFiles(String userId, List<MultipartFile> mediaFiles, String groupId) throws IOException;
+
+    ResponseEntity<GenericResponse> deleteExamFiles(String userId, DeleteRequest deleteRequest);
 }

@@ -7,6 +7,7 @@ import com.trvankiet.app.dto.GroupMemberDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.dto.response.GroupMemberResponse;
 import com.trvankiet.app.entity.Group;
 import com.trvankiet.app.entity.GroupMember;
 import com.trvankiet.app.entity.GroupMemberInvitation;
@@ -34,32 +35,27 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     private final GroupMemberRepository groupMemberRepository;
     private final GroupMemberInvitationRepository groupMemberInvitationRepository;
     private final GroupMemberRequestRepository groupMemberRequestRepository;
-    private final GroupMemberRoleRepository groupMemberRoleRepository;
-    private final StateRepository stateRepository;
     private final MapperService mapperService;
 
     @Override
     public ResponseEntity<GenericResponse> inivteGroupMember(String userId, InviteGroupMemberRequest groupMemberRequest) {
         log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> inivteGroupMember");
-        Group group = groupRepository.findById(groupMemberRequest.getGroupId())
-                .orElseThrow(() -> new NotFoundException("Nhóm không tồn tại"));
-        GroupMember user = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
+        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, groupMemberRequest.getGroupId())
                 .orElseThrow(() -> new ForbiddenException("Bạn không có quyền thêm thành viên vào nhóm này"));
         GroupMemberInvitation groupMemberInvitation = groupMemberInvitationRepository
                 .save(GroupMemberInvitation.builder()
                         .id(UUID.randomUUID().toString())
-                        .group(group)
-                        .fromUserId(user.getUserId())
+                        .group(groupMember.getGroup())
+                        .fromUserId(groupMember.getUserId())
                         .toUserId(groupMemberRequest.getUserId())
-                        .state(stateRepository.findByCode(StateType.PENDING.getCode())
-                                .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")))
+                        .state(StateType.PENDING)
                         .createdAt(new Date())
                         .build());
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)
                 .message("Mời thành viên vào nhóm thành công")
-                .result(groupMemberInvitation)
+                .result(groupMemberInvitation.getId())
                 .build());
     }
 
@@ -72,38 +68,39 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         if (existGroupMember.isPresent()) {
             throw new BadRequestException("Bạn đã là thành viên của nhóm này");
         }
-
         GroupMemberRequest groupMemberRequest = groupMemberRequestRepository
                 .save(GroupMemberRequest.builder()
                         .id(UUID.randomUUID().toString())
                         .group(group)
                         .authorId(userId)
-                        .state(stateRepository.findByCode(StateType.PENDING.getCode())
-                                .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")))
+                        .state(StateType.PENDING)
                         .createdAt(new Date())
                         .build());
 
-        if (group.getConfig().getMemberMode().equals(GroupAccessType.PUBLIC.toString())) {
-            groupMemberRequest.setState(stateRepository.findByCode(StateType.ACCEPTED.getCode())
-                    .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")));
+        if (group.getIsAcceptAllRequest()) {
+            groupMemberRequest.setState(StateType.ACCEPTED);
             groupMemberRequestRepository.save(groupMemberRequest);
-
-            GroupMember groupMember = groupMemberRepository.save(
+            groupMemberRepository.save(
                     GroupMember.builder()
                             .id(UUID.randomUUID().toString())
                             .userId(userId)
                             .group(group)
-                            .groupMemberRole(groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_MEMBER.getCode())
-                                    .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")))
+                            .role(GroupMemberRoleType.GROUP_MEMBER)
                             .createdAt(new Date())
                             .build()
             );
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(201)
+                    .message("Đã trở thành thành viên của nhóm!")
+                    .result(null)
+                    .build());
         }
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)
                 .message("Yêu cầu tham gia nhóm thành công")
-                .result(mapperService.mapToGroupDto(groupMemberRequest.getGroup()))
+                .result(null)
                 .build());
     }
 
@@ -115,62 +112,53 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         if (!groupMemberInvitation.getToUserId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thực hiện hành động này");
         }
-        switch (inviteResponseGroupMember.getStateCode()) {
-            case "ACCEPT":
-                // chage state to ACCEPT and create GroupMemberRequest
-                groupMemberInvitation.setState(stateRepository.findByCode(StateType.ACCEPTED.getCode())
-                        .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")));
-                groupMemberInvitation.setUpdatedAt(new Date());
-                groupMemberInvitationRepository.save(groupMemberInvitation);
-                //return this.requestGroupMember(userId, groupMemberInvitation.getGroup().getId());
-                Group group = groupMemberInvitation.getGroup();
-                GroupMemberRequest groupMemberRequest = groupMemberRequestRepository
-                        .save(GroupMemberRequest.builder()
+        if (inviteResponseGroupMember.getIsAccept()) {
+            // chage state to ACCEPT and create GroupMemberRequest
+            groupMemberInvitation.setState(StateType.ACCEPTED);
+            groupMemberInvitation.setUpdatedAt(new Date());
+            groupMemberInvitationRepository.save(groupMemberInvitation);
+            //return this.requestGroupMember(userId, groupMemberInvitation.getGroup().getId());
+            Group group = groupMemberInvitation.getGroup();
+            GroupMemberRequest groupMemberRequest = groupMemberRequestRepository
+                    .save(GroupMemberRequest.builder()
+                            .id(UUID.randomUUID().toString())
+                            .group(group)
+                            .authorId(userId)
+                            .state(StateType.PENDING)
+                            .groupMemberInvitation(groupMemberInvitation)
+                            .createdAt(new Date())
+                            .build());
+
+            if (group.getIsAcceptAllRequest()) {
+                groupMemberRequest.setState(StateType.ACCEPTED);
+                groupMemberRequestRepository.save(groupMemberRequest);
+
+                groupMemberRepository.save(
+                        GroupMember.builder()
                                 .id(UUID.randomUUID().toString())
+                                .userId(userId)
                                 .group(group)
-                                .authorId(userId)
-                                .state(stateRepository.findByCode(StateType.PENDING.getCode())
-                                        .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")))
-                                .groupMemberInvitation(groupMemberInvitation)
+                                .role(GroupMemberRoleType.GROUP_MEMBER)
                                 .createdAt(new Date())
-                                .build());
-
-                if (group.getConfig().getMemberMode().equals(GroupAccessType.PUBLIC.toString())) {
-                    groupMemberRequest.setState(stateRepository.findByCode(StateType.ACCEPTED.getCode())
-                            .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")));
-                    groupMemberRequestRepository.save(groupMemberRequest);
-
-                    GroupMember groupMember = groupMemberRepository.save(
-                            GroupMember.builder()
-                                    .id(UUID.randomUUID().toString())
-                                    .userId(userId)
-                                    .group(group)
-                                    .groupMemberRole(groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_MEMBER.getCode())
-                                            .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")))
-                                    .createdAt(new Date())
-                                    .build()
-                    );
-                }
-                return ResponseEntity.ok(GenericResponse.builder()
-                        .success(true)
-                        .statusCode(200)
-                        .message("Lời mời đã được chấp nhận")
-                        .result(mapperService.mapToGroupDto(groupMemberRequest.getGroup()))
-                        .build());
-            case "REJECT":
-                // change state to REJECT
-                groupMemberInvitation.setState(stateRepository.findByCode(StateType.REJECTED.getCode())
-                        .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")));
-                groupMemberInvitation.setUpdatedAt(new Date());
-                groupMemberInvitationRepository.save(groupMemberInvitation);
-                return ResponseEntity.ok(GenericResponse.builder()
-                        .success(true)
-                        .statusCode(200)
-                        .message("Lời mời đã bị từ chối")
-                        .result(null)
-                        .build());
-            default:
-                throw new BadRequestException("Trạng thái không hợp lệ");
+                                .build()
+                );
+            }
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Lời mời đã được chấp nhận")
+                    .result(group.getId())
+                    .build());
+        } else {
+            groupMemberInvitation.setState(StateType.REJECTED);
+            groupMemberInvitation.setUpdatedAt(new Date());
+            groupMemberInvitationRepository.save(groupMemberInvitation);
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Lời mời đã bị từ chối")
+                    .result(null)
+                    .build());
         }
     }
 
@@ -182,46 +170,39 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         Group group = groupMemberRequest.getGroup();
         GroupMember user = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
                 .orElseThrow(() -> new ForbiddenException("Bạn không có quyền thực hiện hành động này"));
-        if (user.getGroupMemberRole().getCode().equals(GroupMemberRoleType.GROUP_MEMBER.getCode())) {
+        if (user.getRole().equals(GroupMemberRoleType.GROUP_MEMBER)) {
             throw new ForbiddenException("Bạn không có quyền thực hiện hành động này");
         }
-        switch (stateRequest.getStateCode()) {
-            case "ACCEPT":
-                // change state to ACCEPT and create GroupMember
-                groupMemberRequest.setState(stateRepository.findByCode(StateType.ACCEPTED.getCode())
-                        .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")));
-                groupMemberRequest.setUpdatedAt(new Date());
-                groupMemberRequestRepository.save(groupMemberRequest);
-                GroupMember groupMember = groupMemberRepository
-                        .save(GroupMember.builder()
-                                .id(UUID.randomUUID().toString())
-                                .userId(groupMemberRequest.getAuthorId())
-                                .group(group)
-                                .groupMemberRole(groupMemberRoleRepository.findByCode(GroupMemberRoleType.GROUP_MEMBER.getCode())
-                                        .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")))
-                                .groupMemberRequest(groupMemberRequest)
-                                .createdAt(new Date())
-                                .build());
-                return ResponseEntity.ok(GenericResponse.builder()
-                        .success(true)
-                        .statusCode(200)
-                        .message("Yêu cầu đã được chấp nhận")
-                        .result(mapperService.mapToGroupDto(groupMember.getGroup()))
-                        .build());
-            case "REJECT":
-                // change state to REJECT
-                groupMemberRequest.setState(stateRepository.findByCode(StateType.REJECTED.getCode())
-                        .orElseThrow(() -> new NotFoundException("Không tìm thấy trạng thái")));
-                groupMemberRequest.setUpdatedAt(new Date());
-                groupMemberRequestRepository.save(groupMemberRequest);
-                return ResponseEntity.ok(GenericResponse.builder()
-                        .success(true)
-                        .statusCode(200)
-                        .message("Yêu cầu đã bị từ chối")
-                        .result(null)
-                        .build());
-            default:
-                throw new BadRequestException("Trạng thái không hợp lệ");
+        if (stateRequest.getIsAccept()) {
+            // change state to ACCEPT and create GroupMember
+            groupMemberRequest.setState(StateType.ACCEPTED);
+            groupMemberRequest.setUpdatedAt(new Date());
+            groupMemberRequestRepository.save(groupMemberRequest);
+            groupMemberRepository.save(GroupMember.builder()
+                    .id(UUID.randomUUID().toString())
+                    .userId(groupMemberRequest.getAuthorId())
+                    .group(group)
+                    .role(GroupMemberRoleType.GROUP_MEMBER)
+                    .groupMemberRequest(groupMemberRequest)
+                    .createdAt(new Date())
+                    .build());
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Yêu cầu đã được chấp nhận")
+                    .result(null)
+                    .build());
+        } else {
+            // change state to REJECT
+            groupMemberRequest.setState(StateType.REJECTED);
+            groupMemberRequest.setUpdatedAt(new Date());
+            groupMemberRequestRepository.save(groupMemberRequest);
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Yêu cầu đã bị từ chối")
+                    .result(null)
+                    .build());
         }
     }
 
@@ -235,16 +216,21 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         if (!userId.equals(group.getAuthorId())) {
             throw new ForbiddenException("Bạn không có quyền thay đổi quyền thành viên");
         }
-        groupMember.setGroupMemberRole(groupMemberRoleRepository.findByCode(role)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")));
-        groupMember.setUpdatedAt(new Date());
-        groupMemberRepository.save(groupMember);
-        return ResponseEntity.ok(GenericResponse.builder()
-                .success(true)
-                .statusCode(200)
-                .message("Thay đổi quyền thành viên thành công")
-                .result(null)
-                .build());
+        try {
+            groupMember.setRole(GroupMemberRoleType.valueOf(role));
+            groupMember.setUpdatedAt(new Date());
+            groupMemberRepository.save(groupMember);
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Thay đổi quyền thành viên thành công")
+                    .result(mapperService.mapToGroupMemberResponse(groupMember))
+                    .build());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Quyền thành viên không hợp lệ");
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -276,36 +262,37 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         }
         GroupMember user = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
                 .orElseThrow(() -> new ForbiddenException("Bạn không có quyền thêm thành viên vào nhóm này"));
-        if (user.getGroupMemberRole().getCode().equals(GroupMemberRoleType.GROUP_MEMBER.getCode())) {
+        if (user.getRole().equals(GroupMemberRoleType.GROUP_MEMBER)) {
             throw new ForbiddenException("Bạn không có quyền thêm thành viên vào nhóm này");
         }
-        GroupMember groupMember = groupMemberRepository
-                .save(GroupMember.builder()
-                        .id(UUID.randomUUID().toString())
-                        .userId(addGroupMemberRequest.getUserId())
-                        .group(group)
-                        .groupMemberRole(groupMemberRoleRepository.findByCode(addGroupMemberRequest.getRoleCode())
-                                .orElseThrow(() -> new NotFoundException("Không tìm thấy quyền thành viên")))
-                        .createdAt(new Date())
-                        .build());
-        List<GroupMemberDto> groupMembers = groupMemberRepository.findByGroupId(group.getId())
-                .stream()
-                .map(mapperService::mapToGroupMemberDto)
-                .toList();
-        return ResponseEntity.ok(GenericResponse.builder()
-                .success(true)
-                .statusCode(200)
-                .message("Thêm thành viên vào nhóm thành công")
-                .result(groupMembers)
-                .build());
+        try {
+            GroupMember groupMember = groupMemberRepository
+                    .save(GroupMember.builder()
+                            .id(UUID.randomUUID().toString())
+                            .userId(addGroupMemberRequest.getUserId())
+                            .group(group)
+                            .role(GroupMemberRoleType.valueOf(addGroupMemberRequest.getRoleCode()))
+                            .createdAt(new Date())
+                            .build());
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Thêm thành viên vào nhóm thành công")
+                    .result(mapperService.mapToGroupMemberResponse(groupMember))
+                    .build());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Quyền thành viên không hợp lệ");
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
     public ResponseEntity<GenericResponse> getGroupMemberByGroupId(String userId, String groupId) {
         log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> getGroupMemberByGroupId");
-        List<GroupMemberDto> groupMembers = groupMemberRepository.findByGroupId(groupId)
+        List<GroupMemberResponse> groupMembers = groupMemberRepository.findAllByGroupId(groupId)
                 .stream()
-                .map(mapperService::mapToGroupMemberDto)
+                .map(mapperService::mapToGroupMemberResponse)
                 .toList();
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -324,7 +311,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
         GroupMember user = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
                 .orElseThrow(() -> new ForbiddenException("Ban không có quyền thực hiện hành động này"));
-        if (user.getGroupMemberRole().getCode().equals(GroupMemberRoleType.GROUP_MEMBER.getCode())) {
+        if (user.getRole().equals(GroupMemberRoleType.GROUP_MEMBER)) {
             throw new ForbiddenException("Ban không có quyền thực hiện hành động này");
         }
         groupMember.setIsLocked(true);
@@ -335,7 +322,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 .success(true)
                 .statusCode(200)
                 .message("Khóa thành viên thành công")
-                .result(null)
+                .result(mapperService.mapToGroupMemberResponse(groupMember))
                 .build());
     }
 
@@ -348,7 +335,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
         GroupMember user = groupMemberRepository.findByUserIdAndGroupId(userId, group.getId())
                 .orElseThrow(() -> new ForbiddenException("Ban không có quyền thực hiện hành động này"));
-        if (user.getGroupMemberRole().getCode().equals(GroupMemberRoleType.GROUP_MEMBER.getCode())) {
+        if (user.getRole().equals(GroupMemberRoleType.GROUP_MEMBER)) {
             throw new ForbiddenException("Ban không có quyền thực hiện hành động này");
         }
         groupMember.setIsLocked(false);
@@ -359,7 +346,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 .success(true)
                 .statusCode(200)
                 .message("Mở khóa thành viên thành công")
-                .result(null)
+                .result(mapperService.mapToGroupMemberResponse(groupMember))
                 .build());
     }
 
@@ -368,6 +355,6 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         log.info("GroupMemberServiceImpl, String getGroupMemberRoleByGroupIdAndUserId");
         GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, groupId)
                 .orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
-        return groupMember.getGroupMemberRole().getName();
+        return groupMember.getRole().name();
     }
 }

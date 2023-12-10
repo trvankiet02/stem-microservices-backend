@@ -2,6 +2,7 @@ package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.FileDto;
 import com.trvankiet.app.dto.PostDto;
+import com.trvankiet.app.dto.SimpleGroupDto;
 import com.trvankiet.app.dto.request.CommentPostRequest;
 import com.trvankiet.app.dto.request.PostCreateRequest;
 import com.trvankiet.app.dto.request.UpdatePostRequest;
@@ -61,9 +62,11 @@ public class PostController {
         log.info("PostController, createPost({})", postCreateRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
+        SimpleGroupDto groupDto = groupClientService.getSimpleGroupDto(authorizationHeader, postCreateRequest.getGroupId());
         List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(postCreateRequest.getMediaFiles()) ?
-                fileClientService.uploadDocumentFiles(authorizationHeader, postCreateRequest.getMediaFiles()) : new ArrayList<>();
-        return postService.createPost(userId, fileDtos, postCreateRequest);
+                fileClientService.uploadDocumentFiles(authorizationHeader,
+                        postCreateRequest.getMediaFiles(), groupDto.getId()) : new ArrayList<>();
+        return postService.createPost(userId, groupDto, fileDtos, postCreateRequest);
     }
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -72,9 +75,7 @@ public class PostController {
         log.info("PostController, updatePost({})", updatePostRequest);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        List<FileDto> fileDtos = FileUtil.isValidMultipartFiles(updatePostRequest.getMediaFiles()) ?
-                fileClientService.uploadDocumentFiles(authorizationHeader, updatePostRequest.getMediaFiles()) : new ArrayList<>();
-        return postService.updatePost(userId, fileDtos, updatePostRequest);
+        return postService.updatePost(userId, authorizationHeader, updatePostRequest);
     }
 
     @DeleteMapping(value = "/{postId}")
@@ -88,15 +89,15 @@ public class PostController {
 
     @GetMapping("/search")
     public List<PostDto> searchPost(@RequestParam("query") Optional<String> query
-    , @RequestParam("type") Optional<String> type) {
+            , @RequestParam("type") Optional<String> type) {
         log.info("PostController, searchPost");
         return postService.searchPost(query, type);
     }
 
     @GetMapping("/home-posts")
-    public ResponseEntity<GenericResponse> getHomePost (@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                                        @RequestParam(value = "page", defaultValue = "0") int page,
-                                                        @RequestParam(value = "size", defaultValue = "10") int size) {
+    public ResponseEntity<GenericResponse> getHomePost(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                       @RequestParam(value = "page", defaultValue = "0") int page,
+                                                       @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("PostController, getHomePost");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);

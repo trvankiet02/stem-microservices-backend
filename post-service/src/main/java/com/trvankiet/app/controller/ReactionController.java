@@ -18,11 +18,6 @@ public class ReactionController {
     private final JwtService jwtService;
     private final ReactionService reactionService;
 
-    @GetMapping
-    public String home() {
-        return "Hello from ReactionController";
-    }
-
     @PutMapping
     public ResponseEntity<GenericResponse> reactPost(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                      @RequestBody ReactionRequest reactionRequest) {
@@ -39,6 +34,12 @@ public class ReactionController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return reactionService.deleteReaction(userId, reactionId);
+    }
+
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<GenericResponse> getReactionsByPostId(@PathVariable("postId") String postId) {
+        log.info("ReactionController, getReactionsByPostId({})", postId);
+        return reactionService.getReactionsByPostId(postId);
     }
 
 }

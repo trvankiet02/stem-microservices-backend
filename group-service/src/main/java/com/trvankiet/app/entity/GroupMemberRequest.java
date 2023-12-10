@@ -34,9 +34,8 @@ public class GroupMemberRequest implements Serializable {
     @Field(name = "author_id")
     private String authorId;
 
-    @DocumentReference
-    @Field(name = "state_id")
-    private State state;
+    @Field(name = "state")
+    private StateType state;
 
     @DocumentReference
     @Field(name = "group_member_invitation_id")

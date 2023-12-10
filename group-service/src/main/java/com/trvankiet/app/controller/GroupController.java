@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.GroupDto;
+import com.trvankiet.app.dto.SimpleGroupDto;
 import com.trvankiet.app.dto.request.GroupConfigRequest;
 import com.trvankiet.app.dto.request.GroupCreateRequest;
 import com.trvankiet.app.dto.request.UpdateDetailRequest;
@@ -94,7 +95,7 @@ public class GroupController {
     @PutMapping(value = "/{groupId}/updateAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> updateGroupAvatar(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("groupId") String groupId
-            , @RequestPart("mediaFile")MultipartFile avatar) throws IOException {
+            , @RequestPart("mediaFile") MultipartFile avatar) throws IOException {
         log.info("GroupController, updateGroupAvatar");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -104,7 +105,7 @@ public class GroupController {
     @PutMapping(value = "/{groupId}/updateCover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> updateGroupCover(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("groupId") String groupId
-            , @RequestPart("mediaFile")MultipartFile cover) throws IOException {
+            , @RequestPart("mediaFile") MultipartFile cover) throws IOException {
         log.info("GroupController, updateGroupCover");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -121,31 +122,43 @@ public class GroupController {
     }
 
     @GetMapping(value = "/suggested-groups")
-    public ResponseEntity<GenericResponse> suggestGroups(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<GenericResponse> suggestGroups(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestParam(value = "page", defaultValue = "0") Integer page
+            , @RequestParam(value = "size", defaultValue = "10") Integer size) {
         log.info("GroupController, suggestGroup");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return groupService.suggestGroups(userId);
+        return groupService.suggestGroups(userId, page, size);
     }
 
     @GetMapping(value = "/suggested-classes")
-    public ResponseEntity<GenericResponse> suggestClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<GenericResponse> suggestClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestParam(value = "page", defaultValue = "0") Integer page
+            , @RequestParam(value = "size", defaultValue = "10") Integer size) {
         log.info("GroupController, suggestClass");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return groupService.suggestClasses(userId);
+        return groupService.suggestClasses(userId, page, size);
     }
-
 
 
     @GetMapping("/search")
     public ResponseEntity<List<GroupDto>> searchGroup(@RequestParam("query") Optional<String> query
-                                                , @RequestParam("type") Optional<String> type
-                                                , @RequestParam("accessibility") Optional<String> accessibility
-                                                , @RequestParam("grade") Optional<Integer> grade
-                                                , @RequestParam("subject") Optional<String> subject) {
+            , @RequestParam("isClass") Optional<Boolean> isClass
+            , @RequestParam("isPublic") Optional<Boolean> isPublic
+            , @RequestParam("grade") Optional<Integer> grade
+            , @RequestParam("subject") Optional<String> subject) {
         log.info("GroupController, searchGroup");
-        return groupService.searchGroup(query, type, accessibility, grade, subject);
+        return groupService.searchGroup(query, isClass, isPublic, grade, subject);
+    }
+
+    @GetMapping("/simpleGroupDto/{groupId}")
+    public SimpleGroupDto getSimpleGroupDto(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @PathVariable("groupId") String groupId) {
+        log.info("GroupController, getSimpleGroupDto");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.getSimpleGroupDto(userId, groupId);
     }
 
 

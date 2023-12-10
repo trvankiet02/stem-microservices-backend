@@ -15,17 +15,17 @@ import java.util.List;
 @Builder
 public class CommentDto implements Serializable {
 
-        private String id;
-        @JsonProperty("author")
-        private UserDto userDto;
-        private String content;
-        @JsonProperty("refUrls")
-        private List<String> refUrls;
-        @JsonProperty("reactions")
-        private List<ReactionDto> reactionDtos;
-        @JsonProperty("subComments")
-        private List<CommentDto> subCommentDtos;
-        private String createdAt;
-        private String updatedAt;
+    private String id;
+    private String authorId;
+    private String authorFirstName;
+    private String authorLastName;
+    private String authorAvatar;
+    private String content;
+    @JsonProperty("refUrls")
+    private List<String> refUrls;
+    @JsonProperty("subComments")
+    private List<CommentDto> subCommentDtos;
+    private String createdAt;
+    private String updatedAt;
 
 }

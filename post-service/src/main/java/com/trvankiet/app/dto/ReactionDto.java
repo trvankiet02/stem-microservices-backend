@@ -16,7 +16,7 @@ public class ReactionDto implements Serializable {
 
     private String id;
     @JsonProperty("author")
-    private UserDto userDto;
+    private SimpleUserDto userDto;
     private String type;
     private String createdAt;
     private String updatedAt;

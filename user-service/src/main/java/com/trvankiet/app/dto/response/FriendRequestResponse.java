@@ -1,6 +1,7 @@
 package com.trvankiet.app.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.UserDto;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ public class FriendRequestResponse {
 
     private String id;
     @JsonProperty("sender")
-    private UserDto userDto;
+    private SimpleUserDto userDto;
     private String status;
     private String createdAt;
     private String updatedAt;

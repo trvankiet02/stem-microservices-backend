@@ -2,6 +2,7 @@ package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.FriendRequestDto;
+import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.UserDto;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
@@ -36,19 +37,19 @@ public class UserController {
     private final FriendshipClientService friendshipClientService;
     private final FriendRequestClientService friendRequestClientService;
 
-    @GetMapping("/credentials")
+    @GetMapping(value ="/credentials")
     public CredentialDto getCredentialDto(@RequestParam String uId) {
         log.info("UserController Get, CredentialDto, getCredentialDto");
         return userService.getCredentialDto(uId);
     }
 
-    @GetMapping("/{uId}")
+    @GetMapping(value ="/userDto/{uId}")
     public UserDto getUserDto(@PathVariable String uId) {
         log.info("UserController Get, UserDto, getUserDto");
         return userService.getUserDetail(uId);
     }
 
-    @GetMapping("/profile")
+    @GetMapping(value ="/profile")
     public ResponseEntity<GenericResponse> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) {
         log.info("UserController Get, GenericResponse, getUserProfile");
         String token = authorizationHeader.substring(7);
@@ -56,7 +57,7 @@ public class UserController {
         return userService.getUserProfile(userId);
     }
 
-    @PutMapping("/profile")
+    @PutMapping(value ="/profile")
     public ResponseEntity<GenericResponse> updateProfile(@RequestHeader("Authorization") String authorizationHeader, @Valid @RequestBody ProfileRequest postProfileRequest) {
         log.info("UserController Post, GenericResponse, updateProfile");
         String token = authorizationHeader.substring(7);
@@ -80,8 +81,8 @@ public class UserController {
         return userService.updateCover(userId, cover);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<UserDto>> searchUser(@RequestParam Optional<String> query
+    @GetMapping(value = "/search")
+    public ResponseEntity<List<SimpleUserDto>> searchUser(@RequestParam Optional<String> query
             , @RequestParam Optional<String> role
             , @RequestParam Optional<String> gender
             , @RequestParam Optional<String> school
@@ -91,26 +92,32 @@ public class UserController {
         return userService.searchUser(query, role, gender, school, grade, subjects);
     }
 
-    @GetMapping("/friends")
+    @GetMapping(value ="/friends")
     public ResponseEntity<GenericResponse> getFriends(@RequestHeader("Authorization") String authorizationHeader) {
         log.info("UserController Get, UserDto, getFriends");
         List<String> friendIds = friendshipClientService.getFriendIds(authorizationHeader).getBody();
         return userService.getFriends(friendIds);
     }
-    @GetMapping("/friend-requests")
+    @GetMapping(value ="/friend-requests")
     public ResponseEntity<GenericResponse> getFriendRequests(@RequestHeader("Authorization") String authorizationHeader) {
         log.info("UserController Get, UserDto, getFriendRequests");
         List<FriendRequestDto> friendRequests = friendRequestClientService.getFriendRequests(authorizationHeader).getBody();
         return userService.getFriendRequests(friendRequests);
     }
 
-    @GetMapping("/friends-of-user")
+    @GetMapping(value ="/friends-of-user")
     public ResponseEntity<GenericResponse> getFriendsOfUser(@RequestHeader("Authorization") String authorizationHeader
                                                             ,@RequestParam String uId) {
         log.info("UserController Get, UserDto, getFriendsOfUser");
         ResponseEntity<List<FriendOfUserResponse>> friendOfUserResponses = friendshipClientService.getFriendsOfUser(authorizationHeader, uId);
 
         return userService.getFriendsOfUser(friendOfUserResponses.getBody());
+    }
+
+    @GetMapping(value = "/simpleUserDto/{uId}")
+    public SimpleUserDto getSimpleUserDto(@PathVariable String uId) {
+        log.info("UserController Get, SimpleUserDto, getSimpleUserDto");
+        return userService.getSimpleUserDto(uId);
     }
 
 }

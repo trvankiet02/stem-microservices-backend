@@ -10,7 +10,7 @@ public class UpdatePostRequest {
 
     private String postId;
     private String content;
-    private String typeCode;
+    private String typeName;
     private List<MultipartFile> mediaFiles;
 
 }

@@ -27,11 +27,12 @@ public class GroupDto implements Serializable {
     private String name;
     private String description;
     @JsonProperty("author")
-    private UserDto userDto;
+    private SimpleUserDto userDto;
     private String avatarUrl;
     private String coverUrl;
-    @JsonProperty("config")
-    private GroupConfigDto configDto;
+    private Boolean isClass;
+    private Boolean isPublic;
+    private Boolean isAcceptAllRequest;
     private String subject;
     private Integer grade;
     private String createdAt;

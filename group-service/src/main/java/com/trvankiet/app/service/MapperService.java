@@ -1,6 +1,7 @@
 package com.trvankiet.app.service;
 
 import com.trvankiet.app.dto.*;
+import com.trvankiet.app.dto.response.GroupMemberResponse;
 import com.trvankiet.app.entity.*;
 
 public interface MapperService {
@@ -10,5 +11,6 @@ public interface MapperService {
     UserDto mapToUserDto(String userId);
     GroupMemberRequestDto mapToGroupMemberRequestDto(GroupMemberRequest groupMemberRequest);
     EventDto mapToEventDto(Event event);
-    GroupConfigDto mapToGroupConfigDto(GroupConfig groupConfig);
+    SimpleUserDto mapToSimpleUserDto(String userId);
+    GroupMemberResponse mapToGroupMemberResponse(GroupMember groupMember);
 }

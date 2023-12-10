@@ -61,7 +61,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public ResponseEntity<GenericResponse> getEvents(String userId, String groupId) {
         log.info("EventServiceImpl, getEvents");
-        List<EventDto> events = eventRepository.findAllByGroupId(groupId)
+        List<EventDto> eventDtos = eventRepository.findAllByGroupId(groupId)
                 .stream()
                 .map(mappingService::mapToEventDto)
                 .toList();
@@ -69,7 +69,7 @@ public class EventServiceImpl implements EventService {
                 .success(true)
                 .statusCode(200)
                 .message("Lấy danh sách sự kiện thành công")
-                .result(events)
+                .result(eventDtos)
                 .build());
     }
 
@@ -101,7 +101,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Sự kiện không tồn tại"));
         GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, event.getGroup().getId())
                 .orElseThrow(() -> new ForbiddenException("Bạn không có quyền xóa sự kiện này"));
-        if (groupMember.getGroupMemberRole().getName().equals(GroupMemberRoleType.GROUP_MEMBER.toString())) {
+        if (groupMember.getRole().equals(GroupMemberRoleType.GROUP_MEMBER)) {
             throw new ForbiddenException("Bạn không có quyền xóa sự kiện này");
         }
         eventRepository.delete(event);
@@ -118,10 +118,9 @@ public class EventServiceImpl implements EventService {
         log.info("EventServiceImpl, getHomeEvents");
         // get all group which user is member then get events
         List<GroupMember> groupMembers = groupMemberRepository.findAllByUserId(userId);
-        List<EventDto> events = eventRepository.findAllByGroupIn(groupMembers.stream().map(GroupMember::getGroup).toList())
+        List<EventDto> events = eventRepository.findAllByGroupInOrderByCreatedAtDesc(groupMembers.stream().map(GroupMember::getGroup).toList())
                 .stream()
                 .map(mappingService::mapToEventDto)
-                .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
                 .toList();
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)

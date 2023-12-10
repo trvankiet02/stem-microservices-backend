@@ -6,12 +6,15 @@ import lombok.Data;
 @Data
 public class GroupCreateRequest {
 
+    @NotNull(message = "name is required")
     private String name;
     private String description;
-    @NotNull(message = "typeCode is required")
-    private String typeName;
-    private String accessibilityName;
-    private String memberModeName;
+    @NotNull(message = "isClass is required")
+    private Boolean isClass;
+    @NotNull(message = "isPublic is required")
+    private Boolean isPublic;
+    @NotNull(message = "isAcceptAllRequest is required")
+    private Boolean isAcceptAllRequest;
     private String subject;
     private Integer grade;
 

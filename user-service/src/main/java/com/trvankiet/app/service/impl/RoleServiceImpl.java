@@ -12,21 +12,4 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
-    private final RoleRepository roleRepository;
-
-    @Override
-    public InitializingBean sendDatabase() {
-        return () -> {
-            if (roleRepository.findByCode(RoleType.ROLE_ADMIN.getCode()).isEmpty())
-                roleRepository.save(Role.builder()
-                        .code(RoleType.ROLE_ADMIN.getCode())
-                        .name(RoleType.ROLE_ADMIN.toString())
-                        .build());
-            if (roleRepository.findByCode(RoleType.ROLE_USER.getCode()).isEmpty())
-                roleRepository.save(Role.builder()
-                        .code(RoleType.ROLE_USER.getCode())
-                        .name(RoleType.ROLE_USER.toString())
-                        .build());
-        };
-    }
 }

@@ -9,11 +9,13 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface CommentService {
-    ResponseEntity<GenericResponse> createComment(String userId, List<FileDto> fileDtos, CommentPostRequest commentPostRequest);
+    ResponseEntity<GenericResponse> createComment(String userId, String authorizationHeader, CommentPostRequest commentPostRequest);
 
-    ResponseEntity<GenericResponse> updateComment(String userId, String commentId, List<FileDto> fileDtos, UpdateCommentRequest updateCommentRequest);
+    ResponseEntity<GenericResponse> updateComment(String userId, String commentId, String authorizationHeader, UpdateCommentRequest updateCommentRequest);
 
     ResponseEntity<GenericResponse> getComments(String postId, int page, int size);
 
     ResponseEntity<GenericResponse> deleteComment(String userId, String commentId);
+
+    ResponseEntity<GenericResponse> createRepComment(String userId, String commentId, String authorizationHeader, UpdateCommentRequest updateCommentRequest);
 }

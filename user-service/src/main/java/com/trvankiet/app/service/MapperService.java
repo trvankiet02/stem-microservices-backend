@@ -12,4 +12,6 @@ public interface MapperService {
     TokenDto mapToTokenDto(Token token);
     RelationshipDto mapToRelationDto(Relationship relationship);
     AnotherUserDto mapToAnotherUserDto(User user);
+
+    SimpleUserDto mapToSimpleUserDto(User user);
 }

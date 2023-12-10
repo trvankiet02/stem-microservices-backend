@@ -24,7 +24,7 @@ public class GroupMemberInvitationServiceImpl implements GroupMemberInvitationSe
     public ResponseEntity<GenericResponse> getAllGroupMemberInvitations(String userId) {
         log.info("GroupMemberInvitationServiceImpl, ResponseEntity<GenericResponse> getAllGroupMemberInvitations");
         List<GroupMemberInvitationDto> groupMemberInvitations = groupMemberInvitationRepository
-                .findAllByToUserIdAndStateCode(userId, StateType.PENDING.getCode())
+                .findAllByToUserIdAndState(userId, StateType.PENDING)
                 .stream()
                 .map(mappingService::mapToGroupMemberInvitationDto)
                 .collect(Collectors.toList());

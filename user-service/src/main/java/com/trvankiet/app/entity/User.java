@@ -1,15 +1,12 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.trvankiet.app.constant.Gender;
 import com.trvankiet.app.constant.RoleBasedAuthority;
 import jakarta.persistence.*;
 
 import lombok.*;
 import org.hibernate.annotations.Nationalized;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
 import java.util.*;

@@ -19,15 +19,18 @@ public class PostDto implements Serializable {
         private String id;
         @JsonIgnore
         private String groupId;
-        @JsonProperty("author")
-        private UserDto userDto;
+        private String authorId;
+        private String authorFirstName;
+        private String authorLastName;
+        private String authorAvatar;
         private String content;
         private String type;
         private List<String> refUrls;
-        @JsonProperty("reactions")
-        private List<ReactionDto> reactionDtos;
+        private long totalReactions;
+        private long totalComments;
         @JsonProperty("comments")
         private List<CommentDto> commentDtos;
         private String createdAt;
         private String updatedAt;
+
 }

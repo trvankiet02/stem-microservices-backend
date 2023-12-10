@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/files")
@@ -25,18 +27,47 @@ public class FileController {
     private final FileService fileService;
     private final JwtService jwtService;
 
-    @GetMapping
-    public String test() {
-        return "Hello from FileController";
+    @PostMapping(value = "/test", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Map<String, String> test(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                    @RequestPart("mediaFiles") List<MultipartFile> mediaFiles,
+                    @RequestPart("groupId") String groupId) throws IOException {
+        log.info("FileController, uploadPostFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        Map<String, String> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("groupId", groupId);
+        map.put("mediaFiles", String.valueOf(mediaFiles.size()));
+        return map;
+    }
+
+    @PostMapping(value = "/exams", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public List<FileDto> uploadExamFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                         @RequestPart("mediaFiles") List<MultipartFile> mediaFiles,
+                                         @RequestPart("groupId") String groupId) throws IOException {
+        log.info("FileController, uploadExamFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.uploadExamFiles(userId, mediaFiles, groupId);
+    }
+
+    @DeleteMapping("/exams")
+    public ResponseEntity<GenericResponse> deleteExamFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                              @RequestBody DeleteRequest deleteRequest) {
+        log.info("FileController, deleteCommentFiles");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.deleteExamFiles(userId, deleteRequest);
     }
 
     @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<FileDto> uploadPostFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                         @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
+                                         @RequestPart("mediaFiles") List<MultipartFile> mediaFiles,
+                                         @RequestPart("groupId") String groupId) throws IOException {
         log.info("FileController, uploadPostFiles");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return fileService.uploadPostFiles(userId, mediaFiles);
+        return fileService.uploadPostFiles(userId, mediaFiles, groupId);
     }
 
     @DeleteMapping("/posts")
@@ -50,11 +81,12 @@ public class FileController {
 
     @PostMapping(value = "/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<FileDto> uploadCommentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                            @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
+                                            @RequestPart("mediaFiles") List<MultipartFile> mediaFiles,
+                                            @RequestPart("groupId") String groupId) throws IOException {
         log.info("FileController, uploadCommentFiles");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return fileService.uploadCommentFiles(userId, mediaFiles);
+        return fileService.uploadCommentFiles(userId, mediaFiles, groupId);
     }
 
     @DeleteMapping("/comments")
@@ -68,11 +100,12 @@ public class FileController {
 
     @PostMapping(value = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<FileDto> uploadDocumentFiles(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                             @RequestPart("mediaFiles") List<MultipartFile> mediaFiles) throws IOException {
+                                             @RequestPart("mediaFiles") List<MultipartFile> mediaFiles,
+                                             @RequestPart("groupId") String groupId) throws IOException {
         log.info("FileController, uploadDocumentFiles");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return fileService.uploadDocumentFiles(userId, mediaFiles);
+        return fileService.uploadDocumentFiles(userId, mediaFiles, groupId);
     }
 
     @DeleteMapping("/documents")
@@ -122,5 +155,32 @@ public class FileController {
     @DeleteMapping("/deleteGroupCover")
     public void deleteGroupCover(@RequestPart("refUrl") String refUrl) throws IOException {
         fileService.deleteGroupCover(refUrl);
+    }
+
+    @GetMapping("/getUserImage")
+    public ResponseEntity<GenericResponse> getUserImage(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                        @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                        @RequestParam(value = "size", defaultValue = "4") Integer size) {
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.getUserImage(userId, page, size);
+    }
+
+    @GetMapping("/getGroupImage")
+    public ResponseEntity<GenericResponse> getGroupImage(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                        @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                        @RequestParam(value = "size", defaultValue = "4") Integer size) {
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.getGroupImage(userId, page, size);
+    }
+
+    @GetMapping("/getGroupDocument")
+    public ResponseEntity<GenericResponse> getGroupDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                        @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                        @RequestParam(value = "size", defaultValue = "4") Integer size) {
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return fileService.getGroupDocument(userId, page, size);
     }
 }

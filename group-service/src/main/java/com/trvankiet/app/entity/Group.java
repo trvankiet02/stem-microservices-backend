@@ -43,9 +43,14 @@ public class Group implements Serializable {
     @Field(name = "group_cover_url")
     private String coverUrl = "https://res.cloudinary.com/djzwxw0ao/image/upload/v1696942528/uqbxidtwcdbqn8glt6we.jpg";
 
-    @DocumentReference
-    @Field(name = "group_member_mode")
-    private GroupConfig config;
+    @Field(name = "isClass")
+    private Boolean isClass;
+    
+    @Field(name = "isPublic")
+    private Boolean isPublic;
+
+    @Field(name = "isAcceptAllRequest")
+    private Boolean isAcceptAllRequest;
 
     @Field(name = "class_subject")
     private String subject;
