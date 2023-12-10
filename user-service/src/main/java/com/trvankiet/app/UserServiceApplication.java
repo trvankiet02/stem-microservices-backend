@@ -30,38 +30,40 @@ public class UserServiceApplication {
     }
 
     @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
     private ProviderRepository providerRepository;
 
-//    @Bean
-//    InitializingBean sendDatabase() {
-//        return () -> {
-//            if (roleRepository.findByCode(RoleType.ROLE_ADMIN.getCode()).isEmpty())
-//                roleRepository.save(Role.builder()
-//                        .code(RoleType.ROLE_ADMIN.getCode())
-//                        .name(RoleType.ROLE_ADMIN.toString())
-//                        .build());
-//            if (roleRepository.findByCode(RoleType.ROLE_USER.getCode()).isEmpty())
-//                roleRepository.save(Role.builder()
-//                        .code(RoleType.ROLE_USER.getCode())
-//                        .name(RoleType.ROLE_USER.toString())
-//                        .build());
-//            if (providerRepository.findByCode(ProviderType.PROVIDER_LOCAL.getCode()).isEmpty())
-//                providerRepository.save(Provider.builder()
-//                        .code(ProviderType.PROVIDER_LOCAL.getCode())
-//                        .name(ProviderType.PROVIDER_LOCAL.toString())
-//                        .build());
-//            if (providerRepository.findByCode(ProviderType.PROVIDER_FACEBOOK.getCode()).isEmpty())
-//                providerRepository.save(Provider.builder()
-//                        .code(ProviderType.PROVIDER_FACEBOOK.getCode())
-//                        .name(ProviderType.PROVIDER_FACEBOOK.toString())
-//                        .build());
-//            if (providerRepository.findByCode(ProviderType.PROVIDER_GOOGLE.getCode()).isEmpty())
-//                providerRepository.save(Provider.builder()
-//                        .code(ProviderType.PROVIDER_GOOGLE.getCode())
-//                        .name(ProviderType.PROVIDER_GOOGLE.toString())
-//                        .build());
-//        };
-//    }
+    @Bean
+    InitializingBean sendDatabase() {
+        return () -> {
+            if (roleRepository.findByCode(RoleType.ROLE_ADMIN.getCode()).isEmpty())
+                roleRepository.save(Role.builder()
+                        .code(RoleType.ROLE_ADMIN.getCode())
+                        .name(RoleType.ROLE_ADMIN.toString())
+                        .build());
+            if (roleRepository.findByCode(RoleType.ROLE_USER.getCode()).isEmpty())
+                roleRepository.save(Role.builder()
+                        .code(RoleType.ROLE_USER.getCode())
+                        .name(RoleType.ROLE_USER.toString())
+                        .build());
+            if (providerRepository.findByCode(ProviderType.PROVIDER_LOCAL.getCode()).isEmpty())
+                providerRepository.save(Provider.builder()
+                        .code(ProviderType.PROVIDER_LOCAL.getCode())
+                        .name(ProviderType.PROVIDER_LOCAL.toString())
+                        .build());
+            if (providerRepository.findByCode(ProviderType.PROVIDER_FACEBOOK.getCode()).isEmpty())
+                providerRepository.save(Provider.builder()
+                        .code(ProviderType.PROVIDER_FACEBOOK.getCode())
+                        .name(ProviderType.PROVIDER_FACEBOOK.toString())
+                        .build());
+            if (providerRepository.findByCode(ProviderType.PROVIDER_GOOGLE.getCode()).isEmpty())
+                providerRepository.save(Provider.builder()
+                        .code(ProviderType.PROVIDER_GOOGLE.getCode())
+                        .name(ProviderType.PROVIDER_GOOGLE.toString())
+                        .build());
+        };
+    }
 
 
 }
