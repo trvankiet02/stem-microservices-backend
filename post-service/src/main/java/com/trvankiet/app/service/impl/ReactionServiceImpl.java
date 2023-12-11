@@ -2,6 +2,7 @@ package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.ReactionTypeEnum;
 import com.trvankiet.app.dto.ReactionDto;
+import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.request.ReactionRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Post;
@@ -13,13 +14,19 @@ import com.trvankiet.app.repository.PostRepository;
 import com.trvankiet.app.repository.ReactionRepository;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.ReactionService;
+import com.trvankiet.app.service.client.UserClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -29,6 +36,7 @@ public class ReactionServiceImpl implements ReactionService {
     private final ReactionRepository reactionRepository;
     private final PostRepository postRepository;
     private final MapperService mapperService;
+    private final UserClientService userClientService;
 
     @Override
     public ResponseEntity<GenericResponse> reactPost(String userId, ReactionRequest reactionRequest) {
@@ -52,6 +60,8 @@ public class ReactionServiceImpl implements ReactionService {
                 reaction.setUpdatedAt(new Date());
             }
             reactionRepository.save(reaction);
+            Map<String, Object> result = Map.of("reaction", mapperService.mapToReactionDto(reaction),
+                    "count", reactionRepository.countByPostId(reactionRequest.getPostId()));
             return ResponseEntity.ok().body(GenericResponse.builder()
                     .success(true)
                     .statusCode(200)
@@ -94,6 +104,27 @@ public class ReactionServiceImpl implements ReactionService {
                 .statusCode(200)
                 .message("Thành công!")
                 .result(reactions)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getReactionsByPostIdForHover(String postId) {
+        log.info("ReactionServiceImpl, getReactionsByPostIdForHover({})", postId);
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
+        Page<Reaction> pageReactions = reactionRepository.findAllByPostId(postId, pageable);
+        List<String> reactions = pageReactions
+                .stream()
+                .map(reaction -> {
+                    SimpleUserDto simpleUserDto = userClientService.getSimpleUserDto(reaction.getAuthorId());
+                    return simpleUserDto.getFirstName() + " " + simpleUserDto.getLastName();
+                })
+                .toList();
+        Map<String, Object> result = Map.of("reactions", reactions, "count", pageReactions.getTotalElements());
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Thành công!")
+                .result(result)
                 .build());
     }
 }

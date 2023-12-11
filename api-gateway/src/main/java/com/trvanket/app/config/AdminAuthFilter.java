@@ -1,14 +1,10 @@
 package com.trvanket.app.config;
 
-import com.trvanket.app.dto.CredentialDto;
 import com.trvanket.app.jwt.service.JwtService;
-import com.trvanket.app.service.ValidateService;
-import com.trvanket.app.service.client.UserClientService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -25,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
-public class AuthFilter implements GatewayFilter {
+public class AdminAuthFilter implements GatewayFilter {
 
     private final JwtService jwtService;
 
@@ -44,7 +40,8 @@ public class AuthFilter implements GatewayFilter {
         if (request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
             String jwt = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0).substring(7);
             try {
-                if (jwtService.validateToken(jwt)) {
+                if (jwtService.validateToken(jwt) && jwtService.extractUserRole(jwt).equals("ROLE_ADMIN")) {
+
                     ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                             .header("Authorization", "Bearer " + jwt)
                             .build();

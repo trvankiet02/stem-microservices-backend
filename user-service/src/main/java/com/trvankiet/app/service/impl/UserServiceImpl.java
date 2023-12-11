@@ -31,6 +31,9 @@ import com.trvankiet.app.util.DateUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -344,6 +347,21 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(uId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy tài khoản!"));
         return mapperService.mapToSimpleUserDto(user);
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getAllUsers");
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        List<User> users = userRepository.findAll(pageable).toList();
+        List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách người dùng thành công!")
+                .result(userDtos)
+                .statusCode(HttpStatus.OK.value())
+                .build());
     }
 
 
