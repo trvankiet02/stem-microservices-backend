@@ -1,4 +1,4 @@
-package com.trvankiet.app.controller;
+package com.trvankiet.app.controller.user;
 
 import com.trvankiet.app.dto.request.EmailRequest;
 import com.trvankiet.app.dto.request.TokenRequest;

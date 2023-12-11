@@ -1,4 +1,4 @@
-package com.trvankiet.app.controller;
+package com.trvankiet.app.controller.user;
 
 import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.service.CredentialService;

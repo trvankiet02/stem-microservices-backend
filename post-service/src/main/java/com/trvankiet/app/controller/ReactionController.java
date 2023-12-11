@@ -36,10 +36,16 @@ public class ReactionController {
         return reactionService.deleteReaction(userId, reactionId);
     }
 
-    @GetMapping("/post/{postId}")
+    @GetMapping("/handleClick/post/{postId}")
     public ResponseEntity<GenericResponse> getReactionsByPostId(@PathVariable("postId") String postId) {
         log.info("ReactionController, getReactionsByPostId({})", postId);
         return reactionService.getReactionsByPostId(postId);
+    }
+
+    @GetMapping("/handleHover/post/{postId}")
+    public ResponseEntity<GenericResponse> getReactionsByPostIdForHover(@PathVariable("postId") String postId) {
+        log.info("ReactionController, getReactionsByPostIdForHover({})", postId);
+        return reactionService.getReactionsByPostIdForHover(postId);
     }
 
 }

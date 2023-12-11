@@ -55,4 +55,6 @@ public interface UserService {
     ResponseEntity<GenericResponse> getFriendsOfUser(List<FriendOfUserResponse> body);
 
     SimpleUserDto getSimpleUserDto(String uId);
+
+    ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size);
 }

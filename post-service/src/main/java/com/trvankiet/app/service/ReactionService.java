@@ -10,4 +10,6 @@ public interface ReactionService {
     ResponseEntity<GenericResponse> deleteReaction(String userId, String reactionId);
 
     ResponseEntity<GenericResponse> getReactionsByPostId(String postId);
+
+    ResponseEntity<GenericResponse> getReactionsByPostIdForHover(String postId);
 }
