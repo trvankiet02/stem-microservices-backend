@@ -21,9 +21,9 @@ public class MapperServiceImpl implements MapperService {
                 .isCorrect(answer.getIsCorrect())
                 .questionDto(mapToQuestionDto(answer.getQuestion()))
                 .createdAt(answer.getCreatedAt() == null
-                        ? null : DateUtil.date2String(answer.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(answer.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .updatedAt(answer.getUpdatedAt() == null
-                        ? null : DateUtil.date2String(answer.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(answer.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .build();
     }
 
@@ -36,16 +36,16 @@ public class MapperServiceImpl implements MapperService {
                 .name(exam.getName())
                 .description(exam.getDescription())
                 .duration(exam.getDuration())
-                .staredAt(DateUtil.date2String(exam.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
-                .endedAt(DateUtil.date2String(exam.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                .staredAt(DateUtil.date2String(exam.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
+                .endedAt(DateUtil.date2String(exam.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .isEnabled(exam.getIsEnabled())
                 .numberOfQuestion(exam.getNumberOfQuestion())
                 .level(exam.getLevel())
                 .maxScore(exam.getMaxScore())
                 .createdAt(exam.getCreatedAt() == null
-                        ? null : DateUtil.date2String(exam.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(exam.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .updatedAt(exam.getUpdatedAt() == null
-                        ? null : DateUtil.date2String(exam.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(exam.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .build();
     }
 
@@ -59,9 +59,9 @@ public class MapperServiceImpl implements MapperService {
                 .level(question.getLevel())
                 .typeCode(question.getType().getCode())
                 .createdAt(question.getCreatedAt() == null
-                        ? null : DateUtil.date2String(question.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(question.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .updatedAt(question.getUpdatedAt() == null
-                        ? null : DateUtil.date2String(question.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(question.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .build();
     }
 
@@ -74,13 +74,13 @@ public class MapperServiceImpl implements MapperService {
                 .score(submission.getScore() == null ? null : submission.getScore())
                 .examDto(mapToExamDto(submission.getExam()))
                 .startedAt(submission.getStartedAt() == null
-                        ? null : DateUtil.date2String(submission.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(submission.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .endedAt(submission.getEndedAt() == null
-                        ? null : DateUtil.date2String(submission.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(submission.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .createdAt(submission.getCreatedAt() == null
-                        ? null : DateUtil.date2String(submission.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(submission.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .updatedAt(submission.getUpdatedAt() == null
-                        ? null : DateUtil.date2String(submission.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(submission.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .build();
     }
 
@@ -94,9 +94,9 @@ public class MapperServiceImpl implements MapperService {
                 .questionDto(mapToQuestionDto(submissionDetail.getQuestion()))
                 .submissionDto(mapToSubmissionDto(submissionDetail.getSubmission()))
                 .createdAt(submissionDetail.getCreatedAt() == null
-                        ? null : DateUtil.date2String(submissionDetail.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(submissionDetail.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .updatedAt(submissionDetail.getUpdatedAt() == null
-                        ? null : DateUtil.date2String(submissionDetail.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                        ? null : DateUtil.date2String(submissionDetail.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .build();
     }
 }

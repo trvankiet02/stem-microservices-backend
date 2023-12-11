@@ -31,6 +31,7 @@ import com.trvankiet.app.util.DateUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,10 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -354,12 +352,19 @@ public class UserServiceImpl implements UserService {
         log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getAllUsers");
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page, size, sort);
-        List<User> users = userRepository.findAll(pageable).toList();
-        List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
+        Page<User> users = userRepository.findAll(pageable);
+        List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+        Map<String, Object> result = new HashMap<>();
+        result.put("users", userDtos);
+        result.put("totalPages", users.getTotalPages());
+        result.put("currentPage", users.getNumber());
+        result.put("totalElements", users.getTotalElements());
+        result.put("currentElements", users.getNumberOfElements());
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Lấy danh sách người dùng thành công!")
-                .result(userDtos)
+                .result(result)
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
