@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -28,6 +29,7 @@ public class AnswerServiceImpl implements AnswerService {
     private final AnswerRepository answerRepository;
     private final GroupMemberClientService groupMemberClientService;
     private final MapperService mapperService;
+
     @Override
     public ResponseEntity<GenericResponse> getAnswersByQuestionId(String userId, String questionId) {
         log.info("AnswerServiceImpl, getAnswersByQuestionId, ResponseEntity<GenericResponse>");
@@ -120,6 +122,7 @@ public class AnswerServiceImpl implements AnswerService {
         if (!role.equals("GROUP_OWNER"))
             throw new ForbiddenException("Bạn không có quyền truy cập!");
         Answer answer = answerRepository.save(Answer.builder()
+                .id(UUID.randomUUID().toString())
                 .content(updateAnswerDetailRequest.getContent())
                 .isCorrect(updateAnswerDetailRequest.getIsCorrect())
                 .question(question)

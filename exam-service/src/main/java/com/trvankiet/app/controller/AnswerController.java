@@ -4,6 +4,7 @@ import com.trvankiet.app.dto.request.UpdateAnswerDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.AnswerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +41,7 @@ public class AnswerController {
     @PutMapping("/{answerId}")
     public ResponseEntity<GenericResponse> updateAnswerByAnswerId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("answerId") String answerId
-            , @RequestBody UpdateAnswerDetailRequest updateAnswerDetailRequest) {
+            , @RequestBody @Valid UpdateAnswerDetailRequest updateAnswerDetailRequest) {
         log.info("updateAnswerByAnswerId: {}", answerId);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
