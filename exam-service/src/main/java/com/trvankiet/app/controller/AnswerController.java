@@ -55,4 +55,14 @@ public class AnswerController {
         String userId = jwtService.extractUserId(accessToken);
         return answerService.deleteAnswerByAnswerId(userId, answerId);
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<GenericResponse> createAnswer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestParam("qId") String qId
+            , @RequestBody UpdateAnswerDetailRequest updateAnswerDetailRequest) {
+        log.info("createAnswer");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return answerService.createAnswer(userId, qId, updateAnswerDetailRequest);
+    }
 }
