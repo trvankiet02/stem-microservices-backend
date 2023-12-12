@@ -110,4 +110,27 @@ public class AnswerServiceImpl implements AnswerService {
         }
         return answer.getContent();
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> createAnswer(String userId, String qId, UpdateAnswerDetailRequest updateAnswerDetailRequest) {
+        log.info("AnswerServiceImpl, createAnswer, ResponseEntity<GenericResponse>");
+        Question question = questionRepository.findById(qId)
+                .orElseThrow(() -> new RuntimeException("Câu hỏi không tồn tại!"));
+        String role = groupMemberClientService.getRoleByGroupIdAndUserId(question.getExam().getGroupId(), userId);
+        if (!role.equals("GROUP_OWNER"))
+            throw new ForbiddenException("Bạn không có quyền truy cập!");
+        Answer answer = answerRepository.save(Answer.builder()
+                .content(updateAnswerDetailRequest.getContent())
+                .isCorrect(updateAnswerDetailRequest.getIsCorrect())
+                .question(question)
+                .build());
+
+        AnswerDto answerDto = mapperService.mapToAnswerDto(answer);
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Tạo câu trả lời thành công!")
+                .result(answerDto)
+                .build());
+    }
 }
