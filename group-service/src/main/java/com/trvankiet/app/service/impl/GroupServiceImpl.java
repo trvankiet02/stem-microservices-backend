@@ -23,6 +23,8 @@ import com.trvankiet.app.service.client.FileClientService;
 import com.trvankiet.app.service.client.UserClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -456,7 +458,60 @@ public class GroupServiceImpl implements GroupService {
                 .coverUrl(group.getCoverUrl())
                 .isPublic(group.getIsPublic())
                 .build();
+    }
 
+    @Override
+    public ResponseEntity<GenericResponse> getAllGroupsForAdmin(String token, Integer page, Integer size) {
+        log.info("GroupServiceImpl, getAllGroupsForAdmin");
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Group> groups = groupRepository.findAll(pageable);
+        Map<String, Object> result = new HashMap<>();
+        result.put("groups", groups.stream()
+                .map(mapperService::mapToGroupDto)
+                .toList());
+        result.put("totalPages", groups.getTotalPages());
+        result.put("totalElements", groups.getTotalElements());
+        result.put("currentPage", groups.getNumber());
+        result.put("currentElements", groups.getNumberOfElements());
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách nhóm thành công!")
+                .result(result)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
 
+    @Override
+    public ResponseEntity<GenericResponse> getMyClasses(String userId) {
+        log.info("GroupServiceImpl, getMyClasses");
+        List<SimpleGroupDto> groupMembers = groupMemberRepository.findAllByUserId(userId)
+                .stream()
+                .filter(groupMember -> groupMember.getGroup().getIsClass())
+                .map(groupMember -> mapperService.mapToSimpleGroupDto(groupMember.getGroup()))
+                .toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách lớp học thành công!")
+                .result(groupMembers)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getMyGroups(String userId) {
+        log.info("GroupServiceImpl, getMyGroups");
+        List<SimpleGroupDto> groupMembers = groupMemberRepository.findAllByUserId(userId)
+                .stream()
+                .filter(groupMember -> !groupMember.getGroup().getIsClass())
+                .map(groupMember -> mapperService.mapToSimpleGroupDto(groupMember.getGroup()))
+                .toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách nhóm thành công!")
+                .result(groupMembers)
+                .statusCode(HttpStatus.OK.value())
+                .build());
     }
 }

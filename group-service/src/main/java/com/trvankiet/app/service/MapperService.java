@@ -13,4 +13,5 @@ public interface MapperService {
     EventDto mapToEventDto(Event event);
     SimpleUserDto mapToSimpleUserDto(String userId);
     GroupMemberResponse mapToGroupMemberResponse(GroupMember groupMember);
+    SimpleGroupDto mapToSimpleGroupDto(Group group);
 }

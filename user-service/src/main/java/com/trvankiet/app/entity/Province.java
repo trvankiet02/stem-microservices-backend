@@ -35,7 +35,7 @@ public class Province extends AbstractMappedEntity implements Serializable {
     @Column(name = "isDeleted")
     private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "province")
+    @OneToMany(mappedBy = "province", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<District> districts;
 
 }

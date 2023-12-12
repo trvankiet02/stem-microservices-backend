@@ -1,4 +1,4 @@
-package com.trvankiet.app.controller;
+package com.trvankiet.app.controller.user;
 
 import com.trvankiet.app.dto.GroupDto;
 import com.trvankiet.app.dto.SimpleGroupDto;
@@ -159,6 +159,22 @@ public class GroupController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupService.getSimpleGroupDto(userId, groupId);
+    }
+
+    @GetMapping("/myClasses")
+    public ResponseEntity<GenericResponse> getMyClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("GroupController, getMyClasses");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.getMyClasses(userId);
+    }
+
+    @GetMapping("/myGroups")
+    public ResponseEntity<GenericResponse> getMyGroups(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("GroupController, getMyGroups");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.getMyGroups(userId);
     }
 
 

@@ -39,6 +39,16 @@ public class QuestionController {
         return questionService.updateQuestionByQuestionIdAndBody(userId, questionId, createQuestionRequest);
     }
 
+    @PostMapping("/create")
+    public ResponseEntity<GenericResponse> createQuestion(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestParam("examId") String examId
+            , @RequestBody CreateQuestionRequest createQuestionRequest) {
+        log.info("QuestionController, createQuestion");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return questionService.createQuestion(userId, examId, createQuestionRequest);
+    }
+
     @GetMapping("/{questionId}")
     public ResponseEntity<GenericResponse> getQuestion(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("questionId") String questionId) {

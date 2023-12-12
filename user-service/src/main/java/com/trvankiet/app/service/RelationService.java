@@ -15,4 +15,6 @@ public interface RelationService {
     ResponseEntity<GenericResponse> getRelationships(String userId);
 
     ResponseEntity<GenericResponse> getParentRelationRequest(String userId);
+
+    ResponseEntity<GenericResponse> handleHoverRelationships(String token, String userId);
 }

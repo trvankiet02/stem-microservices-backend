@@ -68,7 +68,11 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public ResponseEntity<GenericResponse> addSubject(String authorizationHeader, SubjectRequest subjectRequest) {
         log.info("SubjectServiceImpl, addSubject");
-        Subject subject = subjectRepository.save(Subject.builder()
+        Subject subject = subjectRepository.findByCode(subjectRequest.getCode()).orElse(null);
+        if (subject != null) {
+            throw new NotFoundException("Subject already exists");
+        }
+        subject = subjectRepository.save(Subject.builder()
                 .code(subjectRequest.getCode())
                 .name(subjectRequest.getName())
                 .description(subjectRequest.getDescription() != null ? subjectRequest.getDescription() : "")

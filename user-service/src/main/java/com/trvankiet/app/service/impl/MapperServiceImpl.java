@@ -2,10 +2,7 @@ package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.dto.*;
-import com.trvankiet.app.entity.Credential;
-import com.trvankiet.app.entity.Relationship;
-import com.trvankiet.app.entity.Token;
-import com.trvankiet.app.entity.User;
+import com.trvankiet.app.entity.*;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -113,6 +110,45 @@ public class MapperServiceImpl implements MapperService {
                 .gender(user.getGender().toString())
                 .email(user.getEmail())
                 .dob(DateUtil.date2String(user.getDob(), AppConstant.LOCAL_DATE_FORMAT))
+                .build();
+    }
+
+    @Override
+    public AddressDto mapToAddressDto(Province province) {
+        return AddressDto.builder()
+                .id(province.getId())
+                .code(province.getCode())
+                .name(province.getName())
+                .description(province.getDescription())
+                .createdAt(DateUtil.date2String(province.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
+                .updatedAt(province.getUpdatedAt() == null
+                        ? null : DateUtil.date2String(province.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
+                .build();
+    }
+
+    @Override
+    public AddressDto mapToAddressDto(District district) {
+        return AddressDto.builder()
+                .id(district.getId())
+                .code(district.getCode())
+                .name(district.getName())
+                .description(district.getDescription())
+                .createdAt(DateUtil.date2String(district.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
+                .updatedAt(district.getUpdatedAt() == null
+                        ? null : DateUtil.date2String(district.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
+                .build();
+    }
+
+    @Override
+    public AddressDto mapToAddressDto(School school) {
+        return AddressDto.builder()
+                .id(school.getId())
+                .code(school.getCode())
+                .name(school.getName())
+                .description(school.getDescription())
+                .createdAt(DateUtil.date2String(school.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
+                .updatedAt(school.getUpdatedAt() == null
+                        ? null : DateUtil.date2String(school.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .build();
     }
 }

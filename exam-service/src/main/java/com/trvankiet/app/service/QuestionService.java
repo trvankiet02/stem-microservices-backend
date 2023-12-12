@@ -15,4 +15,6 @@ public interface QuestionService {
     ResponseEntity<GenericResponse> deleteQuestionByQuestionId(String userId, String questionId);
 
     ResponseEntity<GenericResponse> updateQuestionByQuestionIdAndBody(String userId, String questionId, CreateQuestionRequest createQuestionRequest);
+
+    ResponseEntity<GenericResponse> createQuestion(String userId, String examId, CreateQuestionRequest createQuestionRequest);
 }
