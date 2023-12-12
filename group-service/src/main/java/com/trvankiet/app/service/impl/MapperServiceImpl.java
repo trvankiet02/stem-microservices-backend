@@ -140,4 +140,17 @@ public class MapperServiceImpl implements MapperService {
                 .build();
     }
 
+    @Override
+    public SimpleGroupDto mapToSimpleGroupDto(Group group) {
+        return SimpleGroupDto.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .description(group.getDescription() == null ?
+                        null : group.getDescription())
+                .avatarUrl(group.getAvatarUrl())
+                .coverUrl(group.getCoverUrl())
+                .isPublic(group.getIsPublic())
+                .build();
+    }
+
 }

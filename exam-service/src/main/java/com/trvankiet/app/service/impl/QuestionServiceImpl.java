@@ -175,4 +175,45 @@ public class QuestionServiceImpl implements QuestionService {
             throw new BadRequestException("Cập nhật câu hỏi thất bại!");
         }
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> createQuestion(String userId, String examId, CreateQuestionRequest createQuestionRequest) {
+        log.info("QuestionServiceImpl, createQuestion, ResponseEntity<GenericResponse>");
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy đề thi với id: " + examId));
+        String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
+        if (!role.equals("GROUP_OWNER"))
+            throw new ForbiddenException("Bạn không có quyền truy cập vào đề thi này!");
+        QuestionType questionType = questionTypeRepository.findByCode(createQuestionRequest.getTypeCode())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy loại câu hỏi với code: " + createQuestionRequest.getTypeCode()));
+        try {
+            Question question = questionRepository.save(Question.builder()
+                    .id(UUID.randomUUID().toString())
+                    .content(createQuestionRequest.getContent())
+                    .level(createQuestionRequest.getLevel())
+                    .exam(exam)
+                    .type(questionType)
+                    .createdAt(new Date())
+                    .build());
+            for (CreateAnswerRequest answerRequest: createQuestionRequest.getAnswers()) {
+                answerRepository.save(Answer.builder()
+                        .id(UUID.randomUUID().toString())
+                        .content(answerRequest.getContent())
+                        .isCorrect(answerRequest.getIsCorrect())
+                        .question(question)
+                        .createdAt(new Date())
+                        .build());
+            }
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Tạo câu hỏi thành công!")
+                    .result(mapperService.mapToQuestionDto(question))
+                    .build());
+        } catch (Exception e) {
+            log.error("QuestionServiceImpl, createQuestion, Exception: " + e.getMessage());
+            throw new BadRequestException("Tạo câu hỏi thất bại!");
+        }
+
+    }
 }
