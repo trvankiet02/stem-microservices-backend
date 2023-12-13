@@ -208,7 +208,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getHomePost(List<String> groupIds, int page, int size) {
+    public ResponseEntity<GenericResponse> getHomePost(String userId, List<String> groupIds, int page, int size) {
         log.info("PostServiceImpl, getHomePost");
         if (groupIds.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -232,7 +232,7 @@ public class PostServiceImpl implements PostService {
                     if (post == null) {
                         return null;
                     }
-                    Reaction reaction = getReactionByUserIdInPost(groupIds.get(0), post);
+                    Reaction reaction = getReactionByUserIdInPost(userId, post);
                     return PostResponse.builder()
                             .postDto(mapperService.mapToPostDto(post))
                             .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))

@@ -24,5 +24,5 @@ public interface PostService {
 
     List<PostDto> searchPost(Optional<String> query, Optional<String> type);
 
-    ResponseEntity<GenericResponse> getHomePost(List<String> groupIds, int page, int size);
+    ResponseEntity<GenericResponse> getHomePost(String userId, List<String> groupIds, int page, int size);
 }
