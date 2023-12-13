@@ -102,7 +102,7 @@ public class PostController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         ResponseEntity<List<String>> groupIds = groupClientService.getGroupByUserId(authorizationHeader);
-        return postService.getHomePost(groupIds.getBody(), page, size);
+        return postService.getHomePost(userId, groupIds.getBody(), page, size);
     }
 
 
