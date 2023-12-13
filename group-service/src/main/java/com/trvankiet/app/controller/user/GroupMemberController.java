@@ -21,7 +21,7 @@ public class GroupMemberController {
     @PostMapping("/invite")
     public ResponseEntity<GenericResponse> inviteGroupMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                           @RequestBody InviteGroupMemberRequest groupMemberRequest) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> addGroupMember");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> addGroupMember");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.inivteGroupMember(userId, groupMemberRequest);
@@ -29,7 +29,7 @@ public class GroupMemberController {
     @PostMapping("/request")
     public ResponseEntity<GenericResponse> requestGroupMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                           @RequestBody ToGroupMemberRequest toGroupMemberRequest) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> addGroupMember");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> addGroupMember");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.requestGroupMember(userId, toGroupMemberRequest.getGroupId());
@@ -37,7 +37,7 @@ public class GroupMemberController {
     @PostMapping("/add")
     public ResponseEntity<GenericResponse> addGroupMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                           @RequestBody AddGroupMemberRequest addGroupMemberRequest) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> addGroupMember");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> addGroupMember");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.addGroupMember(userId, addGroupMemberRequest);
@@ -47,7 +47,7 @@ public class GroupMemberController {
     public ResponseEntity<GenericResponse> changeRole(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                       @PathVariable("groupMemberId") String groupMemberId,
                                                       @RequestBody MemberRoleRequest memberRoleRequest) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> changeRole");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> changeRole");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.changeRole(userId, groupMemberId, memberRoleRequest.getRoleCode());
@@ -55,14 +55,14 @@ public class GroupMemberController {
 
     @GetMapping("/{groupId}/{userId}/role")
     public String getGroupMember(@PathVariable("userId") String userId, @PathVariable("groupId") String groupId) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> getGroupMember");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> getGroupMember");
         return groupMemberService.getGroupMemberRoleByGroupIdAndUserId(groupId, userId);
     }
 
     @DeleteMapping("/{groupMemberId}")
     public ResponseEntity<GenericResponse> deleteGroupMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                              @PathVariable("groupMemberId") String groupMemberId) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> deleteGroupMember");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> deleteGroupMember");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.deleteGroupMember(userId, groupMemberId);
@@ -70,7 +70,7 @@ public class GroupMemberController {
     @GetMapping
     public ResponseEntity<GenericResponse> getGroupMemberByGroupId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                            @RequestParam("groupId") String groupId) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> getGroupMembers");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> getGroupMembers");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.getGroupMemberByGroupId(userId, groupId);
@@ -79,7 +79,7 @@ public class GroupMemberController {
     @PutMapping("/lock")
     public ResponseEntity<GenericResponse> lockGroupMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                             @RequestBody LockMemberRequest lockMemberRequest) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> lockGroupMember");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> lockGroupMember");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.lockGroupMember(userId, lockMemberRequest);
@@ -88,7 +88,7 @@ public class GroupMemberController {
     @PutMapping("/unlock")
     public ResponseEntity<GenericResponse> unlockGroupMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                               @RequestBody UnlockMemberRequest unlockMemberRequest) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> unlockGroupMember");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> unlockGroupMember");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.unlockGroupMember(userId, unlockMemberRequest);

@@ -39,19 +39,19 @@ public class UserController {
 
     @GetMapping(value ="/credentials")
     public CredentialDto getCredentialDto(@RequestParam String uId) {
-        log.info("UserController Get, CredentialDto, getCredentialDto");
+        log.info("AdminUserController Get, CredentialDto, getCredentialDto");
         return userService.getCredentialDto(uId);
     }
 
     @GetMapping(value ="/userDto/{uId}")
     public UserDto getUserDto(@PathVariable String uId) {
-        log.info("UserController Get, UserDto, getUserDto");
+        log.info("AdminUserController Get, UserDto, getUserDto");
         return userService.getUserDetail(uId);
     }
 
     @GetMapping(value ="/profile")
     public ResponseEntity<GenericResponse> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) {
-        log.info("UserController Get, GenericResponse, getUserProfile");
+        log.info("AdminUserController Get, GenericResponse, getUserProfile");
         String token = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(token);
         return userService.getUserProfile(userId);
@@ -59,7 +59,7 @@ public class UserController {
 
     @PutMapping(value ="/profile")
     public ResponseEntity<GenericResponse> updateProfile(@RequestHeader("Authorization") String authorizationHeader, @Valid @RequestBody ProfileRequest postProfileRequest) {
-        log.info("UserController Post, GenericResponse, updateProfile");
+        log.info("AdminUserController Post, GenericResponse, updateProfile");
         String token = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(token);
         return userService.updateProfile(userId, postProfileRequest);
@@ -67,7 +67,7 @@ public class UserController {
 
     @PutMapping(value = "/profile/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> updateAvatar(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("avatar") MultipartFile avatar) throws IOException {
-        log.info("UserController Post, GenericResponse, updateAvatar");
+        log.info("AdminUserController Post, GenericResponse, updateAvatar");
         String token = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(token);
         return userService.updateAvatar(userId, avatar);
@@ -75,7 +75,7 @@ public class UserController {
 
     @PutMapping(value = "/profile/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> updateCover(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("cover") MultipartFile cover) throws IOException {
-        log.info("UserController Post, GenericResponse, updateCover");
+        log.info("AdminUserController Post, GenericResponse, updateCover");
         String token = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(token);
         return userService.updateCover(userId, cover);
@@ -88,19 +88,19 @@ public class UserController {
             , @RequestParam Optional<String> school
             , @RequestParam Optional<Integer> grade
             , @RequestParam Optional<List<String>> subjects) {
-        log.info("UserController Get, UserDto, searchUser");
+        log.info("AdminUserController Get, UserDto, searchUser");
         return userService.searchUser(query, role, gender, school, grade, subjects);
     }
 
     @GetMapping(value ="/friends")
     public ResponseEntity<GenericResponse> getFriends(@RequestHeader("Authorization") String authorizationHeader) {
-        log.info("UserController Get, UserDto, getFriends");
+        log.info("AdminUserController Get, UserDto, getFriends");
         List<String> friendIds = friendshipClientService.getFriendIds(authorizationHeader).getBody();
         return userService.getFriends(friendIds);
     }
     @GetMapping(value ="/friend-requests")
     public ResponseEntity<GenericResponse> getFriendRequests(@RequestHeader("Authorization") String authorizationHeader) {
-        log.info("UserController Get, UserDto, getFriendRequests");
+        log.info("AdminUserController Get, UserDto, getFriendRequests");
         List<FriendRequestDto> friendRequests = friendRequestClientService.getFriendRequests(authorizationHeader).getBody();
         return userService.getFriendRequests(friendRequests);
     }
@@ -108,7 +108,7 @@ public class UserController {
     @GetMapping(value ="/friends-of-user")
     public ResponseEntity<GenericResponse> getFriendsOfUser(@RequestHeader("Authorization") String authorizationHeader
                                                             ,@RequestParam String uId) {
-        log.info("UserController Get, UserDto, getFriendsOfUser");
+        log.info("AdminUserController Get, UserDto, getFriendsOfUser");
         ResponseEntity<List<FriendOfUserResponse>> friendOfUserResponses = friendshipClientService.getFriendsOfUser(authorizationHeader, uId);
 
         return userService.getFriendsOfUser(friendOfUserResponses.getBody());
@@ -116,7 +116,7 @@ public class UserController {
 
     @GetMapping(value = "/simpleUserDto/{uId}")
     public SimpleUserDto getSimpleUserDto(@PathVariable String uId) {
-        log.info("UserController Get, SimpleUserDto, getSimpleUserDto");
+        log.info("AdminUserController Get, SimpleUserDto, getSimpleUserDto");
         return userService.getSimpleUserDto(uId);
     }
 

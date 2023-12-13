@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/groups/admin")
 @RequiredArgsConstructor
 @Slf4j
-public class GroupController {
+public class AdminGroupController {
 
     private final GroupService groupService;
 
@@ -19,7 +19,7 @@ public class GroupController {
     public ResponseEntity<GenericResponse> getAllGroupsForAdmin(@RequestHeader("Authorization") String token,
                                                                 @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                                 @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        log.info("GroupController, getAllGroupsForAdmin");
+        log.info("AdminGroupController, getAllGroupsForAdmin");
         return groupService.getAllGroupsForAdmin(token, page, size);
     }
 }

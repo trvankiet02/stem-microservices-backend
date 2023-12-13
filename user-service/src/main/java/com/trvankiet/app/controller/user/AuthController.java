@@ -61,7 +61,7 @@ public class AuthController {
     @PostMapping("/verify")
     public ResponseEntity<GenericResponse> initUserInfo(@RequestParam final String token,
                                                         @RequestBody @Valid final UserInfoRequest userInfoRequest) {
-        log.info("UserController Post, ResponseEntity<GenericResponse>, initUserInfo");
+        log.info("AdminUserController Post, ResponseEntity<GenericResponse>, initUserInfo");
         return userService.initCredentialInfo(token, userInfoRequest);
     }
 

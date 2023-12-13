@@ -35,7 +35,7 @@ public class GroupMemberRequestController {
     public ResponseEntity<GenericResponse> responseGroupMemberRequest(@RequestHeader("Authorization") String authorizationHeader,
                                                                       @PathVariable("gmrId") String groupMemberRequestId,
                                                                       @RequestBody StateRequest stateRequest) {
-        log.info("GroupMemberController, ResponseEntity<GenericResponse> responseGroupMemberRequest");
+        log.info("AdminGroupMemberController, ResponseEntity<GenericResponse> responseGroupMemberRequest");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return groupMemberService.responseGroupMemberRequest(userId, groupMemberRequestId, stateRequest);
