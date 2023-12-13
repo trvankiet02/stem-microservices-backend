@@ -24,7 +24,7 @@ public class RelationshipController {
     @PostMapping
     public ResponseEntity<GenericResponse> createRelationRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @RequestBody @Valid CreateRelationRequest createRelationRequest) {
-        log.info("RelationshipController, createRelationRequest");
+        log.info("AdminRelationshipController, createRelationRequest");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return relationService.createRelationRequest(userId, createRelationRequest);
@@ -32,7 +32,7 @@ public class RelationshipController {
 
     @GetMapping("/student/relationship-requests")
     public ResponseEntity<GenericResponse> getRelationRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-        log.info("RelationshipController, getRelationRequest");
+        log.info("AdminRelationshipController, getRelationRequest");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return relationService.getRelationRequest(userId);
@@ -40,7 +40,7 @@ public class RelationshipController {
 
     @GetMapping("/parent/relationship-requests")
     public ResponseEntity<GenericResponse> getParentRelationRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-        log.info("RelationshipController, getRelationRequest");
+        log.info("AdminRelationshipController, getRelationRequest");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return relationService.getParentRelationRequest(userId);
@@ -48,7 +48,7 @@ public class RelationshipController {
 
     @GetMapping
     public ResponseEntity<GenericResponse> getRelationships(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-        log.info("RelationshipController, getRelationships");
+        log.info("AdminRelationshipController, getRelationships");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return relationService.getRelationships(userId);
@@ -57,7 +57,7 @@ public class RelationshipController {
     @PutMapping("/{id}")
     public ResponseEntity<GenericResponse> updateRelationRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("id") String id, @RequestBody @Valid UpdateRelationRequest updateRelationRequest) {
-        log.info("RelationshipController, updateRelationRequest");
+        log.info("AdminRelationshipController, updateRelationRequest");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return relationService.updateRelationRequest(userId, id, updateRelationRequest);

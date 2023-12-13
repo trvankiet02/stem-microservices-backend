@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/relationships/admin")
 @RequiredArgsConstructor
 @Slf4j
-public class RelationshipController {
+public class AdminRelationshipController {
 
     private final RelationService relationService;
 
     @GetMapping("/handleHover/relationships")
     public ResponseEntity<GenericResponse> handleHoverRelationships(@RequestHeader("Authorization") final String token,
                                                                     @RequestParam("userId") String userId) {
-        log.info("RelationshipController, handleHoverRelationships");
+        log.info("AdminRelationshipController, handleHoverRelationships");
         return relationService.handleHoverRelationships(token, userId);
     }
 }

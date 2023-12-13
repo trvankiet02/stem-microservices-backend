@@ -20,7 +20,7 @@ public class SubjectController {
 
     @GetMapping
     public ResponseEntity<GenericResponse> getAllSubjects() {
-        log.info("SubjectController, getAllSubjects");
+        log.info("AdminSubjectController, getAllSubjects");
         return subjectService.getAllSubjects();
     }
 }

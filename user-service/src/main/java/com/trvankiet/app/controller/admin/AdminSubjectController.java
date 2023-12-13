@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/subjects/admin")
 @RequiredArgsConstructor
 @Slf4j
-public class SubjectController {
+public class AdminSubjectController {
 
     private final SubjectService subjectService;
 
@@ -20,14 +20,14 @@ public class SubjectController {
     public ResponseEntity<GenericResponse> getAllSubjects(@RequestHeader(value = "Authorization") String authorizationHeader,
                                                           @RequestHeader(value = "page", defaultValue = "0") Integer page,
                                                           @RequestHeader(value = "size", defaultValue = "10") Integer size) {
-        log.info("SubjectController, getAllSubjects");
+        log.info("AdminSubjectController, getAllSubjects");
         return subjectService.getAllSubjectsForAdmin(page, size);
     }
 
     @PostMapping("/add-subject")
     public ResponseEntity<GenericResponse> addSubject(@RequestHeader(value = "Authorization") String authorizationHeader,
                                                       @RequestBody SubjectRequest subjectRequest) {
-        log.info("SubjectController, addSubject");
+        log.info("AdminSubjectController, addSubject");
         return subjectService.addSubject(authorizationHeader, subjectRequest);
     }
 
@@ -35,14 +35,14 @@ public class SubjectController {
     public ResponseEntity<GenericResponse> updateSubject(@RequestHeader(value = "Authorization") String authorizationHeader,
                                                          @PathVariable("id") Integer id,
                                                          @RequestBody SubjectRequest subjectRequest) {
-        log.info("SubjectController, updateSubject");
+        log.info("AdminSubjectController, updateSubject");
         return subjectService.updateSubject(authorizationHeader, id, subjectRequest);
     }
 
     @DeleteMapping("/delete-subject/{id}")
     public ResponseEntity<GenericResponse> deleteSubject(@RequestHeader(value = "Authorization") String authorizationHeader,
                                                          @PathVariable("id") Integer id) {
-        log.info("SubjectController, deleteSubject");
+        log.info("AdminSubjectController, deleteSubject");
         return subjectService.deleteSubject(authorizationHeader, id);
     }
 

@@ -1,7 +1,6 @@
 package com.trvankiet.app.controller.admin;
 
 import com.trvankiet.app.dto.response.GenericResponse;
-import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users/admin")
 @RequiredArgsConstructor
 @Slf4j
-public class UserController {
+public class AdminUserController {
 
     private final UserService userService;
 
@@ -22,7 +21,7 @@ public class UserController {
             @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationHeader,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        log.info("UserController, getAllUsers");
+        log.info("AdminUserController, getAllUsers");
         return userService.getAllUsers(authorizationHeader, page, size);
     }
 
