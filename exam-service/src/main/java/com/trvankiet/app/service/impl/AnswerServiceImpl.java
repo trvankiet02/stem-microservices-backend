@@ -126,6 +126,7 @@ public class AnswerServiceImpl implements AnswerService {
                 .content(updateAnswerDetailRequest.getContent())
                 .isCorrect(updateAnswerDetailRequest.getIsCorrect())
                 .question(question)
+                .createdAt(new Date())
                 .build());
 
         AnswerDto answerDto = mapperService.mapToAnswerDto(answer);

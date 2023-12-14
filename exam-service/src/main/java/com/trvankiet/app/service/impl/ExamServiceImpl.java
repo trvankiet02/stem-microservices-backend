@@ -9,6 +9,7 @@ import com.trvankiet.app.dto.request.CreateExamRequest;
 import com.trvankiet.app.dto.request.CreateQuestionRequest;
 import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.entity.Answer;
 import com.trvankiet.app.entity.Exam;
 import com.trvankiet.app.entity.Question;
 import com.trvankiet.app.entity.Submission;
@@ -91,14 +92,13 @@ public class ExamServiceImpl implements ExamService {
                                 .createdAt(new Date())
                                 .build());
                 questionRequest.getAnswers().forEach(answerRequest -> {
-                    answerRepository.save(
-                            com.trvankiet.app.entity.Answer.builder()
-                                    .id(UUID.randomUUID().toString())
-                                    .content(answerRequest.getContent())
-                                    .isCorrect(answerRequest.getIsCorrect())
-                                    .question(question)
-                                    .createdAt(new Date())
-                                    .build());
+                    answerRepository.save(Answer.builder()
+                            .id(UUID.randomUUID().toString())
+                            .content(answerRequest.getContent())
+                            .isCorrect(answerRequest.getIsCorrect())
+                            .question(question)
+                            .createdAt(new Date())
+                            .build());
                 });
             });
             return ResponseEntity.ok().body(
