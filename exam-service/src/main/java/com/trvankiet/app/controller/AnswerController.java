@@ -60,7 +60,7 @@ public class AnswerController {
     @PostMapping("/create")
     public ResponseEntity<GenericResponse> createAnswer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @RequestParam("qId") String qId
-            , @RequestBody UpdateAnswerDetailRequest updateAnswerDetailRequest) {
+            , @RequestBody @Valid UpdateAnswerDetailRequest updateAnswerDetailRequest) {
         log.info("createAnswer");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);

@@ -24,7 +24,7 @@ public class SubmissionDetailController {
 
     @PutMapping("/update")
     public ResponseEntity<String> updateSubmissionDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-        , @RequestBody SubmissionDetailUpdateRequest submissionDetailUpdateRequest) {
+        , @RequestBody @Valid SubmissionDetailUpdateRequest submissionDetailUpdateRequest) {
         log.info("SubmissionDetailController, updateSubmissionDetail");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);

@@ -5,6 +5,7 @@ import com.trvankiet.app.dto.request.UpdateQuestionDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.QuestionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +33,7 @@ public class QuestionController {
     @PostMapping("/update")
     public ResponseEntity<GenericResponse> updateQuestion(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @RequestParam("questionId") String questionId
-            , @RequestBody CreateQuestionRequest createQuestionRequest) {
+            , @RequestBody @Valid CreateQuestionRequest createQuestionRequest) {
         log.info("QuestionController, updateQuestion");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -42,7 +43,7 @@ public class QuestionController {
     @PostMapping("/create")
     public ResponseEntity<GenericResponse> createQuestion(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @RequestParam("examId") String examId
-            , @RequestBody CreateQuestionRequest createQuestionRequest) {
+            , @RequestBody @Valid CreateQuestionRequest createQuestionRequest) {
         log.info("QuestionController, createQuestion");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -61,7 +62,7 @@ public class QuestionController {
     @PutMapping("/{questionId}")
     public ResponseEntity<GenericResponse> updateQuestionByQuestionId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("questionId") String questionId
-            , @RequestBody UpdateQuestionDetailRequest updateQuestionDetailRequest) {
+            , @RequestBody @Valid UpdateQuestionDetailRequest updateQuestionDetailRequest) {
         log.info("QuestionController, updateQuestionByQuestionId");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
