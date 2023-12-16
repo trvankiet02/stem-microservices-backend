@@ -12,7 +12,7 @@ public class CreateQuestionRequest {
     @NotNull
     private String content;
     private String level;
-    @Valid
+    @NotNull
     private String typeCode;
     @NotNull
     private List<CreateAnswerRequest> answers;

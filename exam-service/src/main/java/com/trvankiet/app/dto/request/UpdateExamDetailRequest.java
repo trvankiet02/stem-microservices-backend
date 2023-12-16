@@ -12,7 +12,7 @@ public class UpdateExamDetailRequest {
     @NotNull
     private Integer duration; // minutes
     @NotNull
-    private String staredAt;
+    private String startedAt;
     @NotNull
     private String endedAt;
     @NotNull

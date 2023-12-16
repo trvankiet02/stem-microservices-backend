@@ -68,6 +68,7 @@ public class MapperServiceImpl implements MapperService {
                 .id(groupMemberInvitation.getId())
                 .inviterDto(this.mapToSimpleUserDto(groupMemberInvitation.getFromUserId()))
                 .receiverDto(this.mapToSimpleUserDto(groupMemberInvitation.getToUserId()))
+                .groupDto(this.mapToSimpleGroupDto(groupMemberInvitation.getGroup()))
                 .state(groupMemberInvitation.getState().name())
                 .createdAt(groupMemberInvitation.getCreatedAt() == null ?
                         null : DateUtil.date2String(groupMemberInvitation.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))

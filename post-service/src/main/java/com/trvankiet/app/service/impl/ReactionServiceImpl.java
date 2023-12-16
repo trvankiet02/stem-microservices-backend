@@ -54,7 +54,6 @@ public class ReactionServiceImpl implements ReactionService {
                         .type(ReactionTypeEnum.valueOf(reactionRequest.getTypeName()))
                         .createdAt(new Date())
                         .build();
-                postRepository.save(post);
             } else {
                 reaction.setType(ReactionTypeEnum.valueOf(reactionRequest.getTypeName()));
                 reaction.setUpdatedAt(new Date());
@@ -66,7 +65,7 @@ public class ReactionServiceImpl implements ReactionService {
                     .success(true)
                     .statusCode(200)
                     .message("Thành công!")
-                    .result(mapperService.mapToReactionDto(reaction))
+                    .result(result)
                     .build());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Loại reaction không tồn tại!");
