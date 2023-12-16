@@ -4,6 +4,7 @@ import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.UserDto;
+import com.trvankiet.app.dto.request.ChangePasswordRequest;
 import com.trvankiet.app.dto.request.ProfileRequest;
 import com.trvankiet.app.dto.request.UserInfoRequest;
 import com.trvankiet.app.dto.response.FriendOfUserResponse;
@@ -118,6 +119,15 @@ public class UserController {
     public SimpleUserDto getSimpleUserDto(@PathVariable String uId) {
         log.info("AdminUserController Get, SimpleUserDto, getSimpleUserDto");
         return userService.getSimpleUserDto(uId);
+    }
+
+    @PostMapping(value = "/change-password")
+    public ResponseEntity<GenericResponse> changePassword(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
+        log.info("AdminUserController Post, ResponseEntity<GenericResponse>, changePassword");
+        String token = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(token);
+        return userService.changePassword(userId, changePasswordRequest);
     }
 
 }
