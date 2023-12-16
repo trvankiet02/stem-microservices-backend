@@ -1,6 +1,5 @@
 package com.trvankiet.app.dto.request;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -19,10 +18,10 @@ public class CreateExamRequest {
     @NotNull
     private Integer duration; // minutes
     @NotNull
-    private String staredAt;
+    private String startedAt;
     @NotNull
     private String endedAt;
-    @Valid
+    @NotNull
     private Boolean isEnabled;
     @NotNull
     private Integer numberOfQuestion;

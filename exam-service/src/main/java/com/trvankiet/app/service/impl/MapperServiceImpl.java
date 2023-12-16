@@ -4,13 +4,17 @@ import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.dto.*;
 import com.trvankiet.app.entity.*;
 import com.trvankiet.app.service.MapperService;
+import com.trvankiet.app.service.client.UserClientService;
 import com.trvankiet.app.util.DateUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MapperServiceImpl implements MapperService {
+    private final UserClientService userClientService;
 
     @Override
     public AnswerDto mapToAnswerDto(Answer answer) {
@@ -70,7 +74,7 @@ public class MapperServiceImpl implements MapperService {
         log.info("Mapping Submission to SubmissionDto");
         return SubmissionDto.builder()
                 .id(submission.getId())
-                .authorId(submission.getAuthorId())
+                .userDto(mapToSimpleUserDto(submission.getAuthorId()))
                 .score(submission.getScore() == null ? null : submission.getScore())
                 .examDto(mapToExamDto(submission.getExam()))
                 .startedAt(submission.getStartedAt() == null
@@ -98,5 +102,10 @@ public class MapperServiceImpl implements MapperService {
                 .updatedAt(submissionDetail.getUpdatedAt() == null
                         ? null : DateUtil.date2String(submissionDetail.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .build();
+    }
+
+    @Override
+    public SimpleUserDto mapToSimpleUserDto(String userId) {
+        return userClientService.getSimpleUserDtoByUserId(userId);
     }
 }

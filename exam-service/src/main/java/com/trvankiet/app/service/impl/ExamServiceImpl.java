@@ -72,7 +72,7 @@ public class ExamServiceImpl implements ExamService {
                             .name(createExamRequest.getName())
                             .description(createExamRequest.getDescription())
                             .duration(createExamRequest.getDuration())
-                            .startedAt(DateUtil.string2Date(createExamRequest.getStaredAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                            .startedAt(DateUtil.string2Date(createExamRequest.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                             .endedAt(DateUtil.string2Date(createExamRequest.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                             .isEnabled(createExamRequest.getIsEnabled())
                             .numberOfQuestion(createExamRequest.getNumberOfQuestion())
@@ -180,7 +180,7 @@ public class ExamServiceImpl implements ExamService {
                     .name("Exam from doc or docx")
                     .description("Exam from doc or docx")
                     .duration(60)
-                    .staredAt(DateUtil.date2String(new Date(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                    .startedAt(DateUtil.date2String(new Date(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                     .endedAt(DateUtil.date2String(new Date(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                     .isEnabled(true)
                     .level("Medium")
@@ -224,7 +224,7 @@ public class ExamServiceImpl implements ExamService {
             exam.setName(updateExamDetailRequest.getName());
             exam.setDescription(updateExamDetailRequest.getDescription());
             exam.setDuration(updateExamDetailRequest.getDuration());
-            exam.setStartedAt(DateUtil.string2Date(updateExamDetailRequest.getStaredAt(), AppConstant.LOCAL_DATE_TIME_FORMAT));
+            exam.setStartedAt(DateUtil.string2Date(updateExamDetailRequest.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT));
             exam.setEndedAt(DateUtil.string2Date(updateExamDetailRequest.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT));
             exam.setIsEnabled(updateExamDetailRequest.getIsEnabled());
             exam.setNumberOfQuestion(updateExamDetailRequest.getNumberOfQuestion());
@@ -303,15 +303,25 @@ public class ExamServiceImpl implements ExamService {
                             .result(List.of())
                             .build()
             );
-        List<ExamDto> examDtos = exams.stream()
-                .map(mapperService::mapToExamDto)
+        List<Map<String, Object>> result = exams.stream()
+                .map(exam -> {
+                    Submission submission = submissionRepository.findByExamIdAndAuthorId(exam.getId(), userId)
+                            .orElse(null);
+                    SubmissionDto submissionDto = submission == null ?
+                            null : mapperService.mapToSubmissionDto(submission);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("exam", mapperService.mapToExamDto(exam));
+                    map.put("submission", submissionDto);
+                    return map;
+                })
                 .toList();
+
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
                         .result(true)
                         .statusCode(200)
                         .message("Lấy danh sách đề thi thành công!")
-                        .result(examDtos)
+                        .result(result)
                         .build()
         );
     }
