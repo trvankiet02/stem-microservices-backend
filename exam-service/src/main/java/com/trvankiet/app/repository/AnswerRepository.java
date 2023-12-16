@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface AnswerRepository extends MongoRepository<Answer, String> {
     List<Answer> findAllByQuestionId(String questionId);
-    Optional<Answer> findByQuestionIdAndIsCorrectTrue(String questionId);
+    List<Answer> findByQuestionIdAndIsCorrectTrue(String questionId);
 }

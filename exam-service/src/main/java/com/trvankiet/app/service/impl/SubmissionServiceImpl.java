@@ -1,10 +1,7 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.QuestionTypeEnum;
-import com.trvankiet.app.dto.AnotherUserDto;
-import com.trvankiet.app.dto.QuestionDto;
-import com.trvankiet.app.dto.SubmissionDto;
-import com.trvankiet.app.dto.UserDto;
+import com.trvankiet.app.dto.*;
 import com.trvankiet.app.dto.response.AnswerSubmissionResponse;
 import com.trvankiet.app.dto.response.ExamSubmissionResponse;
 import com.trvankiet.app.dto.response.GenericResponse;
@@ -125,6 +122,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         if (!submission.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền thực hiện hành động này!");
         }
+
         Date now = new Date();
         submission.setEndedAt(now);
 
@@ -155,7 +153,7 @@ public class SubmissionServiceImpl implements SubmissionService {
             submissionDetailRepository.save(submissionDetail);
         }
 
-        submission.setScore((float) score / submissionDetails.size() * 10);
+        submission.setScore((float) score / submissionDetails.size() * submission.getExam().getMaxScore());
         submission.setUpdatedAt(now);
         submissionRepository.save(submission);
 
@@ -380,6 +378,42 @@ public class SubmissionServiceImpl implements SubmissionService {
             Optional<Submission> optionalSubmission = submissionRepository.findAllByExamIdAndAuthorId(exam.getId(), child.getId());
             optionalSubmission.ifPresent(result::add);
         });
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách bài thi thành công!")
+                .result(result)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getListSubmissionByForParent(String userId) {
+        log.info("SubmissionServiceImpl, getListSubmissionByForParent");
+        UserDto userDto = userClientService.getUserDtoByUserId(userId);
+        if (!userDto.getRole().equals("PARENT")) {
+            throw new ForbiddenException("Bạn không có quyền truy cập!");
+        }
+
+        if (userDto.getChildren().isEmpty())
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Lấy danh sách bài thi thành công!")
+                    .result(new ArrayList<>())
+                    .build());
+        List<Map<String, Object>> result = new ArrayList<>();
+        userDto.getChildren().forEach(child -> {
+            Map<String, Object> map = new HashMap<>();
+            SimpleUserDto simpleUserDto = userClientService.getSimpleUserDtoByUserId(child.getId());
+            map.put("user", simpleUserDto);
+            List<SubmissionDto> submissions = submissionRepository.findAllByAuthorId(child.getId())
+                    .stream()
+                    .map(mapperService::mapToSubmissionDto)
+                    .toList();
+            map.put("submissions", submissions);
+            result.add(map);
+        });
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)

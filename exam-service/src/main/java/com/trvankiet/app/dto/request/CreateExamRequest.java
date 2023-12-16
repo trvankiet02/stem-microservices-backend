@@ -26,6 +26,7 @@ public class CreateExamRequest {
     @NotNull
     private Integer numberOfQuestion;
     private String level;
+    @NotNull
     private Integer maxScore;
     @NotNull
     private List<CreateQuestionRequest> questions;

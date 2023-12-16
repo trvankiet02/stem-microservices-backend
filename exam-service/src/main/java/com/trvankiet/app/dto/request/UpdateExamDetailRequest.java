@@ -20,6 +20,7 @@ public class UpdateExamDetailRequest {
     @NotNull
     private Integer numberOfQuestion;
     private String level;
+    @NotNull
     private Integer maxScore;
 
 }
