@@ -12,6 +12,7 @@ import java.io.Serializable;
 public class SubmissionDto implements Serializable {
 
     private String id;
+    @JsonProperty("user")
     private SimpleUserDto userDto;
     private String startedAt;
     private String endedAt;

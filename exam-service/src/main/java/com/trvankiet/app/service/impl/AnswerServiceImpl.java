@@ -105,12 +105,12 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     public String getCorrectAnswer(String questionId) {
         log.info("AnswerServiceImpl, getCorrectAnswer, String");
-        Answer answer = answerRepository.findByQuestionIdAndIsCorrectTrue(questionId)
-                .orElse(null);
-        if (answer == null) {
-            return "***";
+       List<Answer> answer = answerRepository.findByQuestionIdAndIsCorrectTrue(questionId);
+        if (answer == null || answer.isEmpty()) {
+            return "Không tồn tại đáp án đúng !!!";
         }
-        return answer.getContent();
+        // return answer link with , separator
+        return answer.stream().map(Answer::getContent).reduce((s, s2) -> s + ", " + s2).orElse("");
     }
 
     @Override

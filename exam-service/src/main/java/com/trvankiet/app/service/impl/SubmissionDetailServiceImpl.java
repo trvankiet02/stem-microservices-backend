@@ -119,6 +119,9 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
     }
 
     public Boolean isValidRequestToGetSubmissionDetail(Submission submission, String userId) {
+        if (submission.getEndedAt() == null) {
+            return false;
+        }
         if (submission.getAuthorId().equals(userId)) {
             return true;
         }

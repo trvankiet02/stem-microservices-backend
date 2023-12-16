@@ -40,7 +40,7 @@ public class MapperServiceImpl implements MapperService {
                 .name(exam.getName())
                 .description(exam.getDescription())
                 .duration(exam.getDuration())
-                .staredAt(DateUtil.date2String(exam.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
+                .startedAt(DateUtil.date2String(exam.getStartedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .endedAt(DateUtil.date2String(exam.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))
                 .isEnabled(exam.getIsEnabled())
                 .numberOfQuestion(exam.getNumberOfQuestion())

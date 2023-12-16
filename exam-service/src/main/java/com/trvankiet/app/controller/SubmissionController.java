@@ -54,6 +54,14 @@ public class SubmissionController {
         return submissionService.getListSubmissionByExamId(userId, examId);
     }
 
+    @GetMapping("/list/children")
+    public ResponseEntity<GenericResponse> getListSubmissionByForParent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
+        log.info("SubmissionController, getListSubmissionByExamIdForParent");
+        String accessToken = authorizationToken.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return submissionService.getListSubmissionByForParent(userId);
+    }
+
     @GetMapping("/list/children/{examId}")
     public ResponseEntity<GenericResponse> getListSubmissionByExamIdForParent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
             , @PathVariable("examId") String examId) {

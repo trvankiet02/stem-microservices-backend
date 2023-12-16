@@ -15,4 +15,6 @@ public interface SubmissionService {
     ResponseEntity<GenericResponse> getListSubmissionByExamId(String userId, String examId);
 
     ResponseEntity<GenericResponse> getListSubmissionByExamIdForParent(String userId, String examId);
+
+    ResponseEntity<GenericResponse> getListSubmissionByForParent(String userId);
 }
