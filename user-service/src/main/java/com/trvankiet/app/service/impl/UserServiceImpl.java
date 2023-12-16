@@ -8,10 +8,7 @@ import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.UserDto;
-import com.trvankiet.app.dto.request.CreateChatUserRequest;
-import com.trvankiet.app.dto.request.ProfileRequest;
-import com.trvankiet.app.dto.request.UpdateChatUserRequest;
-import com.trvankiet.app.dto.request.UserInfoRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.*;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
@@ -37,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,6 +57,7 @@ public class UserServiceImpl implements UserService {
     private final FriendshipClientService friendshipClientService;
     private final JwtService jwtService;
     private final ChatUserClientService chatUserClientService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public <S extends User> S save(S entity) {
@@ -365,6 +364,81 @@ public class UserServiceImpl implements UserService {
                 .success(true)
                 .message("Lấy danh sách người dùng thành công!")
                 .result(result)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> changePassword(String userId, ChangePasswordRequest changePasswordRequest) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, changePassword");
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmPassword())) {
+            throw new BadRequestException("Mật khẩu xác nhận không khớp!");
+        }
+
+        Credential credential = user.getCredential();
+
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), credential.getPassword())) {
+            throw new BadRequestException("Mật khẩu cũ không chính xác!");
+        }
+
+        credential.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+
+        credentialRepository.save(credential);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Đổi mật khẩu thành công!")
+                .result(null)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> banUser(String authorizationHeader, BanUserRequest banUserRequest) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, banUser");
+
+        User user = userRepository.findById(banUserRequest.getUserId())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+        Credential credential = user.getCredential();
+
+        credential.setIsEnabled(false);
+        credential.setLockedAt(new Date());
+        credential.setLockedReason(banUserRequest.getReason());
+
+        credentialRepository.save(credential);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Khóa tài khoản thành công!")
+                .result(null)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> unbanUser(String authorizationHeader, UnbanUserRequest unbanRequest) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, unbanUser");
+
+        User user = userRepository.findById(unbanRequest.getUserId())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+        Credential credential = user.getCredential();
+
+        credential.setIsEnabled(true);
+        credential.setLockedAt(null);
+        credential.setLockedReason(null);
+
+        credentialRepository.save(credential);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Mở khóa tài khoản thành công!")
+                .result(null)
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }

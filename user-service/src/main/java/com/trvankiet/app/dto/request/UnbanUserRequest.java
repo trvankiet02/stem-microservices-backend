@@ -4,10 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class StudentAndParentRequest {
+public class UnbanUserRequest {
 
     @NotNull
-    private StudentRegisterRequest student;
-    private ParentRegisterRequest parent;
-
+    private String userId;
 }
