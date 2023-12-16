@@ -49,4 +49,5 @@ public class SubmissionDetailController {
         return submissionDetailService.getSubmissionDetail(userId, submissionId);
     }
 
+
 }

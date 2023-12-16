@@ -303,15 +303,25 @@ public class ExamServiceImpl implements ExamService {
                             .result(List.of())
                             .build()
             );
-        List<ExamDto> examDtos = exams.stream()
-                .map(mapperService::mapToExamDto)
+        List<Map<String, Object>> result = exams.stream()
+                .map(exam -> {
+                    Submission submission = submissionRepository.findByExamIdAndAuthorId(exam.getId(), userId)
+                            .orElse(null);
+                    SubmissionDto submissionDto = submission == null ?
+                            null : mapperService.mapToSubmissionDto(submission);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("exam", mapperService.mapToExamDto(exam));
+                    map.put("submission", submissionDto);
+                    return map;
+                })
                 .toList();
+
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
                         .result(true)
                         .statusCode(200)
                         .message("Lấy danh sách đề thi thành công!")
-                        .result(examDtos)
+                        .result(result)
                         .build()
         );
     }
