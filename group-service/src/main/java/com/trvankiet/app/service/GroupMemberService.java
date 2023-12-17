@@ -26,4 +26,6 @@ public interface GroupMemberService {
     ResponseEntity<GenericResponse> unlockGroupMember(String userId, UnlockMemberRequest unlockMemberRequest);
 
     String getGroupMemberRoleByGroupIdAndUserId(String groupId, String userId);
+
+    ResponseEntity<GenericResponse> getAllGroupMembers(String authorizationHeader, String groupId, Integer page, Integer size);
 }

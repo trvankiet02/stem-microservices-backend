@@ -126,4 +126,22 @@ public class ReactionServiceImpl implements ReactionService {
                 .result(result)
                 .build());
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> countReactionByGroupId(String authorization, String groupId) {
+        log.info("ReactionServiceImpl, countReactionByGroupId({})", groupId);
+
+        long count = postRepository.findAllByGroupId(groupId)
+                .stream()
+                .mapToLong(post -> reactionRepository.countByPostId(post.getId()))
+                .sum();
+
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Thành công!")
+                .result(count)
+                .build());
+
+    }
 }

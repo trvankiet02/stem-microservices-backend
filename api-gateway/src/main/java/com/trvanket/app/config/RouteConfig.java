@@ -70,6 +70,15 @@ public class RouteConfig {
                 );
             }
         }
+        List<String> wsRoutes = List.of("/ws", "/app", "/user",
+                "/notification","/chatroom","/user" );
+        for (String wsRoute : wsRoutes) {
+            routes.route("conversation-service", r -> r
+                    .path(wsRoute)
+                    .filters(f -> f.filter(authFilter))
+                    .uri("lb://conversation-service")
+            );
+        }
         return routes.build();
     }
 }

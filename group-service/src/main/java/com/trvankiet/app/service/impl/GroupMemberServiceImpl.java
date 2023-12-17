@@ -21,6 +21,10 @@ import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.client.UserClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -356,5 +360,35 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userId, groupId)
                 .orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
         return groupMember.getRole().name();
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getAllGroupMembers(String authorizationHeader, String groupId, Integer page, Integer size) {
+        log.info("GroupMemberServiceImpl, ResponseEntity<GenericResponse> getAllGroupMembers");
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Nhóm không tồn tại"));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<GroupMember> groupMembers = groupMemberRepository.findAllByGroupId(group.getId(), pageable);
+
+        List<GroupMemberResponse> groupMemberDtos = groupMembers.stream()
+                .map(mapperService::mapToGroupMemberResponse)
+                .toList();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("groupMembers", groupMemberDtos);
+        result.put("totalPages", groupMembers.getTotalPages());
+        result.put("totalElements", groupMembers.getTotalElements());
+        result.put("currentPage", groupMembers.getNumber());
+        result.put("currentElements", groupMembers.getNumberOfElements());
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách thành viên thành công!")
+                .result(result)
+                .build());
     }
 }

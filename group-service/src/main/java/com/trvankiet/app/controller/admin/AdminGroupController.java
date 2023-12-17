@@ -22,4 +22,12 @@ public class AdminGroupController {
         log.info("AdminGroupController, getAllGroupsForAdmin");
         return groupService.getAllGroupsForAdmin(token, page, size);
     }
+
+    @GetMapping("/get-all-classes")
+    public ResponseEntity<GenericResponse> getAllClassesForAdmin(@RequestHeader("Authorization") String token,
+                                                                 @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                 @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        log.info("AdminGroupController, getAllClassesForAdmin");
+        return groupService.getAllClassesForAdmin(token, page, size);
+    }
 }

@@ -22,4 +22,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
 
     //findAllBy PostIds and Pageable
     Page<Post> findAllByGroupIdIn(List<String> groupIds, Pageable pageable);
+
+    long countByGroupId(String groupId);
 }

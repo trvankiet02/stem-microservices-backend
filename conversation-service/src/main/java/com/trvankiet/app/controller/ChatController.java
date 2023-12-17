@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.ChatMessageDto;
+import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.entity.ChatMessage;
 import com.trvankiet.app.entity.ChatUser;
 import com.trvankiet.app.service.ChatService;
@@ -30,19 +31,15 @@ public class ChatController {
     private final ChatService chatService;
 
     @MessageMapping("/user.addUser")
-    @SendTo("/user/topic")
-    public ChatUser addUser(@Payload ChatUser chatUser) {
+    public ChatUser addUser(@Payload StatusRequest statusRequest) {
         log.info("ChatController, addUser");
-        chatUserService.saveChatUser(chatUser);
-        return chatUser;
+        return chatUserService.saveChatUser(statusRequest);
     }
 
     @MessageMapping("/user.disconnectUser")
-    @SendTo("/user/topic")
-    public ChatUser disconnectUser(@Payload ChatUser chatUser) {
+    public ChatUser disconnectUser(@Payload StatusRequest statusRequest) {
         log.info("ChatController, disconnectUser");
-        chatUserService.disconnectChatUser(chatUser);
-        return chatUser;
+        return chatUserService.disconnectChatUser(statusRequest);
     }
 
     @GetMapping("/users")

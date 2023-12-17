@@ -1,5 +1,6 @@
 package com.trvankiet.app.service;
 
+import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.entity.ChatUser;
@@ -14,7 +15,7 @@ public interface ChatUserService {
 
     ResponseEntity<ChatUser> deleteChatUser(String id);
 
-    void saveChatUser(ChatUser chatUser);
-    void disconnectChatUser(ChatUser chatUser);
+    ChatUser saveChatUser(StatusRequest statusRequest);
+    ChatUser disconnectChatUser(StatusRequest statusRequest);
     List<ChatUser> findOnlineChatUsers(List<String> userIds);
 }

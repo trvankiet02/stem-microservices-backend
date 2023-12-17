@@ -1,9 +1,11 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.StatusEnum;
+import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.entity.ChatUser;
+import com.trvankiet.app.exception.wrapper.BadRequestException;
 import com.trvankiet.app.repository.ChatUserRepository;
 import com.trvankiet.app.service.ChatUserService;
 import lombok.RequiredArgsConstructor;
@@ -61,21 +63,35 @@ public class ChatUserServiceImpl implements ChatUserService {
     }
 
     @Override
-    public void saveChatUser(ChatUser chatUser) {
+    public ChatUser saveChatUser(StatusRequest statusRequest) {
         log.info("ChatUserServiceImpl: saveChatUser");
-        chatUser.setStatus(StatusEnum.ONLINE);
-        chatUserRepository.save(chatUser);
+        ChatUser storedChatUser = chatUserRepository.findById(statusRequest.getUserId())
+                .orElse(null);
+
+        if (storedChatUser != null) {
+            storedChatUser.setStatus(StatusEnum.ONLINE);
+            chatUserRepository.save(storedChatUser);
+        } else {
+            throw new BadRequestException("User not found");
+        }
+
+        return storedChatUser;
     }
 
     @Override
-    public void disconnectChatUser(ChatUser chatUser) {
+    public ChatUser disconnectChatUser(StatusRequest statusRequest) {
         log.info("ChatUserServiceImpl: disconnectChatUser");
-        ChatUser storedChatUser = chatUserRepository.findById(chatUser.getId())
+        ChatUser storedChatUser = chatUserRepository.findById(statusRequest.getUserId())
                 .orElse(null);
+
         if (storedChatUser != null) {
             storedChatUser.setStatus(StatusEnum.OFFLINE);
             chatUserRepository.save(storedChatUser);
+        } else {
+            throw new BadRequestException("User not found");
+
         }
+        return storedChatUser;
     }
 
     @Override
