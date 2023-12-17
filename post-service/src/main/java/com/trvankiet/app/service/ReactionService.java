@@ -12,4 +12,6 @@ public interface ReactionService {
     ResponseEntity<GenericResponse> getReactionsByPostId(String postId);
 
     ResponseEntity<GenericResponse> getReactionsByPostIdForHover(String postId);
+
+    ResponseEntity<GenericResponse> countReactionByGroupId(String authorization, String groupId);
 }

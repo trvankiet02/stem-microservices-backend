@@ -49,4 +49,6 @@ public interface GroupService {
     ResponseEntity<GenericResponse> getMyClasses(String userId);
 
     ResponseEntity<GenericResponse> getMyGroups(String userId);
+
+    ResponseEntity<GenericResponse> getAllClassesForAdmin(String token, Integer page, Integer size);
 }

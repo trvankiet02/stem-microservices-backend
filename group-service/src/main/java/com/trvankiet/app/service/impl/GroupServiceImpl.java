@@ -514,4 +514,28 @@ public class GroupServiceImpl implements GroupService {
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> getAllClassesForAdmin(String token, Integer page, Integer size) {
+        log.info("GroupServiceImpl, getAllClassesForAdmin");
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<Group> groups = groupRepository.findAllByIsClass(true, pageable);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("groups", groups.stream()
+                .map(mapperService::mapToGroupDto)
+                .toList());
+        result.put("totalPages", groups.getTotalPages());
+        result.put("totalElements", groups.getTotalElements());
+        result.put("currentPage", groups.getNumber());
+        result.put("currentElements", groups.getNumberOfElements());
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách lớp học thành công!")
+                .result(result)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
 }

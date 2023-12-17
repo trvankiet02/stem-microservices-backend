@@ -18,4 +18,6 @@ public interface CommentService {
     ResponseEntity<GenericResponse> deleteComment(String userId, String commentId);
 
     ResponseEntity<GenericResponse> createRepComment(String userId, String commentId, String authorizationHeader, UpdateCommentRequest updateCommentRequest);
+
+    ResponseEntity<GenericResponse> countCommentByGroupId(String authorizationToken, String groupId);
 }

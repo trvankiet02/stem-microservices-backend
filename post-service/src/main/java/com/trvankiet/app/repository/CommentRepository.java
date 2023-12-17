@@ -14,4 +14,6 @@ public interface CommentRepository extends MongoRepository<Comment, String> {
     List<Comment> findAllByPostId(String postId);
     Page<Comment> findAllByPostId(String postId, Pageable pageable);
 
+    long countByPostId(String postId);
+
 }

@@ -149,4 +149,20 @@ public class CommentServiceImpl implements CommentService {
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> countCommentByGroupId(String authorizationToken, String groupId) {
+        log.info("CommentServiceImpl, countCommentByGroupId({})", groupId);
+
+        long count = postRepository.findAllByGroupId(groupId).stream()
+                .mapToLong(post -> commentRepository.countByPostId(post.getId()))
+                .sum();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Đếm bình luận thành công!")
+                .result(count)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
 }

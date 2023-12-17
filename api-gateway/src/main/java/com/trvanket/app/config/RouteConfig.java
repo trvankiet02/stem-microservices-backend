@@ -65,11 +65,12 @@ public class RouteConfig {
                 );
                 routes.route(serviceName, r -> r
                         .path(path.split("/")[0] + "/admin/**")
-                        .filters(f -> f.filter(authFilter))
+                        .filters(f -> f.filter(adminAuthFilter))
                         .uri("lb://" + serviceName)
                 );
             }
         }
+
         return routes.build();
     }
 }
