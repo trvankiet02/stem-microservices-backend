@@ -65,20 +65,12 @@ public class RouteConfig {
                 );
                 routes.route(serviceName, r -> r
                         .path(path.split("/")[0] + "/admin/**")
-                        .filters(f -> f.filter(authFilter))
+                        .filters(f -> f.filter(adminAuthFilter))
                         .uri("lb://" + serviceName)
                 );
             }
         }
-        List<String> wsRoutes = List.of("/ws", "/app", "/user",
-                "/notification","/chatroom","/user" );
-        for (String wsRoute : wsRoutes) {
-            routes.route("conversation-service", r -> r
-                    .path(wsRoute)
-                    .filters(f -> f.filter(authFilter))
-                    .uri("lb://conversation-service")
-            );
-        }
+
         return routes.build();
     }
 }

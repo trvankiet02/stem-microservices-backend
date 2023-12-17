@@ -35,9 +35,6 @@ public class ChatRoom implements Serializable {
     @Field(name = "chat_room_members")
     private List<ChatUser> members;
 
-    @Field(name = "is_public")
-    private Boolean isPublic;
-
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Field(name = "created_at")

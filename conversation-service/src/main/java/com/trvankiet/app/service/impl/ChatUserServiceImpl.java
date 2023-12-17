@@ -4,6 +4,7 @@ import com.trvankiet.app.constant.StatusEnum;
 import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.CreateChatUserRequest;
+import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.ChatUser;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
 import com.trvankiet.app.repository.ChatUserRepository;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,12 +29,13 @@ public class ChatUserServiceImpl implements ChatUserService {
     public ResponseEntity<ChatUser> createChatUser(CreateChatUserRequest createChatUserRequest) {
         log.info("ChatUserServiceImpl: createChatUser");
         ChatUser chatUser = chatUserRepository.save(ChatUser.builder()
-                        .id(createChatUserRequest.getId())
+                .id(createChatUserRequest.getId())
                 .firstName(createChatUserRequest.getFirstName())
                 .lastName(createChatUserRequest.getLastName())
+                .status(StatusEnum.OFFLINE)
                 .avatarUrl(createChatUserRequest.getAvatarUrl())
                 .build());
-        return ResponseEntity.ok(chatUser);
+        return ResponseEntity.ok(null);
     }
 
     @Override
@@ -45,7 +48,7 @@ public class ChatUserServiceImpl implements ChatUserService {
             chatUser.setLastName(updateChatUserRequest.getLastName());
             chatUser.setAvatarUrl(updateChatUserRequest.getAvatarUrl());
             chatUserRepository.save(chatUser);
-            return ResponseEntity.ok(chatUser);
+            return ResponseEntity.ok(null);
         }
         return ResponseEntity.notFound().build();
     }
@@ -86,6 +89,7 @@ public class ChatUserServiceImpl implements ChatUserService {
 
         if (storedChatUser != null) {
             storedChatUser.setStatus(StatusEnum.OFFLINE);
+            storedChatUser.setLastOnline(new Date());
             chatUserRepository.save(storedChatUser);
         } else {
             throw new BadRequestException("User not found");
@@ -101,5 +105,39 @@ public class ChatUserServiceImpl implements ChatUserService {
                 .stream()
                 .filter(chatUser -> chatUser.getStatus().equals(StatusEnum.ONLINE))
                 .toList();
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getOnlineFriends(String userId, List<String> friendIds) {
+        log.info("ChatUserServiceImpl: getOnlineFriends");
+
+        List<ChatUser> onlineFriends = chatUserRepository.findAllById(friendIds)
+                .stream()
+                .filter(chatUser -> chatUser.getStatus().equals(StatusEnum.ONLINE))
+                .toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true).statusCode(200)
+                .message("Online friends retrieved successfully")
+                .result(onlineFriends)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getAllUserMessages(String userId, List<String> friends) {
+        log.info("ChatUserServiceImpl: getAllUserMessages");
+
+        List<ChatUser> chatUsers = chatUserRepository.findAllById(friends)
+                .stream()
+                .filter(chatUser -> chatUser.getStatus().equals(StatusEnum.ONLINE))
+                .limit(10)
+                .toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true).statusCode(200)
+                .message("Online friends retrieved successfully")
+                .result(chatUsers)
+                .build());
+
     }
 }

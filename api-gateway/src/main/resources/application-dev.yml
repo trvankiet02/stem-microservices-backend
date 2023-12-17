@@ -1,5 +1,110 @@
+#spring:
+#  config:
+#    import: optional:configserver:http://localhost:8888/
+#    activate:
+#      on-profile: dev
+
+
+eureka:
+  client:
+    register-with-eureka: false
+
+server:
+  port: 8080
+
+api:
+  prefix: api
+  version: v1
+
 spring:
-  config:
-    import: optional:configserver:http://localhost:8888/
-    activate:
-      on-profile: dev
+  application:
+    name: api-gateway
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      routes:
+        - id: websocket_route
+          uri: lb:ws://conversation-service
+          predicates:
+            - Path=/ws/**
+          filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allow-credentials: true
+            allowed-origins:
+              - "http://localhost:3000"
+            allowed-headers:
+              - "*"
+            allowed-methods:
+              - HEAD
+              - OPTIONS
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+
+      discovery:
+        locator:
+          enabled: true
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: conversation-service
+        url: /v3/api-docs/conversation-service
+      - name: friend-service
+        url: /v3/api-docs/friend-service
+      - name: group-service
+        url: /v3/api-docs/group-service
+      - name: media-service
+        url: /v3/api-docs/media-service
+      - name: message-service
+        url: /v3/api-docs/message-service
+      - name: notification-service
+        url: /v3/api-docs/notification-service
+      - name: post-service
+        url: /v3/api-docs/post-service
+      - name: user-service
+        url: /v3/api-docs/user-service
+      - name: exam-service
+        url: /v3/api-docs/exam-service
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      apiGateway:
+        register-health-indicator: true
+        event-consumer-buffer-size: 10
+        automatic-transition-from-open-to-half-open-enabled: true
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        wait-duration-in-open-state: 5s
+        sliding-window-type: COUNT_BASED
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+#management:
+#  tracing:
+#    sampling:
+#      probability: 1.0

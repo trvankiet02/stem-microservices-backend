@@ -1,6 +1,7 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.dto.ChatMessageDto;
+import com.trvankiet.app.dto.ChatMessageResult;
 import com.trvankiet.app.entity.ChatMessage;
 import com.trvankiet.app.repository.ChatMessageRepository;
 import com.trvankiet.app.service.ChatMessageService;
@@ -22,9 +23,9 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository chatMessageRepository;
 
     @Override
-    public ChatMessage saveChatMessageDto(ChatMessageDto chatMessageDto) {
+    public ChatMessageResult saveChatMessageDto(ChatMessageDto chatMessageDto) {
         log.info("ChatServiceImpl, saveChatMessageDto");
-        ChatMessage chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
+        ChatMessageResult chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
         simpMessagingTemplate.convertAndSendToUser(
                 chatMessageDto.getReceiverId(),
                 "/private",
@@ -33,9 +34,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatMessage saveChatRoomMessageDto(ChatMessageDto chatMessageDto, String roomId) {
+    public ChatMessageResult saveChatRoomMessageDto(ChatMessageDto chatMessageDto, String roomId) {
         log.info("ChatServiceImpl, saveChatRoomMessageDto");
-        ChatMessage chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
+        ChatMessageResult chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
         simpMessagingTemplate.convertAndSend("/chatroom/room/" + roomId, chatMessage);
         return chatMessage;
     }

@@ -3,6 +3,7 @@ package com.trvankiet.app.service;
 import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.CreateChatUserRequest;
+import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.ChatUser;
 import org.springframework.http.ResponseEntity;
 
@@ -18,4 +19,8 @@ public interface ChatUserService {
     ChatUser saveChatUser(StatusRequest statusRequest);
     ChatUser disconnectChatUser(StatusRequest statusRequest);
     List<ChatUser> findOnlineChatUsers(List<String> userIds);
+
+    ResponseEntity<GenericResponse> getOnlineFriends(String userId, List<String> friendIds);
+
+    ResponseEntity<GenericResponse> getAllUserMessages(String userId, List<String> friends);
 }

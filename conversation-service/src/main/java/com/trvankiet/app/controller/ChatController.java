@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.ChatMessageDto;
+import com.trvankiet.app.dto.ChatMessageResult;
 import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.entity.ChatMessage;
 import com.trvankiet.app.entity.ChatUser;
@@ -53,13 +54,13 @@ public class ChatController {
     }
 
     @MessageMapping("/private-message")
-    public ChatMessage sendPrivateMessage(@Payload ChatMessageDto chatMessageDto) {
+    public ChatMessageResult sendPrivateMessage(@Payload ChatMessageDto chatMessageDto) {
         log.info("ChatController, sendPrivateMessage");
         return chatService.saveChatMessageDto(chatMessageDto);
     }
 
     @MessageMapping("/room-message/send/{roomId}")
-    public ChatMessage sendRoomMessage(@Payload ChatMessageDto chatMessageDto, @DestinationVariable String roomId) {
+    public ChatMessageResult sendRoomMessage(@Payload ChatMessageDto chatMessageDto, @DestinationVariable String roomId) {
         log.info("ChatController, sendRoomMessage");
         return chatService.saveChatRoomMessageDto(chatMessageDto, roomId);
     }
