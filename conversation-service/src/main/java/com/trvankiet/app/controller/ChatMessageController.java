@@ -17,13 +17,6 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
     private final JwtService jwtService;
 
-    @GetMapping("/get-user-messages")
-    public ResponseEntity<GenericResponse> getAllUserMessages(@RequestHeader("Authorization") String token) {
-        String accessToken = token.substring(7);
-        String userId = jwtService.extractUserId(accessToken);
-        return chatMessageService.getAllUserMessages(userId);
-    }
-
     @GetMapping("/get-message-from-user")
     public ResponseEntity<GenericResponse> getMessageFromUser(@RequestHeader("Authorization") String token,
                                                               @RequestParam String friendId,

@@ -2,6 +2,7 @@ package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.ChatMessageDto;
 import com.trvankiet.app.dto.ChatMessageResult;
+import com.trvankiet.app.dto.NotificationDto;
 import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.entity.ChatMessage;
 import com.trvankiet.app.entity.ChatUser;
@@ -54,13 +55,13 @@ public class ChatController {
     }
 
     @MessageMapping("/private-message")
-    public ChatMessageResult sendPrivateMessage(@Payload ChatMessageDto chatMessageDto) {
+    public ChatMessageDto sendPrivateMessage(@Payload ChatMessageDto chatMessageDto) {
         log.info("ChatController, sendPrivateMessage");
         return chatService.saveChatMessageDto(chatMessageDto);
     }
 
-    @MessageMapping("/room-message/send/{roomId}")
-    public ChatMessageResult sendRoomMessage(@Payload ChatMessageDto chatMessageDto, @DestinationVariable String roomId) {
+    @MessageMapping("/room-message/{roomId}")
+    public ChatMessageDto sendRoomMessage(@Payload ChatMessageDto chatMessageDto, @DestinationVariable String roomId) {
         log.info("ChatController, sendRoomMessage");
         return chatService.saveChatRoomMessageDto(chatMessageDto, roomId);
     }
@@ -70,5 +71,11 @@ public class ChatController {
         log.info("ChatController, deleteChatMessage");
         chatService.deleteChatMessage(chatMessageDto);
     }
+    
+    @MessageMapping("/userNotify/{userId}")
+	public void sendNotification(@Payload NotificationDto notificationDto, @DestinationVariable String userId) {
+		log.info("ChatController, sendNotification");
+		chatService.saveNotification(notificationDto, userId);
+	}
 
 }

@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Optional;
 
 public interface ChatMessageService {
-    ChatMessageResult saveChatMessageDto(ChatMessageDto chatMessageDto);
+    ChatMessageDto saveChatMessageDto(ChatMessageDto chatMessageDto);
 
     ResponseEntity<GenericResponse> getAllUserMessages(String userId);
 

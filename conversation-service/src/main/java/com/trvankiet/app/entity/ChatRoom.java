@@ -6,6 +6,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
@@ -32,8 +33,12 @@ public class ChatRoom implements Serializable {
     @Field(name = "room_avatarUrl")
     private String avatarUrl;
 
+    @DocumentReference
     @Field(name = "chat_room_members")
     private List<ChatUser> members;
+
+    @Field(name = "chat_room_is_accept_all_request")
+    private Boolean isAcceptAllRequest;
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)

@@ -11,6 +11,7 @@ public class ChatRoomDto {
     private String id;
     private String name;
     private String avatarUrl;
+    private boolean isAcceptAllRequest;
     private Date createdAt;
     private Date updatedAt;
 }

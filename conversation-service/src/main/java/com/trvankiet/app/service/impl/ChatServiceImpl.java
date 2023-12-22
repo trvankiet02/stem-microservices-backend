@@ -2,10 +2,13 @@ package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.dto.ChatMessageDto;
 import com.trvankiet.app.dto.ChatMessageResult;
+import com.trvankiet.app.dto.NotificationDto;
 import com.trvankiet.app.entity.ChatMessage;
 import com.trvankiet.app.repository.ChatMessageRepository;
 import com.trvankiet.app.service.ChatMessageService;
 import com.trvankiet.app.service.ChatService;
+import com.trvankiet.app.service.NotificationService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -21,11 +24,12 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatMessageRepository chatMessageRepository;
+    private final NotificationService notificationService;
 
     @Override
-    public ChatMessageResult saveChatMessageDto(ChatMessageDto chatMessageDto) {
+    public ChatMessageDto saveChatMessageDto(ChatMessageDto chatMessageDto) {
         log.info("ChatServiceImpl, saveChatMessageDto");
-        ChatMessageResult chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
+        ChatMessageDto chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
         simpMessagingTemplate.convertAndSendToUser(
                 chatMessageDto.getReceiverId(),
                 "/private",
@@ -34,9 +38,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatMessageResult saveChatRoomMessageDto(ChatMessageDto chatMessageDto, String roomId) {
+    public ChatMessageDto saveChatRoomMessageDto(ChatMessageDto chatMessageDto, String roomId) {
         log.info("ChatServiceImpl, saveChatRoomMessageDto");
-        ChatMessageResult chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
+        ChatMessageDto chatMessage = chatMessageService.saveChatMessageDto(chatMessageDto);
         simpMessagingTemplate.convertAndSend("/chatroom/room/" + roomId, chatMessage);
         return chatMessage;
     }
@@ -54,4 +58,13 @@ public class ChatServiceImpl implements ChatService {
                 "/private",
                 chatMessageDto);
     }
+
+	@Override
+	public void saveNotification(NotificationDto notificationDto, String userId) {
+		log.info("ChatServiceImpl, saveNotification");
+		
+		NotificationDto notification = notificationService.saveNotificationDto(notificationDto);
+		simpMessagingTemplate.convertAndSendToUser(notification.getReceiverId(), "/notification", notification);
+		
+	}
 }
