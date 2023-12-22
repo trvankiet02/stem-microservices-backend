@@ -1,22 +1,35 @@
 package com.trvankiet.app.service.impl;
 
 import com.trvankiet.app.constant.StatusEnum;
+import com.trvankiet.app.dto.ChatUserDto;
 import com.trvankiet.app.dto.request.StatusRequest;
 import com.trvankiet.app.dto.request.UpdateChatUserRequest;
 import com.trvankiet.app.dto.request.CreateChatUserRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.entity.ChatMessage;
+import com.trvankiet.app.entity.ChatRoom;
 import com.trvankiet.app.entity.ChatUser;
 import com.trvankiet.app.exception.wrapper.BadRequestException;
+import com.trvankiet.app.exception.wrapper.NotFoundException;
+import com.trvankiet.app.repository.ChatMessageRepository;
+import com.trvankiet.app.repository.ChatRoomRepository;
 import com.trvankiet.app.repository.ChatUserRepository;
 import com.trvankiet.app.service.ChatUserService;
+import com.trvankiet.app.service.MapperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +37,10 @@ import java.util.Optional;
 public class ChatUserServiceImpl implements ChatUserService {
 
     private final ChatUserRepository chatUserRepository;
+    private final MongoTemplate mongoTemplate;
+    private final ChatMessageRepository chatMessageRepository;
+    private final MapperService mapperService;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Override
     public ResponseEntity<ChatUser> createChatUser(CreateChatUserRequest createChatUserRequest) {
@@ -126,18 +143,82 @@ public class ChatUserServiceImpl implements ChatUserService {
     @Override
     public ResponseEntity<GenericResponse> getAllUserMessages(String userId, List<String> friends) {
         log.info("ChatUserServiceImpl: getAllUserMessages");
+        return null;
+    }
 
-        List<ChatUser> chatUsers = chatUserRepository.findAllById(friends)
-                .stream()
-                .filter(chatUser -> chatUser.getStatus().equals(StatusEnum.ONLINE))
-                .limit(10)
-                .toList();
+    @Override
+    public ResponseEntity<GenericResponse> getLast10UserMessages(String userId, Integer page, Integer size) {
+        log.info("ChatUserServiceImpl: getLast10UserMessages");
+
+        List<ChatUser> result = new ArrayList<>();
+        while (result.size() < 10) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<ChatMessage> chatMessagePage = chatMessageRepository.findAllByReceiverIdOrSenderId(userId, pageable);
+            List<ChatMessage> chatMessages = chatMessagePage.getContent();
+            for (ChatMessage chatMessage : chatMessages) {
+                // check if sender or receiver is userId
+                // and id is not in result
+                if (!result.contains(chatMessage.getSender()) && !result.contains(chatMessage.getReceiver()) && chatMessage.getChatRoom() == null) {
+                    if (chatMessage.getSender().getId().equals(userId)) {
+                        result.add(chatMessage.getReceiver());
+                    } else {
+                        result.add(chatMessage.getSender());
+                    }
+                }
+            }
+            page++;
+            if (chatMessagePage.isLast()) {
+                break;
+            }
+        }
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true).statusCode(200)
-                .message("Online friends retrieved successfully")
-                .result(chatUsers)
+                .message("Last 10 user messages retrieved successfully")
+                .result(result)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getLast10GroupMessages(String userId, Integer page, Integer size) {
+        log.info("ChatUserServiceImpl: getLast10GroupMessages");
+
+        Page<ChatRoom> chatRoomPage = chatRoomRepository.findAllByMembersId(userId,
+                PageRequest.of(page, size, Sort.by("createdAt").descending()));
+
+        List<ChatRoom> chatRooms = chatRoomPage.getContent();
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("totalPages", chatRoomPage.getTotalPages());
+        result.put("totalElements", chatRoomPage.getTotalElements());
+        result.put("currentPage", chatRoomPage.getNumber());
+        result.put("currentElements", chatRoomPage.getNumberOfElements());
+        result.put("chatRooms", chatRooms);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true).statusCode(200)
+                .message("Last 10 group messages retrieved successfully")
+                .result(result)
                 .build());
 
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getUserDetails(String id) {
+        log.info("ChatUserServiceImpl: getUserDetails");
+
+        Optional<ChatUser> chatUserOptional = chatUserRepository.findById(id);
+
+        if (chatUserOptional.isPresent()) {
+            ChatUserDto chatUserDto = mapperService.mapToChatUserDto(chatUserOptional.get());
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true).statusCode(200)
+                    .message("User details retrieved successfully")
+                    .result(chatUserDto)
+                    .build());
+        }
+
+        throw new NotFoundException("User not found");
     }
 }

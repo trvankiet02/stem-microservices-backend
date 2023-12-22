@@ -24,6 +24,12 @@ public class ChatUserController {
     private final JwtService jwtService;
     private final FriendshipClientService friendshipClientService;
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<GenericResponse> getUserDetails(@PathVariable String id) {
+        log.info("ChatUserController: getUserDetails");
+        return chatUserService.getUserDetails(id);
+    }
+
     @PostMapping
     public ResponseEntity<ChatUser> createChatUser(@RequestBody CreateChatUserRequest createChatUserRequest) {
         log.info("ChatUserController: createChatUser");
@@ -56,5 +62,23 @@ public class ChatUserController {
         String userId = jwtService.extractUserId(accessToken);
         List<String> friends = friendshipClientService.getFriendIds(token).getBody();
         return chatUserService.getAllUserMessages(userId, friends);
+    }
+
+    @GetMapping("/get-last-10-user-messages")
+    public ResponseEntity<GenericResponse> getLast10UserMessages(@RequestHeader("Authorization") String token,
+                                                                 @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                 @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        String accessToken = token.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return chatUserService.getLast10UserMessages(userId, page, size);
+    }
+
+    @GetMapping("/get-last-10-group-messages")
+    public ResponseEntity<GenericResponse> getLast10GroupMessages(@RequestHeader("Authorization") String token,
+                                                                 @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                 @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        String accessToken = token.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return chatUserService.getLast10GroupMessages(userId, page, size);
     }
 }

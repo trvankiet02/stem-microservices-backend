@@ -23,4 +23,10 @@ public interface ChatUserService {
     ResponseEntity<GenericResponse> getOnlineFriends(String userId, List<String> friendIds);
 
     ResponseEntity<GenericResponse> getAllUserMessages(String userId, List<String> friends);
+
+    ResponseEntity<GenericResponse> getLast10UserMessages(String userId, Integer page, Integer size);
+
+    ResponseEntity<GenericResponse> getLast10GroupMessages(String userId, Integer page, Integer size);
+
+    ResponseEntity<GenericResponse> getUserDetails(String id);
 }
