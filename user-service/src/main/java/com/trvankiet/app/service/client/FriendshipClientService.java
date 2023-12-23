@@ -21,4 +21,8 @@ public interface FriendshipClientService {
     @GetMapping("/list-friends")
     ResponseEntity<List<FriendOfUserResponse>> getFriendsOfUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @RequestParam String friendId);
+    
+    @GetMapping("/list-friend-suggestions")
+	ResponseEntity<List<String>> getFriendSuggestions(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader);
 }

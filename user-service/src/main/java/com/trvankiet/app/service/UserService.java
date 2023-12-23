@@ -62,4 +62,6 @@ public interface UserService {
     ResponseEntity<GenericResponse> banUser(String authorizationHeader, BanUserRequest banUserRequest);
 
     ResponseEntity<GenericResponse> unbanUser(String authorizationHeader, UnbanUserRequest unbanRequest);
+
+	ResponseEntity<GenericResponse> getFriendSuggestions(List<String> friendSuggestions);
 }

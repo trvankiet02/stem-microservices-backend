@@ -463,5 +463,14 @@ public class UserServiceImpl implements UserService {
         return verificationToken;
     }
 
+	@Override
+	public ResponseEntity<GenericResponse> getFriendSuggestions(List<String> friendSuggestions) {
+		log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getFriendSuggestions");
+		List<User> users = userRepository.findAllById(friendSuggestions);
+		List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+		return ResponseEntity.ok(GenericResponse.builder().success(true).message("Lấy danh sách người dùng thành công!")
+				.result(userDtos).statusCode(HttpStatus.OK.value()).build());
+	}
+
 
 }

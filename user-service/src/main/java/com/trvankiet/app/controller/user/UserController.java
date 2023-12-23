@@ -105,6 +105,14 @@ public class UserController {
         List<FriendRequestDto> friendRequests = friendRequestClientService.getFriendRequests(authorizationHeader).getBody();
         return userService.getFriendRequests(friendRequests);
     }
+    
+    @GetMapping(value ="/friend-suggestions")
+	public ResponseEntity<GenericResponse> getFriendSuggestions(
+			@RequestHeader("Authorization") String authorizationHeader) {
+		log.info("AdminUserController Get, UserDto, getFriendSuggestions");
+		List<String> friendSuggestions = friendshipClientService.getFriendSuggestions(authorizationHeader).getBody();
+		return userService.getFriendSuggestions(friendSuggestions);
+	}
 
     @GetMapping(value ="/friends-of-user")
     public ResponseEntity<GenericResponse> getFriendsOfUser(@RequestHeader("Authorization") String authorizationHeader
