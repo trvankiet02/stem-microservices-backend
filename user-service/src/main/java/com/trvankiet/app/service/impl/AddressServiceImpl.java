@@ -20,13 +20,17 @@ import com.trvankiet.app.service.AddressService;
 import com.trvankiet.app.service.MapperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;import java.util.stream.Collector;
 
 @Service
 @RequiredArgsConstructor
@@ -96,15 +100,20 @@ public class AddressServiceImpl implements AddressService {
     public ResponseEntity<GenericResponse> getAllProvincesForAdmin(String token, Integer page, Integer size) {
         log.info("AddressServiceImpl, getAllProvincesForAdmin");
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").descending());
-        List<AddressDto> provinceResponses = provinceRepository.findAll(pageable)
-                .stream()
-                .map(mapperService::mapToAddressDto)
-                .toList();
+        Page<Province> provinceResponses = provinceRepository.findAll(pageable);
+        List<AddressDto> provinceDtos = provinceResponses.getContent().stream()
+        		.map(mapperService::mapToAddressDto).toList();
+        		Map<String, Object> result = new HashMap();
+        result.put("totalPage", provinceResponses.getTotalPages());
+        result.put("totalElements", provinceResponses.getTotalElements());
+        result.put("currentElements", provinceResponses.getNumberOfElements());
+        result.put("currentPage", provinceResponses.getNumber());
+        result.put("provinces", provinceResponses.getContent().stream().map(mapperService::mapToAddressDto).toList());
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)
                 .message("Get all provinces successfully")
-                .result(provinceResponses)
+                .result(result)
                 .build());
     }
 

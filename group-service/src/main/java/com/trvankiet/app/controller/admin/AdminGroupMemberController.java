@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,10 +21,10 @@ public class AdminGroupMemberController {
     private final GroupMemberService groupMemberService;
 
     @GetMapping("/get-group-members")
-    public ResponseEntity<GenericResponse> getAllGroupMembers(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                                              @RequestHeader("groupId") String groupId,
-                                                              @RequestHeader(value = "page", defaultValue = "0") Integer page,
-                                                              @RequestHeader(value = "size", defaultValue = "10") Integer size) {
+    public ResponseEntity<GenericResponse> getAllGroupMembers(@RequestHeader("Authorization") String authorizationHeader,
+                                                              @RequestParam(value = "groupId", required = false) String groupId,
+                                                              @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                              @RequestParam(value = "size", defaultValue = "10") Integer size) {
         log.info("AdminGroupMemberController, getAllGroupMembers");
         return groupMemberService.getAllGroupMembers(authorizationHeader, groupId, page, size);
     }

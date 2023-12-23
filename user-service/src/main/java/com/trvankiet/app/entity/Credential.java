@@ -51,7 +51,7 @@ public class Credential extends AbstractMappedEntity implements Serializable {
     @Column(name = "locked_reason")
     private String lockedReason = "";
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User user;

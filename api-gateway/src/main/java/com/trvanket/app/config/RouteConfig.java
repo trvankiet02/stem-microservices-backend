@@ -31,8 +31,6 @@ public class RouteConfig {
             "group-service", pathConfig(List.of("groups", "group-members", "events",
                     "group-member-requests", "group-member-invitations")),
             "media-service", pathConfig(List.of("files", "albums")),
-            "message-service", pathConfig(List.of("messages")),
-            "notification-service", pathConfig(List.of("notifications")),
             "post-service", pathConfig(List.of("posts", "comments", "reactions")),
             "user-service", pathConfig(List.of("users", "credentials", "tokens", "auth", "relationships"
                     , "addresses", "subjects")),
@@ -63,8 +61,9 @@ public class RouteConfig {
                         .filters(f -> f.filter(authFilter))
                         .uri("lb://" + serviceName)
                 );
+                // /api/v1/users/**
                 routes.route(serviceName, r -> r
-                        .path(path.split("/")[0] + "/admin/**")
+                        .path(path.substring(0, path.indexOf("/**")) + "/admin/**")
                         .filters(f -> f.filter(adminAuthFilter))
                         .uri("lb://" + serviceName)
                 );
