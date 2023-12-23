@@ -27,6 +27,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class UserServiceApplication {
 
     @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
     private ProviderRepository providerRepository;
     @Autowired
     private RoleRepository roleRepository;

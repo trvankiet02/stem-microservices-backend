@@ -1,5 +1,5 @@
 spring:
   config:
-    import: optional:configserver:http://cloud-config:8888/
+    import: optional:configserver:http://localhost:8888/
     activate:
       on-profile: staging
