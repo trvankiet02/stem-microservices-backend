@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
@@ -109,18 +110,18 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 	}
 
 	@Override
-	public ResponseEntity<GenericResponse> changeAvatar(String userId, ChangeAvatarRequest changeAvatarRequest)
+	public ResponseEntity<GenericResponse> changeAvatar(String userId, String groupId, MultipartFile avatar)
 			throws IOException {
 		log.info("ChatRoomServiceImpl, changeAvatar");
 
-		ChatRoom chatRoom = chatRoomRepository.findById(changeAvatarRequest.getGroupId())
+		ChatRoom chatRoom = chatRoomRepository.findById(groupId)
 				.orElseThrow(() -> new RuntimeException("Chat room not found"));
 
 		if (!chatRoom.getAuthorId().equals(userId)) {
 			throw new RuntimeException("You are not the owner of this chat room");
 		}
 
-		String avatarUrl = fileClientService.uploadGroupAvatar(changeAvatarRequest.getAvatar());
+		String avatarUrl = fileClientService.uploadGroupAvatar(avatar);
 
 		if (chatRoom.getAvatarUrl() != null) {
 			fileClientService.deleteGroupAvatar(chatRoom.getAvatarUrl());
