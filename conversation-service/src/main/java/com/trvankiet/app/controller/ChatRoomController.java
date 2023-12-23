@@ -57,7 +57,7 @@ public class ChatRoomController {
         return chatRoomService.changeName(userId, changeNameRequest);
     }
 
-    @PutMapping(value = "/change-avatar")
+    @PutMapping(value = "/change-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> changeAvatar(@RequestHeader("Authorization") String authorizationHeader,
                                                         @RequestBody @Valid ChangeAvatarRequest changeAvatarRequest) throws IOException {
         log.info("ChatRoomController, changeAvatar");
