@@ -6,6 +6,7 @@ import com.trvankiet.app.dto.response.GenericResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -18,7 +19,7 @@ public interface ChatRoomService {
 
     ResponseEntity<GenericResponse> changeName(String userId, ChangeNameRequest changeNameRequest);
 
-    ResponseEntity<GenericResponse> changeAvatar(String userId, ChangeAvatarRequest changeAvatarRequest) throws IOException;
+    ResponseEntity<GenericResponse> changeAvatar(String userId, String groupId, MultipartFile avatar) throws IOException;
 
     ResponseEntity<GenericResponse> changeAcceptAllRequest(String userId, ChangeIsAcceptAllRequest isAcceptAllRequest);
 

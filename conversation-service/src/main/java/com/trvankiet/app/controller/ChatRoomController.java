@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -59,11 +60,12 @@ public class ChatRoomController {
 
     @PutMapping(value = "/change-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GenericResponse> changeAvatar(@RequestHeader("Authorization") String authorizationHeader,
-                                                        @RequestBody @Valid ChangeAvatarRequest changeAvatarRequest) throws IOException {
+    		@RequestPart(name = "groupId") String groupId,
+    		@RequestPart(name = "avatar") MultipartFile avatar) throws IOException {
         log.info("ChatRoomController, changeAvatar");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return chatRoomService.changeAvatar(userId, changeAvatarRequest);
+        return chatRoomService.changeAvatar(userId, groupId, avatar);
     }
 
     @PutMapping(value = "/change-accept-all-request")
