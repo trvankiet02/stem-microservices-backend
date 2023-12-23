@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -112,4 +113,31 @@ public class FriendshipServiceImpl implements FriendshipService {
                 .toList();
         return ResponseEntity.ok(friendOfUserResponses);
     }
+
+	@Override
+	public ResponseEntity<List<String>> getFriendSuggestions(String userId) {
+		log.info("FriendshipServiceImpl, getFriendSuggestions");
+		
+		Friendship friendship = friendshipRepository.findByAuthorId(userId)
+				.orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng này!"));
+		
+		List<String> friendIds = friendship.getFriendIds();
+		
+		List<String> userIdResult = new ArrayList<>();
+		
+		while (userIdResult.size() < 10 && !friendIds.isEmpty()) {
+			String friendId = friendIds.remove(0);
+			Friendship friendFriendship = friendshipRepository.findByAuthorId(friendId)
+					.orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng này!"));
+			List<String> friendFriendIds = friendFriendship.getFriendIds();
+			for (String friendFriendId : friendFriendIds) {
+				if (!friendIds.contains(friendFriendId) && !friendFriendId.equals(userId)) {
+					userIdResult.add(friendFriendId);
+				}
+			}
+		}
+		
+		return ResponseEntity.ok(userIdResult);
+		
+	}
 }
