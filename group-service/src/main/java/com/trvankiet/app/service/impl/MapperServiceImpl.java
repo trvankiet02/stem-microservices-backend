@@ -68,6 +68,7 @@ public class MapperServiceImpl implements MapperService {
                 .id(groupMemberInvitation.getId())
                 .inviterDto(this.mapToSimpleUserDto(groupMemberInvitation.getFromUserId()))
                 .receiverDto(this.mapToSimpleUserDto(groupMemberInvitation.getToUserId()))
+                .groupDto(this.mapToSimpleGroupDto(groupMemberInvitation.getGroup()))
                 .state(groupMemberInvitation.getState().name())
                 .createdAt(groupMemberInvitation.getCreatedAt() == null ?
                         null : DateUtil.date2String(groupMemberInvitation.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
@@ -137,6 +138,19 @@ public class MapperServiceImpl implements MapperService {
                         null : DateUtil.date2String(groupMember.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .updatedAt(groupMember.getUpdatedAt() == null ?
                         null : DateUtil.date2String(groupMember.getUpdatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
+                .build();
+    }
+
+    @Override
+    public SimpleGroupDto mapToSimpleGroupDto(Group group) {
+        return SimpleGroupDto.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .description(group.getDescription() == null ?
+                        null : group.getDescription())
+                .avatarUrl(group.getAvatarUrl())
+                .coverUrl(group.getCoverUrl())
+                .isPublic(group.getIsPublic())
                 .build();
     }
 

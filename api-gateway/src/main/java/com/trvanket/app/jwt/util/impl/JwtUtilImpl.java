@@ -62,9 +62,13 @@ public class JwtUtilImpl implements JwtUtil {
 		}
 		return false;
 	}
-	
-	
-	
+
+	@Override
+	public String extractUserRole(String token) {
+		return this.extractClaims(token, claims -> claims.get("role", String.class));
+	}
+
+
 }
 
 

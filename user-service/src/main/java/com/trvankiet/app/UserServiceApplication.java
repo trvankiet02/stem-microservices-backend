@@ -25,14 +25,13 @@ import org.springframework.scheduling.annotation.EnableAsync;
     @Info(title = "User API", version = "1.0", description = "Documentation User API v1.0")
 )
 public class UserServiceApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(UserServiceApplication.class, args);
-    }
 
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
     private ProviderRepository providerRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Bean
     InitializingBean sendDatabase() {
@@ -63,6 +62,9 @@ public class UserServiceApplication {
                         .name(ProviderType.PROVIDER_GOOGLE.toString())
                         .build());
         };
+    }
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
     }
 
 

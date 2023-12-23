@@ -6,6 +6,7 @@ import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.ExamService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +39,7 @@ public class ExamController {
 
     @PostMapping
     public ResponseEntity<GenericResponse> createExam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-            , @RequestBody CreateExamRequest createExamRequest) throws ParseException {
+            , @RequestBody @Valid CreateExamRequest createExamRequest) throws ParseException {
         log.info("ExamController, createExam");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -66,7 +67,7 @@ public class ExamController {
     @PutMapping("/{examId}")
     public ResponseEntity<GenericResponse> updateExamDetailByExamId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable String examId
-            , @RequestBody UpdateExamDetailRequest updateExamDetailRequest) throws ParseException {
+            , @RequestBody @Valid UpdateExamDetailRequest updateExamDetailRequest) throws ParseException {
         log.info("ExamController, updateExamByExamId");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);

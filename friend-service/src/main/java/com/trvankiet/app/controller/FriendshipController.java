@@ -65,4 +65,13 @@ public class FriendshipController {
         String userId = jwtService.extractUserId(accessToken);
         return friendshipService.getFriendsOfUser(userId, friendId);
     }
+    
+    @GetMapping("/list-friend-suggestions")
+	public ResponseEntity<List<String>> getFriendSuggestions(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+		log.info("FriendshipController, getFriendSuggestions");
+		String accessToken = authorizationHeader.substring(7);
+		String userId = jwtService.extractUserId(accessToken);
+		return friendshipService.getFriendSuggestions(userId);
+	}
 }

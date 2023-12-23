@@ -379,9 +379,11 @@ public class CredentialServiceImpl implements CredentialService {
         log.info("CredentialServiceImpl, ResponseEntity<GenericResponse>, registerForStudent");
         Map<String, CredentialDto> result = new HashMap<>();
         User student = null, parent = null;
-        if (!studentAndParentRequest.getStudent().getEmail().isEmpty() && !studentAndParentRequest.getParent().getEmail().isEmpty()) {
-            if (studentAndParentRequest.getStudent().getEmail().equals(studentAndParentRequest.getParent().getEmail())) {
-                throw new BadRequestException("Email phụ huynh và học sinh không được trùng nhau!");
+        if (studentAndParentRequest.getStudent()!= null && studentAndParentRequest.getParent() != null) {
+            if (studentAndParentRequest.getStudent().getEmail() != null && studentAndParentRequest.getParent().getEmail() != null) {
+                if (studentAndParentRequest.getStudent().getEmail().equals(studentAndParentRequest.getParent().getEmail())) {
+                    throw new BadRequestException("Email phụ huynh và học sinh không được trùng nhau!");
+                }
             }
         }
         if (studentAndParentRequest.getStudent().getEmail() != null) {

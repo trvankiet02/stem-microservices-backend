@@ -17,4 +17,6 @@ public interface FriendshipService {
     ResponseEntity<GenericResponse> validateFriendship(String userId, String friendId);
 
     ResponseEntity<List<FriendOfUserResponse>> getFriendsOfUser(String userId, String friendId);
+
+	ResponseEntity<List<String>> getFriendSuggestions(String userId);
 }

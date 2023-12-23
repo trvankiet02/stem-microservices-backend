@@ -8,10 +8,7 @@ import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.UserDto;
-import com.trvankiet.app.dto.request.CreateChatUserRequest;
-import com.trvankiet.app.dto.request.ProfileRequest;
-import com.trvankiet.app.dto.request.UpdateChatUserRequest;
-import com.trvankiet.app.dto.request.UserInfoRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.*;
 import com.trvankiet.app.entity.Credential;
 import com.trvankiet.app.entity.Token;
@@ -31,17 +28,19 @@ import com.trvankiet.app.util.DateUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,6 +57,7 @@ public class UserServiceImpl implements UserService {
     private final FriendshipClientService friendshipClientService;
     private final JwtService jwtService;
     private final ChatUserClientService chatUserClientService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public <S extends User> S save(S entity) {
@@ -346,6 +346,103 @@ public class UserServiceImpl implements UserService {
         return mapperService.mapToSimpleUserDto(user);
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getAllUsers");
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<User> users = userRepository.findAll(pageable);
+        List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+        Map<String, Object> result = new HashMap<>();
+        result.put("users", userDtos);
+        result.put("totalPages", users.getTotalPages());
+        result.put("currentPage", users.getNumber());
+        result.put("totalElements", users.getTotalElements());
+        result.put("currentElements", users.getNumberOfElements());
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách người dùng thành công!")
+                .result(result)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> changePassword(String userId, ChangePasswordRequest changePasswordRequest) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, changePassword");
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmPassword())) {
+            throw new BadRequestException("Mật khẩu xác nhận không khớp!");
+        }
+
+        Credential credential = user.getCredential();
+
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), credential.getPassword())) {
+            throw new BadRequestException("Mật khẩu cũ không chính xác!");
+        }
+
+        credential.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+
+        credentialRepository.save(credential);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Đổi mật khẩu thành công!")
+                .result(null)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> banUser(String authorizationHeader, BanUserRequest banUserRequest) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, banUser");
+
+        User user = userRepository.findById(banUserRequest.getUserId())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+        Credential credential = user.getCredential();
+
+        credential.setIsEnabled(false);
+        credential.setLockedAt(new Date());
+        credential.setLockedReason(banUserRequest.getReason());
+
+        credentialRepository.save(credential);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Khóa tài khoản thành công!")
+                .result(null)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> unbanUser(String authorizationHeader, UnbanUserRequest unbanRequest) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, unbanUser");
+
+        User user = userRepository.findById(unbanRequest.getUserId())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+        Credential credential = user.getCredential();
+
+        credential.setIsEnabled(true);
+        credential.setLockedAt(null);
+        credential.setLockedReason(null);
+
+        credentialRepository.save(credential);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Mở khóa tài khoản thành công!")
+                .result(null)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
 
     private Token validateAndRetrieveVerificationToken(String token) {
         Token verificationToken = tokenRepository.findByToken(token)
@@ -365,6 +462,15 @@ public class UserServiceImpl implements UserService {
 
         return verificationToken;
     }
+
+	@Override
+	public ResponseEntity<GenericResponse> getFriendSuggestions(List<String> friendSuggestions) {
+		log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getFriendSuggestions");
+		List<User> users = userRepository.findAllById(friendSuggestions);
+		List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+		return ResponseEntity.ok(GenericResponse.builder().success(true).message("Lấy danh sách người dùng thành công!")
+				.result(userDtos).statusCode(HttpStatus.OK.value()).build());
+	}
 
 
 }

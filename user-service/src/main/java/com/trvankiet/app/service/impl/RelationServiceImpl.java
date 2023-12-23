@@ -130,4 +130,29 @@ public class RelationServiceImpl implements RelationService {
                 .result(relationshipDtos)
                 .build());
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> handleHoverRelationships(String token, String userId) {
+        log.info("RelationServiceImpl, handleHoverRelationships");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng với id: " + userId));
+
+        Map<String, List<SimpleUserDto>> relationshipMap = Map.of(
+                "child", user.getStudents()
+                        .stream()
+                        .map(mapperService::mapToSimpleUserDto)
+                        .toList(),
+                "parents", user.getParents()
+                        .stream()
+                        .map(mapperService::mapToSimpleUserDto)
+                        .toList()
+        );
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách quan hệ thành công!")
+                .result(relationshipMap)
+                .build());
+    }
 }

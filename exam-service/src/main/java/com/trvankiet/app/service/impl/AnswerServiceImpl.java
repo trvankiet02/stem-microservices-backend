@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -28,6 +29,7 @@ public class AnswerServiceImpl implements AnswerService {
     private final AnswerRepository answerRepository;
     private final GroupMemberClientService groupMemberClientService;
     private final MapperService mapperService;
+
     @Override
     public ResponseEntity<GenericResponse> getAnswersByQuestionId(String userId, String questionId) {
         log.info("AnswerServiceImpl, getAnswersByQuestionId, ResponseEntity<GenericResponse>");
@@ -103,11 +105,36 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     public String getCorrectAnswer(String questionId) {
         log.info("AnswerServiceImpl, getCorrectAnswer, String");
-        Answer answer = answerRepository.findByQuestionIdAndIsCorrectTrue(questionId)
-                .orElse(null);
-        if (answer == null) {
-            return "***";
+       List<Answer> answer = answerRepository.findByQuestionIdAndIsCorrectTrue(questionId);
+        if (answer == null || answer.isEmpty()) {
+            return "Không tồn tại đáp án đúng !!!";
         }
-        return answer.getContent();
+        // return answer link with , separator
+        return answer.stream().map(Answer::getContent).reduce((s, s2) -> s + ", " + s2).orElse("");
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> createAnswer(String userId, String qId, UpdateAnswerDetailRequest updateAnswerDetailRequest) {
+        log.info("AnswerServiceImpl, createAnswer, ResponseEntity<GenericResponse>");
+        Question question = questionRepository.findById(qId)
+                .orElseThrow(() -> new RuntimeException("Câu hỏi không tồn tại!"));
+        String role = groupMemberClientService.getRoleByGroupIdAndUserId(question.getExam().getGroupId(), userId);
+        if (!role.equals("GROUP_OWNER"))
+            throw new ForbiddenException("Bạn không có quyền truy cập!");
+        Answer answer = answerRepository.save(Answer.builder()
+                .id(UUID.randomUUID().toString())
+                .content(updateAnswerDetailRequest.getContent())
+                .isCorrect(updateAnswerDetailRequest.getIsCorrect())
+                .question(question)
+                .createdAt(new Date())
+                .build());
+
+        AnswerDto answerDto = mapperService.mapToAnswerDto(answer);
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Tạo câu trả lời thành công!")
+                .result(answerDto)
+                .build());
     }
 }

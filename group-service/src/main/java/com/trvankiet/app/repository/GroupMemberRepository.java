@@ -2,6 +2,8 @@ package com.trvankiet.app.repository;
 
 import com.trvankiet.app.constant.GroupMemberRoleType;
 import com.trvankiet.app.entity.GroupMember;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +16,7 @@ public interface GroupMemberRepository extends MongoRepository<GroupMember, Stri
     List<GroupMember> findAllByUserId(String userId);
     Optional<GroupMember> findByUserIdAndGroupId(String userId, String groupId);
     List<GroupMember> findAllByGroupId(String groupId);
+    Page<GroupMember> findAllByGroupId(String groupId, Pageable pageable);
 
     Integer countByGroupId(String groupId);
     List<GroupMember> findAllByUserIdAndRole(String userId, GroupMemberRoleType role);

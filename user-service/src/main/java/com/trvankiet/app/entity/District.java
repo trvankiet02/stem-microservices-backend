@@ -39,6 +39,6 @@ public class District extends AbstractMappedEntity implements Serializable {
     @JoinColumn(name = "province_id")
     private Province province;
 
-    @OneToMany(mappedBy = "district")
+    @OneToMany(mappedBy = "district", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<School> schools;
 }

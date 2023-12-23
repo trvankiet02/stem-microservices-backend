@@ -13,6 +13,8 @@ public class GroupMemberInvitationDto {
     private SimpleUserDto inviterDto;
     @JsonProperty("receiver")
     private SimpleUserDto receiverDto;
+    @JsonProperty("group")
+    private SimpleGroupDto groupDto;
     private String state;
     private String createdAt;
     private String updatedAt;

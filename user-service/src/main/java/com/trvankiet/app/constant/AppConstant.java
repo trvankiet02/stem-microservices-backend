@@ -15,6 +15,7 @@ public class AppConstant {
     public static final String FULL_DATE_TIME_FORMAT = "ddMMyyyyHHmmssSSSSSS";
     public static final String LOCAL_DATE_FORMAT = "dd-MM-yyyy";
     public static final String LOCAL_DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss:SSSSSS";
+    public static final String LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS = "dd-MM-yyyy HH:mm:ss";
 
     @SneakyThrows
     public static SecretKey getSecretKey() {

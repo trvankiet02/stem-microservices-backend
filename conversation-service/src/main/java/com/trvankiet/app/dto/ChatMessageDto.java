@@ -11,6 +11,9 @@ public class ChatMessageDto {
 
     private String id;
     private String senderId;
+    private String senderFirstName;
+    private String senderLastName;
+    private String senderAvatarUrl;
     private String refUrl;
     private Boolean isDeleted;
     private String receiverId;

@@ -4,8 +4,7 @@ import com.trvankiet.app.dto.CredentialDto;
 import com.trvankiet.app.dto.FriendRequestDto;
 import com.trvankiet.app.dto.SimpleUserDto;
 import com.trvankiet.app.dto.UserDto;
-import com.trvankiet.app.dto.request.ProfileRequest;
-import com.trvankiet.app.dto.request.UserInfoRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.FriendOfUserResponse;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.User;
@@ -55,4 +54,14 @@ public interface UserService {
     ResponseEntity<GenericResponse> getFriendsOfUser(List<FriendOfUserResponse> body);
 
     SimpleUserDto getSimpleUserDto(String uId);
+
+    ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size);
+
+    ResponseEntity<GenericResponse> changePassword(String userId, ChangePasswordRequest changePasswordRequest);
+
+    ResponseEntity<GenericResponse> banUser(String authorizationHeader, BanUserRequest banUserRequest);
+
+    ResponseEntity<GenericResponse> unbanUser(String authorizationHeader, UnbanUserRequest unbanRequest);
+
+	ResponseEntity<GenericResponse> getFriendSuggestions(List<String> friendSuggestions);
 }

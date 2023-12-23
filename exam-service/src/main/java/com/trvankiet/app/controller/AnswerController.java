@@ -4,6 +4,7 @@ import com.trvankiet.app.dto.request.UpdateAnswerDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.AnswerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +41,7 @@ public class AnswerController {
     @PutMapping("/{answerId}")
     public ResponseEntity<GenericResponse> updateAnswerByAnswerId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
             , @PathVariable("answerId") String answerId
-            , @RequestBody UpdateAnswerDetailRequest updateAnswerDetailRequest) {
+            , @RequestBody @Valid UpdateAnswerDetailRequest updateAnswerDetailRequest) {
         log.info("updateAnswerByAnswerId: {}", answerId);
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -54,5 +55,15 @@ public class AnswerController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return answerService.deleteAnswerByAnswerId(userId, answerId);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<GenericResponse> createAnswer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestParam("qId") String qId
+            , @RequestBody @Valid UpdateAnswerDetailRequest updateAnswerDetailRequest) {
+        log.info("createAnswer");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return answerService.createAnswer(userId, qId, updateAnswerDetailRequest);
     }
 }

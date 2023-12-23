@@ -9,5 +9,6 @@ public interface MapperService {
     QuestionDto mapToQuestionDto(Question question);
     SubmissionDto mapToSubmissionDto(Submission submission);
     SubmissionDetailDto mapToSubmissionDetailDto(SubmissionDetail submissionDetail);
+    SimpleUserDto mapToSimpleUserDto(String userId);
 
 }

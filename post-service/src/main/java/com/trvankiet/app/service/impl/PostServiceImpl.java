@@ -29,6 +29,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
@@ -208,7 +210,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getHomePost(List<String> groupIds, int page, int size) {
+    public ResponseEntity<GenericResponse> getHomePost(String userId, List<String> groupIds, int page, int size) {
         log.info("PostServiceImpl, getHomePost");
         if (groupIds.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -232,7 +234,7 @@ public class PostServiceImpl implements PostService {
                     if (post == null) {
                         return null;
                     }
-                    Reaction reaction = getReactionByUserIdInPost(groupIds.get(0), post);
+                    Reaction reaction = getReactionByUserIdInPost(userId, post);
                     return PostResponse.builder()
                             .postDto(mapperService.mapToPostDto(post))
                             .reactionDto(reaction == null ? null : mapperService.mapToReactionDto(reaction))
@@ -244,6 +246,50 @@ public class PostServiceImpl implements PostService {
                         .statusCode(HttpStatus.OK.value())
                         .message("Lấy bài viết thành công!")
                         .result(result)
+                        .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> count(String authorizationToken, String groupId) {
+        log.info("PostServiceImpl, count");
+
+        long count = postRepository.countByGroupId(groupId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(GenericResponse.builder()
+                        .success(true)
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Lấy số lượng bài viết thành công!")
+                        .result(count)
+                        .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getHotPosts(String authorizationToken, String groupId, int page, int size) {
+        log.info("PostServiceImpl, getHotPosts");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.lookup("comment", "id", "post_id", "comments"),
+                Aggregation.lookup("reaction", "id", "post_id", "reactions"),
+                Aggregation.project("id", "content")
+                        .and("comments").size().as("commentCount")
+                        .and("reactions").size().as("reactionCount"),
+                Aggregation.project("id", "content")
+                        .and("totalInteractions").plus("commentCount").plus("reactionCount").as("totalInteractions"),
+                Aggregation.sort(Sort.by(Sort.Order.desc("totalInteractions"))),
+                Aggregation.limit(3)
+        );
+
+        AggregationResults<Post> results = mongoTemplate.aggregate(aggregation, "post", Post.class);
+        List<PostDto> postDtos = results.getMappedResults().stream()
+                .map(mapperService::mapToPostDto)
+                .toList();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(GenericResponse.builder()
+                        .success(true)
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Lấy bài viết thành công!")
+                        .result(postDtos)
                         .build());
     }
 

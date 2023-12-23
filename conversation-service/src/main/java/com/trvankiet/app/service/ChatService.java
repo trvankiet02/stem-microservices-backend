@@ -1,12 +1,16 @@
 package com.trvankiet.app.service;
 
 import com.trvankiet.app.dto.ChatMessageDto;
+import com.trvankiet.app.dto.ChatMessageResult;
+import com.trvankiet.app.dto.NotificationDto;
 import com.trvankiet.app.entity.ChatMessage;
 
 public interface ChatService {
-    ChatMessage saveChatMessageDto(ChatMessageDto chatMessageDto);
+    ChatMessageDto saveChatMessageDto(ChatMessageDto chatMessageDto);
 
-    ChatMessage saveChatRoomMessageDto(ChatMessageDto chatMessageDto, String roomId);
+    ChatMessageDto saveChatRoomMessageDto(ChatMessageDto chatMessageDto, String roomId);
 
     void deleteChatMessage(ChatMessageDto chatMessageDto);
+
+	void saveNotification(NotificationDto notificationDto, String userId);
 }
