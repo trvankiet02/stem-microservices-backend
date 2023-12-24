@@ -92,7 +92,7 @@ services:
     container_name: exam-service
     image: trvankiet02/exam-service:1.0-SNAPSHOT
     ports:
-      - "8200:8200"
+      - "8800:8800"
     networks:
       - stem-microservices-backend
     depends_on:
