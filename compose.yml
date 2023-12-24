@@ -114,7 +114,7 @@ services:
     container_name: api-gateway
     image: trvankiet02/api-gateway:1.0-SNAPSHOT
     ports:
-      - "9000:9000"
+      - "80:9000"
     networks:
       - stem-microservices-backend
     depends_on:
