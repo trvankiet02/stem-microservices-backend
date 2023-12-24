@@ -6,32 +6,6 @@ volumes:
   cloud-config: {}
 
 services:
-#  mongodb:
-#    container_name: mongodb
-#    image: mongo:latest
-#    ports:
-#      - "27017:27017"
-#    volumes:
-#      - mongodb:/data
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=admin
-#      - MONGO_INITDB_ROOT_PASSWORD=123456
-#    networks:
-#      - stem-microservices-backend
-#
-#  mongo-express:
-#    container_name: mongo-express
-#    image: mongo-express:latest
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-#      - ME_CONFIG_MONGODB_ADMINPASSWORD=123456
-#      - ME_CONFIG_MONGODB_SERVER=mongodb
-#    networks:
-#      - stem-microservices-backend
-#    depends_on:
-#      - mongodb
 
   cloud-config:
     container_name: cloud-config
@@ -56,12 +30,8 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - cloud-config
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://service-discovery:8761/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      cloud-config:
+        condition: service_healthy
 
   conversation-service:
     container_name: conversation-service
@@ -95,11 +65,6 @@ services:
     depends_on:
       - service-discovery
       - cloud-config
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://group-service:8300/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   media-service:
     container_name: media-service
@@ -112,31 +77,20 @@ services:
       - service-discovery
       - cloud-config
 
-  message-service:
-    container_name: message-service
-    image: trvankiet02/message-service:1.0-SNAPSHOT
-    ports:
-      - "8500:8500"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
-
-  notification-service:
-    container_name: notification-service
-    image: trvankiet02/notification-service:1.0-SNAPSHOT
-    ports:
-      - "8600:8600"
-    networks:
-      - stem-microservices-backend
-    depends_on:
-      - service-discovery
-      - cloud-config
-
   post-service:
     container_name: post-service
     image: trvankiet02/post-service:1.0-SNAPSHOT
+    ports:
+      - "8700:8700"
+    networks:
+      - stem-microservices-backend
+    depends_on:
+      - service-discovery
+      - cloud-config
+
+  exam-service:
+    container_name: exam-service
+    image: trvankiet02/exam-service:1.0-SNAPSHOT
     ports:
       - "8700:8700"
     networks:
@@ -160,7 +114,7 @@ services:
     container_name: api-gateway
     image: trvankiet02/api-gateway:1.0-SNAPSHOT
     ports:
-      - "8080:8080"
+      - "9000:9000"
     networks:
       - stem-microservices-backend
     depends_on:

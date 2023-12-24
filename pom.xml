@@ -32,10 +32,8 @@
         <module>friend-service</module>
         <module>media-service</module>
         <module>conversation-service</module>
-        <module>notification-service</module>
         <module>post-service</module>
         <module>group-service</module>
-        <module>message-service</module>
         <module>exam-service</module>
     </modules>
 

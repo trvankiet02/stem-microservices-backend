@@ -30,8 +30,6 @@ public class UserServiceApplication {
     private RoleRepository roleRepository;
     @Autowired
     private ProviderRepository providerRepository;
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Bean
     InitializingBean sendDatabase() {
