@@ -32,6 +32,11 @@ services:
     depends_on:
       cloud-config:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://service-discovery:8761/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   conversation-service:
     container_name: conversation-service
@@ -41,8 +46,8 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - service-discovery
-      - cloud-config
+      service-discovery:
+        condition: service_healthy
 
   friend-service:
     container_name: friend-service
@@ -52,8 +57,8 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - service-discovery
-      - cloud-config
+      service-discovery:
+        condition: service_healthy
 
   group-service:
     container_name: group-service
@@ -63,8 +68,8 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - service-discovery
-      - cloud-config
+      service-discovery:
+        condition: service_healthy
 
   media-service:
     container_name: media-service
@@ -74,8 +79,8 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - service-discovery
-      - cloud-config
+      service-discovery:
+        condition: service_healthy
 
   post-service:
     container_name: post-service
@@ -85,8 +90,8 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - service-discovery
-      - cloud-config
+      service-discovery:
+        condition: service_healthy
 
   exam-service:
     container_name: exam-service
@@ -96,8 +101,8 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - service-discovery
-      - cloud-config
+      service-discovery:
+        condition: service_healthy
 
   user-service:
     container_name: user-service
@@ -107,16 +112,16 @@ services:
     networks:
       - stem-microservices-backend
     depends_on:
-      - service-discovery
-      - cloud-config
+      service-discovery:
+        condition: service_healthy
 
   api-gateway:
     container_name: api-gateway
     image: trvankiet02/api-gateway:1.0-SNAPSHOT
     ports:
-      - "80:9000"
+      - "9000:9000"
     networks:
       - stem-microservices-backend
     depends_on:
-      - cloud-config
-      - service-discovery
+      service-discovery:
+        condition: service_healthy
