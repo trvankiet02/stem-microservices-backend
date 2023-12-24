@@ -17,7 +17,7 @@ import java.util.List;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000")
+        registry.addEndpoint("/ws").setAllowedOrigins("https://stem-frontend-fszuh8zbx-trn-van-kits-projects.vercel.app")
                 .withSockJS();
     }
 
