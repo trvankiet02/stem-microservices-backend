@@ -125,14 +125,15 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
         if (submission.getAuthorId().equals(userId)) {
             return true;
         }
-        String role = groupMemberClientService.getRoleByGroupIdAndUserId(submission.getExam().getGroupId(), userId);
-        if (role.equals("GROUP_OWNER")) {
-            return true;
-        }
+
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
-        return userDto.getChildren().stream()
+        if (userDto.getChildren().stream()
                 .map(AnotherUserDto::getId)
                 .toList()
-                .contains(submission.getAuthorId());
+                .contains(submission.getAuthorId())) {
+            return true;
+        }
+        String role = groupMemberClientService.getRoleByGroupIdAndUserId(submission.getExam().getGroupId(), userId);
+        return role.equals("GROUP_OWNER");
     }
 }
