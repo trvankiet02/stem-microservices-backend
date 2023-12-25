@@ -2,5 +2,5 @@ spring:
   application:
     name: service-discovery
   profiles:
-    active: staging
+    active: dev
 
