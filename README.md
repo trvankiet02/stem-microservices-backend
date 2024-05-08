@@ -10,7 +10,7 @@
 ## Database:
 * Mongodb + SQL server
 ## Api doc:
-
+* http://localhost:8080/webjars/swagger-ui/index.html
 ## Các công nghệ liên quan:
 
 

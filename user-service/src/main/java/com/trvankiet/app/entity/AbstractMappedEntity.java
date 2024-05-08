@@ -1,9 +1,8 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -21,14 +22,24 @@ import java.util.Date;
 abstract public class AbstractMappedEntity implements Serializable {
 
 	@CreatedDate
-	@JsonFormat(shape = Shape.STRING)
+	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	@Column(name = "created_at")
 	private Date createdAt;
-	
+
 	@LastModifiedDate
-	@JsonFormat(shape = Shape.STRING)
+	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	@Column(name = "updated_at")
 	private Date updatedAt;
+
+	@PrePersist
+	void createdAt() {
+		this.createdAt = new Date();
+	}
+
+	@PreUpdate
+	void updatedAt() {
+		this.updatedAt = new Date();
+	}
 	
 }
 

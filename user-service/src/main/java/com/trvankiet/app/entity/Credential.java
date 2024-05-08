@@ -1,8 +1,6 @@
 package com.trvankiet.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.trvankiet.app.constant.Provider;
-import com.trvankiet.app.constant.RoleBasedAuthority;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,19 +12,15 @@ import java.util.List;
 @Table(name = "credentials")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, exclude = {"token"})
 @Data
+@EqualsAndHashCode(callSuper = true, exclude = {})
 @Builder
 public class Credential extends AbstractMappedEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "credential_id", unique = true, nullable = false, updatable = false)
-    private Integer credentialId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "provider")
-    private Provider provider;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "credential_id")
+    private String id;
 
     @Column(name = "username", unique = true)
     private String username;
@@ -34,34 +28,46 @@ public class Credential extends AbstractMappedEntity implements Serializable {
     @Column(name = "password")
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private RoleBasedAuthority roleBasedAuthority;
-
     @Column(name = "is_enabled")
     private Boolean isEnabled;
 
+    @Builder.Default
     @Column(name = "is_account_non_expired")
-    private Boolean isAccountNonExpired;
+    private Boolean isAccountNonExpired = true;
 
+    @Builder.Default
     @Column(name = "is_account_non_locked")
-    private Boolean isAccountNonLocked;
+    private Boolean isAccountNonLocked = true;
 
+    @Builder.Default
     @Column(name = "is_credentials_non_expired")
-    private Boolean isCredentialsNonExpired;
+    private Boolean isCredentialsNonExpired = true;
 
+    @Builder.Default
     @Column(name = "locked_at")
-    private Date lockedAt;
+    private Date lockedAt = null;
 
+    @Builder.Default
     @Column(name = "locked_reason")
-    private String lockedReason;
+    private String lockedReason = "";
 
-    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "credential")
-    private List<Token> token;
-
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @ToString.Exclude
+    private Role role;
+
+    @ManyToOne
+    @JoinColumn(name = "provider_id")
+    @ToString.Exclude
+    private Provider provider;
+
+    @OneToMany(mappedBy = "credential", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Token> tokens;
+
 }
