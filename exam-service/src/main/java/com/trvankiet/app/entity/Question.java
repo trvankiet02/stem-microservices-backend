@@ -32,6 +32,9 @@ public class Question implements Serializable {
     @Field("question_level")
     private String level;
 
+    @Field("question_score")
+    private Integer score;
+
     @DocumentReference
     @Field("exam_id")
     private Exam exam;
