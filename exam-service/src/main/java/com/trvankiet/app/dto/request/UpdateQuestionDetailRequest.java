@@ -13,5 +13,7 @@ public class UpdateQuestionDetailRequest {
     private String level;
     @NotNull
     private String typeCode;
+    @NotNull
+    private Integer score;
 
 }

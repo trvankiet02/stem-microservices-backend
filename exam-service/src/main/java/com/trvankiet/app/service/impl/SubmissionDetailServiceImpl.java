@@ -142,12 +142,12 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> markSubmissionDetail(String userId, String submissionDetailId, SubmissionDetailMarkRequest submissionDetailMarkRequest) {
+    public ResponseEntity<GenericResponse> markSubmissionDetail(String userId, SubmissionDetailMarkRequest submissionDetailMarkRequest) {
         log.info("SubmissionDetailServiceImpl, markSubmissionDetail");
 
         Date now = new Date();
 
-        SubmissionDetail submissionDetail = submissionDetailRepository.findById(submissionDetailId)
+        SubmissionDetail submissionDetail = submissionDetailRepository.findById(submissionDetailMarkRequest.getSubmissionDetailId())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy submission detail!"));
 
         Submission submission = submissionDetail.getSubmission();
@@ -157,11 +157,7 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
             throw new ForbiddenException("Không có quyền chấm điểm!");
         }
 
-        if (submissionDetailMarkRequest.getIsTrue()) {
-            submissionDetail.setScore(1);
-        } else {
-            submissionDetail.setScore(0);
-        }
+        submissionDetail.setScore(submissionDetailMarkRequest.getMark());
 
         submissionDetail.setUpdatedAt(now);
         submissionDetailRepository.save(submissionDetail);
@@ -170,7 +166,7 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
         List<SubmissionDetail> submissionDetails = submissionDetailRepository.findAllBySubmissionId(submission.getId());
         int score = submissionDetails.stream().mapToInt(SubmissionDetail::getScore).sum();
 
-        submission.setScore((float) score / submissionDetails.size() * submission.getExam().getMaxScore());
+        submission.setScore(score);
         submission.setUpdatedAt(now);
         submissionRepository.save(submission);
 

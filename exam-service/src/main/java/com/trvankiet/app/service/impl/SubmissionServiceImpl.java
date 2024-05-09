@@ -164,7 +164,7 @@ public class SubmissionServiceImpl implements SubmissionService {
             submissionDetailRepository.save(submissionDetail);
         }
 
-        submission.setScore((float) score / submissionDetails.size() * submission.getExam().getMaxScore());
+        submission.setScore(score);
         submission.setUpdatedAt(now);
         submissionRepository.save(submission);
 
@@ -192,9 +192,9 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     private int updateScoreAndSubmissionDetail(int score, boolean checkedValue, SubmissionDetail submissionDetail){
         if (checkedValue) {
-            score += 1;
+            score += submissionDetail.getQuestion().getScore();
         }
-        submissionDetail.setScore(checkedValue ? 1 : 0);
+        submissionDetail.setScore(checkedValue ? submissionDetail.getQuestion().getScore() : 0);
         return score;
     }
 

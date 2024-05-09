@@ -16,7 +16,7 @@ public class SubmissionDto implements Serializable {
     private SimpleUserDto userDto;
     private String startedAt;
     private String endedAt;
-    private Float score;
+    private Integer score;
     @JsonBackReference
     @JsonProperty("exam")
     private ExamDto examDto;

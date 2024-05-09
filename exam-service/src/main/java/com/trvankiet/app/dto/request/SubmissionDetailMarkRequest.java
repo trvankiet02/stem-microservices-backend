@@ -7,6 +7,9 @@ import lombok.Data;
 public class SubmissionDetailMarkRequest {
 
     @NotNull
-    private Boolean isTrue;
+    private String submissionDetailId;
+
+    @NotNull
+    private Integer mark;
 
 }

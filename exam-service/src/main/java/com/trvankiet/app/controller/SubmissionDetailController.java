@@ -59,14 +59,14 @@ public class SubmissionDetailController {
         return submissionDetailService.getSubmissionForTeacherMark(userId, submissionId);
     }
 
-    @PostMapping("/mark/${submissionDetailId}")
+    @PostMapping("/mark")
     public ResponseEntity<GenericResponse> markSubmissionDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-        , @PathVariable("submissionDetailId") String submissionDetailId,
+        ,
                                                                 @RequestBody @Valid SubmissionDetailMarkRequest submissionDetailMarkRequest) {
         log.info("SubmissionDetailController, markSubmissionDetail");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return submissionDetailService.markSubmissionDetail(userId, submissionDetailId, submissionDetailMarkRequest);
+        return submissionDetailService.markSubmissionDetail(userId, submissionDetailMarkRequest);
     }
 
 

@@ -87,6 +87,7 @@ public class ExamServiceImpl implements ExamService {
                                 .id(UUID.randomUUID().toString())
                                 .content(questionRequest.getContent())
                                 .level(questionRequest.getLevel())
+                                .score(questionRequest.getScore())
                                 .exam(exam)
                                 .type(questionTypeRepository.findByCode(questionRequest.getTypeCode())
                                         .orElseThrow(() -> new NotFoundException("Loại câu hỏi không tồn tại!")))
