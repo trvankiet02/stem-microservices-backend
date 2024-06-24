@@ -13,9 +13,9 @@ public class CreateQuestionRequest {
     private String content;
     private String level;
     @NotNull
-    private Integer score;
-    @NotNull
     private String typeCode;
+    @NotNull
+    private Integer score;
     @NotNull
     private List<CreateAnswerRequest> answers;
 }

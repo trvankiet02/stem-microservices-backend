@@ -35,6 +35,7 @@
         <module>post-service</module>
         <module>group-service</module>
         <module>exam-service</module>
+        <module>survey-service</module>
     </modules>
 
     <dependencies>

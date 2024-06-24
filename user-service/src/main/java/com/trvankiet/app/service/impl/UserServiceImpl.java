@@ -183,6 +183,18 @@ public class UserServiceImpl implements UserService {
             user.setPhone(postProfileRequest.getPhone());
             user.setDob(DateUtil.string2Date(postProfileRequest.getDob(), AppConstant.LOCAL_DATE_FORMAT));
             user.setGender(Gender.valueOf(postProfileRequest.getGender()));
+            if (postProfileRequest.getProvince() != null && !postProfileRequest.getProvince().isEmpty()) {
+                user.setProvince(postProfileRequest.getProvince());
+            }
+            if (postProfileRequest.getDistrict() != null && !postProfileRequest.getDistrict().isEmpty()) {
+                user.setDistrict(postProfileRequest.getDistrict());
+            }
+            if (postProfileRequest.getSchool() != null && !postProfileRequest.getSchool().isEmpty()) {
+                user.setSchool(postProfileRequest.getSchool());
+            }
+            if (postProfileRequest.getGrade() != null) {
+                user.setGrade(postProfileRequest.getGrade());
+            }
             user = userRepository.save(user);
         } catch (ParseException e) {
             log.error("ParseException: {}", e.getMessage());

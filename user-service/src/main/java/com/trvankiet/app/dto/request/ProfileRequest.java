@@ -25,5 +25,9 @@ public class ProfileRequest implements Serializable {
     private String dob;
     @NotNull
     private String gender;
+    private String province;
+    private String district;
+    private String school;
+    private Integer grade;
 
 }

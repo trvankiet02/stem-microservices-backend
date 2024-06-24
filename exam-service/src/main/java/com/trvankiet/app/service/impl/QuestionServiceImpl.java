@@ -101,7 +101,6 @@ public class QuestionServiceImpl implements QuestionService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy loại câu hỏi với code: " + updateQuestionDetailRequest.getTypeCode()));
         question.setContent(updateQuestionDetailRequest.getContent());
         question.setLevel(updateQuestionDetailRequest.getLevel());
-        question.setScore(updateQuestionDetailRequest.getScore());
         question.setType(questionType);
         question.setUpdatedAt(new Date());
         question = questionRepository.save(question);
@@ -150,7 +149,6 @@ public class QuestionServiceImpl implements QuestionService {
                     .level(createQuestionRequest.getLevel())
                     .exam(oldQuestion.getExam())
                     .type(questionType)
-                    .score(createQuestionRequest.getScore())
                     .createdAt(new Date())
                     .updatedAt(new Date())
                     .build());
@@ -195,7 +193,6 @@ public class QuestionServiceImpl implements QuestionService {
                     .level(createQuestionRequest.getLevel())
                     .exam(exam)
                     .type(questionType)
-                            .score(createQuestionRequest.getScore())
                     .createdAt(new Date())
                     .build());
             for (CreateAnswerRequest answerRequest: createQuestionRequest.getAnswers()) {

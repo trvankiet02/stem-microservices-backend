@@ -61,7 +61,6 @@ public class MapperServiceImpl implements MapperService {
                 .content(question.getContent())
                 .examDto(mapToExamDto(question.getExam()))
                 .level(question.getLevel())
-                .score(question.getScore())
                 .typeCode(question.getType().getCode())
                 .createdAt(question.getCreatedAt() == null
                         ? null : DateUtil.date2String(question.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT_WITHOUT_MILLIS))

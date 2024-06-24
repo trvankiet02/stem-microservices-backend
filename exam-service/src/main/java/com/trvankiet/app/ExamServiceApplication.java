@@ -52,16 +52,6 @@ public class ExamServiceApplication {
                         .build()
                 );
             }
-            if (questionTypeRepository.findByCode(QuestionTypeEnum.TRUE_FALSE.getCode()).isEmpty()) {
-                questionTypeRepository.save(QuestionType.builder()
-                        .id(QuestionTypeEnum.TRUE_FALSE.getCode())
-                        .code(QuestionTypeEnum.TRUE_FALSE.getCode())
-                        .name(QuestionTypeEnum.TRUE_FALSE.toString())
-                        .description("Đúng hoặc sai")
-                        .createdAt(now)
-                        .build()
-                );
-            }
             if (questionTypeRepository.findByCode(QuestionTypeEnum.ESSAY.getCode()).isEmpty()) {
                 questionTypeRepository.save(QuestionType.builder()
                         .id(QuestionTypeEnum.ESSAY.getCode())

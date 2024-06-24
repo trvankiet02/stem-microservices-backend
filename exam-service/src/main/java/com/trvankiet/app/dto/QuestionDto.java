@@ -17,7 +17,6 @@ public class QuestionDto implements Serializable {
     @JsonProperty("exam")
     private ExamDto examDto;
     private String level;
-    private Integer score;
     private String typeCode;
     private String createdAt;
     private String updatedAt;

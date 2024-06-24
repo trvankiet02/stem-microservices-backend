@@ -142,12 +142,12 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> markSubmissionDetail(String userId, SubmissionDetailMarkRequest submissionDetailMarkRequest) {
+    public ResponseEntity<GenericResponse> markSubmissionDetail(String userId, String submissionDetailId, SubmissionDetailMarkRequest submissionDetailMarkRequest) {
         log.info("SubmissionDetailServiceImpl, markSubmissionDetail");
 
         Date now = new Date();
 
-        SubmissionDetail submissionDetail = submissionDetailRepository.findById(submissionDetailMarkRequest.getSubmissionDetailId())
+        SubmissionDetail submissionDetail = submissionDetailRepository.findById(submissionDetailId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy submission detail!"));
 
         Submission submission = submissionDetail.getSubmission();
@@ -157,7 +157,11 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
             throw new ForbiddenException("Không có quyền chấm điểm!");
         }
 
-        submissionDetail.setScore(submissionDetailMarkRequest.getMark());
+        if (submissionDetailMarkRequest.getIsTrue()) {
+            submissionDetail.setScore(1);
+        } else {
+            submissionDetail.setScore(0);
+        }
 
         submissionDetail.setUpdatedAt(now);
         submissionDetailRepository.save(submissionDetail);

@@ -52,7 +52,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
 
         try {
-            String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
+                String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
         } catch (Exception e) {
             throw new BadRequestException("Bạn không có quyền thực hiện hành động này!");
         }
@@ -193,8 +193,10 @@ public class SubmissionServiceImpl implements SubmissionService {
     private int updateScoreAndSubmissionDetail(int score, boolean checkedValue, SubmissionDetail submissionDetail){
         if (checkedValue) {
             score += submissionDetail.getQuestion().getScore();
+            submissionDetail.setScore(submissionDetail.getQuestion().getScore());
+        } else {
+            submissionDetail.setScore(0);
         }
-        submissionDetail.setScore(checkedValue ? submissionDetail.getQuestion().getScore() : 0);
         return score;
     }
 
@@ -431,6 +433,28 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .statusCode(200)
                 .message("Lấy danh sách bài thi thành công!")
                 .result(result)
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getRankingByExamId(String userId, String examId) {
+        log.info("SubmissionServiceImpl, getRankingByExamId");
+
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy bài thi!"));
+
+        List<Submission> submissions = submissionRepository.findAllByExamId(examId);
+
+        List<SubmissionDto> submissionDtos = submissions.stream()
+                .map(mapperService::mapToSubmissionDto)
+                .sorted(Comparator.comparing(SubmissionDto::getScore).reversed())
+                .toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách bài thi thành công!")
+                .result(submissionDtos)
                 .build());
     }
 }

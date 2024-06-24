@@ -4,10 +4,7 @@ import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.constant.QuestionTypeEnum;
 import com.trvankiet.app.dto.ExamDto;
 import com.trvankiet.app.dto.SubmissionDto;
-import com.trvankiet.app.dto.request.CreateAnswerRequest;
-import com.trvankiet.app.dto.request.CreateExamRequest;
-import com.trvankiet.app.dto.request.CreateQuestionRequest;
-import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.entity.Answer;
 import com.trvankiet.app.entity.Exam;
@@ -21,8 +18,14 @@ import com.trvankiet.app.service.ExamService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.client.GroupMemberClientService;
 import com.trvankiet.app.util.DateUtil;
+import com.trvankiet.app.util.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -87,8 +90,8 @@ public class ExamServiceImpl implements ExamService {
                                 .id(UUID.randomUUID().toString())
                                 .content(questionRequest.getContent())
                                 .level(questionRequest.getLevel())
-                                .score(questionRequest.getScore())
                                 .exam(exam)
+                                .score(questionRequest.getScore())
                                 .type(questionTypeRepository.findByCode(questionRequest.getTypeCode())
                                         .orElseThrow(() -> new NotFoundException("Loại câu hỏi không tồn tại!")))
                                 .createdAt(new Date())
@@ -327,6 +330,90 @@ public class ExamServiceImpl implements ExamService {
                         .result(result)
                         .build()
         );
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> importFromExcelOrXlsx(String userId, CreateExamByExcelRequest createExamByExcelRequest) {
+        log.info("ExamServiceImpl, importFromExcelOrXlsx");
+
+        Workbook workbook = null;
+        MultipartFile multipartFile = createExamByExcelRequest.getMultipartFile();
+        try {
+            if (multipartFile.isEmpty()) {
+                throw new BadRequestException("File is empty");
+            }
+            // check file is excel or xlsx
+            if (multipartFile.getOriginalFilename().endsWith(".xls")) {
+                workbook = new HSSFWorkbook(multipartFile.getInputStream());
+            } else if (multipartFile.getOriginalFilename().endsWith(".xlsx")) {
+                workbook = new XSSFWorkbook(multipartFile.getInputStream());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (workbook == null) {
+            throw new BadRequestException("File is not excel or xlsx");
+        }
+
+        Sheet sheet = workbook.getSheetAt(0);
+
+        List<CreateQuestionRequest> questionRequests = new ArrayList<>();
+
+        int maxScore = 0;
+
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row currentRow = sheet.getRow(i);
+            CreateQuestionRequest questionRequest = new CreateQuestionRequest();
+            questionRequest.setContent(currentRow.getCell(0).getStringCellValue());
+            questionRequest.setLevel(currentRow.getCell(1).getStringCellValue());
+            questionRequest.setScore((int) currentRow.getCell(2).getNumericCellValue());
+
+            List<CreateAnswerRequest> answerRequests = new ArrayList<>();
+            int correctAnswerCount = 0;
+            for (int j = 3; j < currentRow.getLastCellNum(); j++) {
+                String content = ExcelUtil.getCellValueAsString(currentRow.getCell(j));
+                // if content has Bold style then set isCorrect = true
+                boolean isCorrect = ExcelUtil.isCellBold(currentRow.getCell(j).getCellStyle(), workbook);
+                if (isCorrect) {
+                    correctAnswerCount++;
+                }
+                CreateAnswerRequest answerRequest = new CreateAnswerRequest();
+                answerRequest.setContent(content);
+                answerRequest.setIsCorrect(isCorrect);
+                answerRequests.add(answerRequest);
+            }
+            questionRequest.setAnswers(answerRequests);
+            if (correctAnswerCount == 0) {
+                questionRequest.setTypeCode(QuestionTypeEnum.ESSAY.getCode());
+            } else if (correctAnswerCount == 1) {
+                questionRequest.setTypeCode(QuestionTypeEnum.MULTIPLE_CHOICE.getCode());
+            } else {
+                questionRequest.setTypeCode(QuestionTypeEnum.SINGLE_CHOICE.getCode());
+            }
+            questionRequests.add(questionRequest);
+            maxScore += questionRequest.getScore();
+        }
+        CreateExamRequest createExamRequest = CreateExamRequest.builder()
+                .groupId(createExamByExcelRequest.getGroupId())
+                .name(createExamByExcelRequest.getName())
+                .description(createExamByExcelRequest.getDescription())
+                .duration(createExamByExcelRequest.getDuration())
+                .startedAt(createExamByExcelRequest.getStartedAt())
+                .endedAt(createExamByExcelRequest.getEndedAt())
+                .isEnabled(createExamByExcelRequest.getIsEnabled())
+                .numberOfQuestion(questionRequests.size())
+                .isAutoMark(createExamByExcelRequest.getIsAutoMark())
+                .level(createExamByExcelRequest.getLevel())
+                .maxScore(maxScore)
+                .questions(questionRequests)
+                .build();
+
+        try {
+            return this.createExam(userId, createExamRequest);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean isCorrectAnswer(XWPFParagraph paragraph) {

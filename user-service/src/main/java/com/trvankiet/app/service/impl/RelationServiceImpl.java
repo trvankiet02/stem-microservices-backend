@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -33,6 +34,10 @@ public class RelationServiceImpl implements RelationService {
     public ResponseEntity<GenericResponse> createRelationRequest(String userId, CreateRelationRequest createRelationRequest) {
         log.info("RelationServiceImpl, createRelationRequest");
         String studentId = createRelationRequest.getStudentId();
+        Optional<Relationship> relationshipOptional = relationRepository.findByParentIdAndChildId(userId, studentId);
+        if (relationshipOptional.isPresent()) {
+            throw new NotFoundException("Yêu cầu đã tồn tại!");
+        }
         User parent = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phụ huynh với id: " + userId));
         User student = userRepository.findById(studentId)

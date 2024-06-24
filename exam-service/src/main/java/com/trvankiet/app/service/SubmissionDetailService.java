@@ -16,5 +16,5 @@ public interface SubmissionDetailService {
 
     ResponseEntity<GenericResponse> getSubmissionForTeacherMark(String userId, String submissionId);
 
-    ResponseEntity<GenericResponse> markSubmissionDetail(String userId, SubmissionDetailMarkRequest submissionDetailMarkRequest);
+    ResponseEntity<GenericResponse> markSubmissionDetail(String userId, String submissionDetailId, SubmissionDetailMarkRequest submissionDetailMarkRequest);
 }

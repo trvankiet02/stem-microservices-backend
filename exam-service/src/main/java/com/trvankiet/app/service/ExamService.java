@@ -1,7 +1,9 @@
 package com.trvankiet.app.service;
 
 import com.trvankiet.app.dto.ExamDto;
+import com.trvankiet.app.dto.request.CreateExamByExcelRequest;
 import com.trvankiet.app.dto.request.CreateExamRequest;
+import com.trvankiet.app.dto.request.ExcelReportRequest;
 import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import org.springframework.http.ResponseEntity;
@@ -27,4 +29,6 @@ public interface ExamService {
     List<ExamDto> searchExam(Optional<String> query, Optional<String> level);
 
     ResponseEntity<GenericResponse> findAllExams(String userId, String groupId);
+
+    ResponseEntity<GenericResponse> importFromExcelOrXlsx(String userId, CreateExamByExcelRequest createExamByExcelRequest);
 }

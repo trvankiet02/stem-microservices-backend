@@ -1,7 +1,9 @@
 package com.trvankiet.app.controller;
 
 import com.trvankiet.app.dto.ExamDto;
+import com.trvankiet.app.dto.request.CreateExamByExcelRequest;
 import com.trvankiet.app.dto.request.CreateExamRequest;
+import com.trvankiet.app.dto.request.ExcelReportRequest;
 import com.trvankiet.app.dto.request.UpdateExamDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.jwt.service.JwtService;
@@ -53,6 +55,15 @@ public class ExamController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return examService.importFromDocOrDocx(userId, multipartFile);
+    }
+
+    @PostMapping(value = {"/importFromExcel", "/importFromXlsx"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<GenericResponse> importFromExcelOrXlsx(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @ModelAttribute CreateExamByExcelRequest createExamByExcelRequest) {
+        log.info("ExamController, importFromExcel");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return examService.importFromExcelOrXlsx(userId, createExamByExcelRequest);
     }
 
     @GetMapping("/{examId}")
