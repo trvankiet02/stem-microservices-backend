@@ -36,7 +36,7 @@
         <module>group-service</module>
         <module>exam-service</module>
         <module>survey-service</module>
-        <module>competition-service</module>
+        <module>report-service</module>
     </modules>
 
     <dependencies>
