@@ -35,7 +35,8 @@ public class RouteConfig {
             "user-service", pathConfig(List.of("users", "credentials", "tokens", "auth", "relationships"
                     , "addresses", "subjects")),
             "exam-service", pathConfig(List.of("exams", "questions",
-                    "answers", "submissions", "submission-details")
+                    "answers", "submissions", "submission-details")),
+            "survey-service", pathConfig(List.of("surveys", "options")
             )
     );
 
