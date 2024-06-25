@@ -8,6 +8,7 @@ import lombok.Data;
 public class OptionDto {
     private String id;
     private String content;
+    private SimpleUserDto author;
     private Integer voteCount;
     private String createdAt;
     private String updatedAt;

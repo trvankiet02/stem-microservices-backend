@@ -50,6 +50,7 @@ public class MapperServiceImpl implements MapperService {
 
         return OptionDto.builder()
                 .id(option.getId())
+                .author(userClientService.getSimpleUserDto(option.getAuthorId()))
                 .content(option.getContent())
                 .voteCount(option.getVoteByUsers() == null ? 0 : option.getVoteByUsers().size())
                 .createdAt(option.getCreatedAt() == null ?

@@ -27,6 +27,9 @@ public class Option implements Serializable {
     @Field(name = "option_id")
     private String id;
 
+    @Field(name = "option_author_id")
+    private String authorId;
+
     @DocumentReference
     @Field(name = "survey_id")
     private Survey survey;

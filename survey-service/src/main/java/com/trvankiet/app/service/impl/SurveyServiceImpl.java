@@ -58,6 +58,7 @@ public class SurveyServiceImpl implements SurveyService {
             optionRepository.save(Option.builder()
                     .id(UUID.randomUUID().toString())
                     .survey(survey)
+                    .authorId(userId)
                     .content(option)
                     .createdAt(now)
                     .build());

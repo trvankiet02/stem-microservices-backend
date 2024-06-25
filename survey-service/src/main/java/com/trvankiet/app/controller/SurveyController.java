@@ -57,7 +57,7 @@ public class SurveyController {
     public ResponseEntity<GenericResponse> getHomeSurvey(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                        @RequestParam(value = "page", defaultValue = "0") int page,
                                                        @RequestParam(value = "size", defaultValue = "10") int size) {
-        log.info("PostController, getHomePost");
+        log.info("SurveyController, getHomeSurvey");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         ResponseEntity<List<String>> groupIds = groupClientService.getGroupByUserId(authorizationHeader);
