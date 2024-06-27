@@ -1,0 +1,17 @@
+package com.trvankiet.app.service;
+
+import com.trvankiet.app.dto.request.ReportPostRequest;
+import com.trvankiet.app.dto.response.GenericResponse;
+import org.springframework.http.ResponseEntity;
+
+public interface ReportService {
+    ResponseEntity<GenericResponse> reportPost(String userId, ReportPostRequest reportPostRequest);
+
+    ResponseEntity<GenericResponse> processReport(String userId, String reportId);
+
+    ResponseEntity<GenericResponse> getGroupReport(String userId, String groupId);
+
+    ResponseEntity<GenericResponse> getAdminReport(String userId, String groupId);
+
+    ResponseEntity<GenericResponse> getReport(String userId, String reportId);
+}

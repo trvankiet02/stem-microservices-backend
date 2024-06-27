@@ -36,7 +36,8 @@ public class RouteConfig {
                     , "addresses", "subjects")),
             "exam-service", pathConfig(List.of("exams", "questions",
                     "answers", "submissions", "submission-details")),
-            "survey-service", pathConfig(List.of("surveys", "options")
+            "survey-service", pathConfig(List.of("surveys", "options")),
+            "report-service", pathConfig(List.of("reports")
             )
     );
 
