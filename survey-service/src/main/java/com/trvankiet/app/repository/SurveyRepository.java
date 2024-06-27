@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface SurveyRepository extends MongoRepository<Survey, String> {
     Page<Survey> findByGroupIdIn(List<String> groupIds, Pageable pageable);
+    Page<Survey> findAllByGroupId(String groupId, Pageable pageable);
 }

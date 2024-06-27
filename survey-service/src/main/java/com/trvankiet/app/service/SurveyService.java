@@ -15,4 +15,6 @@ public interface SurveyService {
     ResponseEntity<GenericResponse> deleteSurvey(String userId, String surveyId);
 
     ResponseEntity<GenericResponse> getHomeSurvey(String userId, List<String> body, int page, int size);
+
+    ResponseEntity<GenericResponse> getGroupSurvey(String userId, String groupId, int page, int size);
 }

@@ -153,4 +153,29 @@ public class SurveyServiceImpl implements SurveyService {
                 .result(result)
                 .build());
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> getGroupSurvey(String userId, String groupId, int page, int size) {
+        log.info("SurveyServiceImpl, getGroupSurvey()");
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Survey> surveys = surveyRepository.findAllByGroupId(groupId, pageable);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalPages", surveys.getTotalPages());
+        result.put("totalElements", surveys.getTotalElements());
+        result.put("currentPage", surveys.getNumber());
+        result.put("currentElements", surveys.getNumberOfElements());
+        result.put("surveys", surveys.getContent()
+                .stream()
+                .map(mapperService::mapToSurveyDto)
+                .toList());
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Get group survey successfully!")
+                .result(result)
+                .build());
+    }
 }

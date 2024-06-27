@@ -63,4 +63,15 @@ public class SurveyController {
         ResponseEntity<List<String>> groupIds = groupClientService.getGroupByUserId(authorizationHeader);
         return surveyService.getHomeSurvey(userId, groupIds.getBody(), page, size);
     }
+
+    @GetMapping("/getGroupSurvey/{groupId}")
+    public ResponseEntity<GenericResponse> getGroupSurvey(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                                          @RequestParam(value = "size", defaultValue = "10") int size,
+                                                          @PathVariable String groupId) {
+        log.info("SurveyController, getGroupSurvey");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return surveyService.getGroupSurvey(userId, groupId, page, size);
+    }
 }
