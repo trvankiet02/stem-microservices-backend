@@ -31,6 +31,13 @@ public class AdminUserController {
         return userService.getAllUsers(authorizationHeader, page - 1, size, search);
     }
 
+    @GetMapping
+    public ResponseEntity<GenericResponse> getUsers(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("AdminUserController, getUsers");
+        return userService.getUsers(authorizationHeader);
+    }
+
     @PostMapping("/ban-user")
     public ResponseEntity<GenericResponse> banUser(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationHeader,

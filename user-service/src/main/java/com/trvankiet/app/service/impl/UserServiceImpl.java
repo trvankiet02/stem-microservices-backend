@@ -542,5 +542,21 @@ public class UserServiceImpl implements UserService {
                 .build());
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getUsers(String authorizationHeader) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getUsers");
+
+        List<User> users = userRepository.findAll();
+
+        List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách người dùng thành công!")
+                .result(userDtos)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
 
 }

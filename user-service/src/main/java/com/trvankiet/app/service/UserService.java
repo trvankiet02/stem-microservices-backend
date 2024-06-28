@@ -66,4 +66,6 @@ public interface UserService {
 	ResponseEntity<GenericResponse> getFriendSuggestions(List<String> friendSuggestions);
 
     ResponseEntity<GenericResponse> resetPassword(String authorizationHeader, AdminResetPasswordRequest adminResetPasswordRequest);
+
+    ResponseEntity<GenericResponse> getUsers(String authorizationHeader);
 }

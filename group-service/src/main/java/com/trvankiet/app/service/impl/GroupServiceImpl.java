@@ -6,9 +6,7 @@ import com.trvankiet.app.constant.GroupType;
 import com.trvankiet.app.dto.GroupDto;
 import com.trvankiet.app.dto.SimpleGroupDto;
 import com.trvankiet.app.dto.UserDto;
-import com.trvankiet.app.dto.request.GroupConfigRequest;
-import com.trvankiet.app.dto.request.GroupCreateRequest;
-import com.trvankiet.app.dto.request.UpdateDetailRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.dto.response.SuggestGroupResponse;
 import com.trvankiet.app.entity.Group;
@@ -547,6 +545,68 @@ public class GroupServiceImpl implements GroupService {
                 .message("Lấy danh sách lớp học thành công!")
                 .result(result)
                 .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> adminUpdateGroup(String token, AdminUpdateGroupRequest adminUpdateGroupRequest) {
+        log.info("GroupServiceImpl, adminUpdateGroup");
+
+        Group group = groupRepository.findById(adminUpdateGroupRequest.getGroupId()).orElseThrow(() -> new NotFoundException("Group is not exist"));
+
+        group.setName(adminUpdateGroupRequest.getName());
+        group.setDescription(adminUpdateGroupRequest.getDescription());
+        group.setIsPublic(adminUpdateGroupRequest.getIsPublic());
+        group.setIsAcceptAllRequest(adminUpdateGroupRequest.getIsAcceptAllRequest());
+
+        groupRepository.save(group);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Update group successfully")
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> adminDeleteGroup(String token, String groupId) {
+        log.info("GroupServiceImpl, adminDeleteGroup");
+
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group is not exist"));
+
+        groupRepository.delete(group);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Delete group successfully")
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> adminCreateGroup(String token, AdminCreateGroupRequest adminCreateGroupRequest) {
+        log.info("GroupServiceImpl, adminCreateGroup");
+
+        Date now = new Date();
+
+        Group group = Group.builder()
+                .id(UUID.randomUUID().toString())
+                .name(adminCreateGroupRequest.getName())
+                .description(adminCreateGroupRequest.getDescription())
+                .authorId(adminCreateGroupRequest.getAuthorId())
+                .isClass(false)
+                .isPublic(adminCreateGroupRequest.getIsPublic())
+                .isAcceptAllRequest(adminCreateGroupRequest.getIsAcceptAllRequest())
+                .createdAt(now)
+                .build();
+
+        group = groupRepository.save(group);
+
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Create group successful")
+                .result("")
                 .build());
     }
 }

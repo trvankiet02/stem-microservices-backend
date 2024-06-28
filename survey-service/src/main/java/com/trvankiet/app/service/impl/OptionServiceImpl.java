@@ -38,7 +38,7 @@ public class OptionServiceImpl implements OptionService {
 
         Survey survey = surveyRepository.findById(createOptionRequest.getSurveyId()).orElseThrow(() -> new NotFoundException("Survey not found"));
 
-        if (groupMemberClientService.getRoleByGroupIdAndUserId(userId, survey.getGroupId()).equals("NONE")) {
+        if (groupMemberClientService.getRoleByGroupIdAndUserId(survey.getGroupId(), userId).equals("NONE")) {
             throw new NotFoundException("User is not a member of the group");
         }
 

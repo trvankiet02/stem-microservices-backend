@@ -2,9 +2,7 @@ package com.trvankiet.app.service;
 
 import com.trvankiet.app.dto.GroupDto;
 import com.trvankiet.app.dto.SimpleGroupDto;
-import com.trvankiet.app.dto.request.GroupConfigRequest;
-import com.trvankiet.app.dto.request.GroupCreateRequest;
-import com.trvankiet.app.dto.request.UpdateDetailRequest;
+import com.trvankiet.app.dto.request.*;
 import com.trvankiet.app.dto.response.GenericResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,4 +49,10 @@ public interface GroupService {
     ResponseEntity<GenericResponse> getMyGroups(String userId);
 
     ResponseEntity<GenericResponse> getAllClassesForAdmin(String token, Integer page, Integer size);
+
+    ResponseEntity<GenericResponse> adminUpdateGroup(String token, AdminUpdateGroupRequest adminUpdateGroupRequest);
+
+    ResponseEntity<GenericResponse> adminDeleteGroup(String token, String groupId);
+
+    ResponseEntity<GenericResponse> adminCreateGroup(String token, AdminCreateGroupRequest adminCreateGroupRequest);
 }

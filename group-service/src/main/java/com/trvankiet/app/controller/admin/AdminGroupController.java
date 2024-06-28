@@ -1,5 +1,6 @@
 package com.trvankiet.app.controller.admin;
 
+import com.trvankiet.app.dto.request.AdminCreateGroupRequest;
 import com.trvankiet.app.dto.request.AdminUpdateGroupRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.service.GroupService;
@@ -45,5 +46,12 @@ public class AdminGroupController {
                                                        @PathVariable String groupId) {
         log.info("AdminGroupController, deleteGroup");
         return groupService.adminDeleteGroup(token, groupId);
+    }
+
+    @PostMapping("/create-group")
+    public ResponseEntity<GenericResponse> createGroup(@RequestHeader("Authorization") String token,
+                                                       @RequestBody AdminCreateGroupRequest adminCreateGroupRequest) {
+        log.info("AdminGroupController, createGroup");
+        return groupService.adminCreateGroup(token, adminCreateGroupRequest);
     }
 }
