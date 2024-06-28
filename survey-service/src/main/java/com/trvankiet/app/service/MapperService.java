@@ -6,6 +6,6 @@ import com.trvankiet.app.entity.Option;
 import com.trvankiet.app.entity.Survey;
 
 public interface MapperService {
-    SurveyDto mapToSurveyDto(Survey survey);
-    OptionDto mapToOptionDto(Option option);
+    SurveyDto mapToSurveyDto(Survey survey, String userId);
+    OptionDto mapToOptionDto(Option option, String userId);
 }

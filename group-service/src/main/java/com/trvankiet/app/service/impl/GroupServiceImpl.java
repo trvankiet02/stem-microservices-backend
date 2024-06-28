@@ -465,10 +465,17 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getAllGroupsForAdmin(String token, Integer page, Integer size) {
+    public ResponseEntity<GenericResponse> getAllGroupsForAdmin(String token, Integer page, Integer size, String search) {
         log.info("GroupServiceImpl, getAllGroupsForAdmin");
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Group> groups = groupRepository.findAll(pageable);
+        Page<Group> groups = null;
+
+        if (search != null && !search.isEmpty()) {
+            groups = groupRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClass(search, false, pageable);
+        } else {
+            groups = groupRepository.findAllByIsClass(false, pageable);
+        }
+
         Map<String, Object> result = new HashMap<>();
         result.put("groups", groups.stream()
                 .map(mapperService::mapToGroupDto)

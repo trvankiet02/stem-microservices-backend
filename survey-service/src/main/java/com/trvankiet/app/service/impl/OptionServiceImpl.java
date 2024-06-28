@@ -54,7 +54,7 @@ public class OptionServiceImpl implements OptionService {
 
         optionRepository.save(option);
 
-        SurveyDto surveyDto = mapperService.mapToSurveyDto(survey);
+        SurveyDto surveyDto = mapperService.mapToSurveyDto(survey, userId);
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -78,7 +78,7 @@ public class OptionServiceImpl implements OptionService {
 
         optionRepository.save(option);
 
-        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey());
+        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey(), userId);
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -100,7 +100,7 @@ public class OptionServiceImpl implements OptionService {
 
         optionRepository.delete(option);
 
-        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey());
+        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey(), userId);
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -124,7 +124,7 @@ public class OptionServiceImpl implements OptionService {
 
         optionRepository.save(option);
 
-        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey());
+        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey(), userId);
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
@@ -148,7 +148,7 @@ public class OptionServiceImpl implements OptionService {
 
         optionRepository.save(option);
 
-        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey());
+        SurveyDto surveyDto = mapperService.mapToSurveyDto(option.getSurvey(), userId);
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)

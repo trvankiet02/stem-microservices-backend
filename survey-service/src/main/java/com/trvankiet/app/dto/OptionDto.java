@@ -10,6 +10,7 @@ public class OptionDto {
     private String content;
     private SimpleUserDto author;
     private Integer voteCount;
+    private boolean isUserVoted;
     private String createdAt;
     private String updatedAt;
 }

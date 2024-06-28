@@ -21,6 +21,20 @@ public interface GroupRepository extends MongoRepository<Group, String> {
             "}"
     )
     List<Group> searchGroupByQuery(String query);
+    @Query("{'$and': " +
+            "[" +
+            "{'$or': " +
+            "[" +
+            "{'group_name': {$regex: ?0, $options:'i'}}, " +
+            "{'group_description': {$regex: ?0, $options:'i'}}" +
+            "]" +
+            "}, " +
+            "{'isClass': ?1}" +
+            "]" +
+            "}"
+    )
+//            "[{'group_name":{"$regex":"3","$options":"i"}},{"group_description":{"$regex":"3","$options":"i"}}],"isClass":false})
+    Page<Group> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClass(String query, Boolean isClass, Pageable pageable);
 
     @Query("{" +
             "'$and': [" +

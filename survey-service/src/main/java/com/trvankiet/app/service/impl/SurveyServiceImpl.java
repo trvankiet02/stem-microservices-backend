@@ -60,11 +60,12 @@ public class SurveyServiceImpl implements SurveyService {
                     .survey(survey)
                     .authorId(userId)
                     .content(option)
+                    .voteByUsers(new ArrayList<>())
                     .createdAt(now)
                     .build());
         });
 
-        SurveyDto surveyDto = mapperService.mapToSurveyDto(survey);
+        SurveyDto surveyDto = mapperService.mapToSurveyDto(survey, userId);
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(HttpStatus.OK.value())
@@ -96,7 +97,7 @@ public class SurveyServiceImpl implements SurveyService {
                 .success(true)
                 .statusCode(HttpStatus.OK.value())
                 .message("Update survey successfully!")
-                .result(mapperService.mapToSurveyDto(survey))
+                .result(mapperService.mapToSurveyDto(survey, userId))
                 .build());
     }
 
@@ -143,7 +144,7 @@ public class SurveyServiceImpl implements SurveyService {
         result.put("currentElements", surveys.getNumberOfElements());
         result.put("surveys", surveys.getContent()
                 .stream()
-                .map(mapperService::mapToSurveyDto)
+                .map(survey -> mapperService.mapToSurveyDto(survey, userId))
                 .toList());
 
         return ResponseEntity.ok(GenericResponse.builder()
@@ -168,7 +169,7 @@ public class SurveyServiceImpl implements SurveyService {
         result.put("currentElements", surveys.getNumberOfElements());
         result.put("surveys", surveys.getContent()
                 .stream()
-                .map(mapperService::mapToSurveyDto)
+                .map(survey -> mapperService.mapToSurveyDto(survey, userId))
                 .toList());
 
         return ResponseEntity.ok(GenericResponse.builder()

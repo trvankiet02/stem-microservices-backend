@@ -106,4 +106,26 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Lỗi khi gửi email: ", e);
         }
     }
+
+    @Override
+    public void sendNewPasswordEmail(Credential credential, String newPassword) {
+        log.info("EmailServiceImpl, void, sendNewPasswordEmail, credential, newPassword");
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            Context context = new Context();
+            context.setVariable("newPassword", newPassword);
+            String mailContent = templateEngine.process("new-password-mail", context);
+
+            helper.setTo(credential.getUsername());
+            helper.setText(mailContent, true);
+            helper.setSubject("Mật khẩu mới cho tài khoản của bạn trên hệ thống STEM!");
+            mailSender.send(message);
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email: ", e);
+            throw new RuntimeException("Lỗi khi gửi email: ", e);
+        }
+    }
 }

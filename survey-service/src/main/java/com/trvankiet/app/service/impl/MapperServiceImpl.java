@@ -25,10 +25,10 @@ public class MapperServiceImpl implements MapperService {
     private final SurveyRepository surveyRepository;
 
     @Override
-    public SurveyDto mapToSurveyDto(Survey survey) {
+    public SurveyDto mapToSurveyDto(Survey survey, String userId) {
         List<OptionDto> optionDtos = optionRepository.findAllBySurveyId(survey.getId())
                 .stream()
-                .map(this::mapToOptionDto)
+                .map(option -> mapToOptionDto(option, userId))
                 .toList();
         return SurveyDto.builder()
                 .id(survey.getId())
@@ -46,13 +46,14 @@ public class MapperServiceImpl implements MapperService {
     }
 
     @Override
-    public OptionDto mapToOptionDto(Option option) {
+    public OptionDto mapToOptionDto(Option option, String userId) {
 
         return OptionDto.builder()
                 .id(option.getId())
                 .author(userClientService.getSimpleUserDto(option.getAuthorId()))
                 .content(option.getContent())
                 .voteCount(option.getVoteByUsers() == null ? 0 : option.getVoteByUsers().size())
+                .isUserVoted(option.getVoteByUsers() != null && option.getVoteByUsers().contains(userId))
                 .createdAt(option.getCreatedAt() == null ?
                         null : DateUtil.date2String(option.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .updatedAt(option.getUpdatedAt() == null ?

@@ -55,7 +55,7 @@ public interface UserService {
 
     SimpleUserDto getSimpleUserDto(String uId);
 
-    ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size);
+    ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size, String search);
 
     ResponseEntity<GenericResponse> changePassword(String userId, ChangePasswordRequest changePasswordRequest);
 
@@ -64,4 +64,6 @@ public interface UserService {
     ResponseEntity<GenericResponse> unbanUser(String authorizationHeader, UnbanUserRequest unbanRequest);
 
 	ResponseEntity<GenericResponse> getFriendSuggestions(List<String> friendSuggestions);
+
+    ResponseEntity<GenericResponse> resetPassword(String authorizationHeader, AdminResetPasswordRequest adminResetPasswordRequest);
 }

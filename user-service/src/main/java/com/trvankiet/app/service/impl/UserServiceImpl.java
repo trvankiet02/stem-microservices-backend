@@ -19,6 +19,7 @@ import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.repository.CredentialRepository;
 import com.trvankiet.app.repository.TokenRepository;
 import com.trvankiet.app.repository.UserRepository;
+import com.trvankiet.app.service.EmailService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.UserService;
 import com.trvankiet.app.service.client.ChatUserClientService;
@@ -58,6 +59,7 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final ChatUserClientService chatUserClientService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public <S extends User> S save(S entity) {
@@ -359,12 +361,44 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size) {
+    public ResponseEntity<GenericResponse> getAllUsers(String authorizationHeader, Integer page, Integer size, String search) {
         log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getAllUsers");
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<User> users = userRepository.findAll(pageable);
-        List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+//        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+//        Pageable pageable = PageRequest.of(page, size, sort);
+//        Page<User> users = userRepository.findAll(pageable);
+//        List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+//        Map<String, Object> result = new HashMap<>();
+//        result.put("users", userDtos);
+//        result.put("totalPages", users.getTotalPages());
+//        result.put("currentPage", users.getNumber());
+//        result.put("totalElements", users.getTotalElements());
+//        result.put("currentElements", users.getNumberOfElements());
+//
+//        return ResponseEntity.ok(GenericResponse.builder()
+//                .success(true)
+//                .message("Lấy danh sách người dùng thành công!")
+//                .result(result)
+//                .statusCode(HttpStatus.OK.value())
+//                .build());
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<User> users = null;
+        if (search != null && !search.isEmpty()) {
+            users = userRepository.findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrPhoneContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search, search, search, pageable);
+        } else {
+            users = userRepository.findAll(pageable);
+        }
+
+        if (users.isEmpty()) {
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .message("Không tìm thấy người dùng nào!")
+                    .result(null)
+                    .statusCode(HttpStatus.OK.value())
+                    .build());
+        }
+
+        List<UserDto> userDtos = users.stream().map(mapperService::mapToUserDto).toList();
         Map<String, Object> result = new HashMap<>();
         result.put("users", userDtos);
         result.put("totalPages", users.getTotalPages());
@@ -483,6 +517,30 @@ public class UserServiceImpl implements UserService {
 		return ResponseEntity.ok(GenericResponse.builder().success(true).message("Lấy danh sách người dùng thành công!")
 				.result(userDtos).statusCode(HttpStatus.OK.value()).build());
 	}
+
+    @Override
+    public ResponseEntity<GenericResponse> resetPassword(String authorizationHeader, AdminResetPasswordRequest adminResetPasswordRequest) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, resetPassword");
+        // random new password and send email
+
+        User user = userRepository.findById(adminResetPasswordRequest.getUserId())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+        String newPassword = UUID.randomUUID().toString().substring(0, 8);
+
+        Credential credential = user.getCredential();
+        credential.setPassword(passwordEncoder.encode(newPassword));
+        credentialRepository.save(credential);
+
+        emailService.sendNewPasswordEmail(credential, newPassword);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Reset mật khẩu thành công!")
+                .result("")
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
 
 
 }

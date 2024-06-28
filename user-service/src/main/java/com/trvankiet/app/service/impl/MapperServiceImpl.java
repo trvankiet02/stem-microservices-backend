@@ -21,7 +21,7 @@ public class MapperServiceImpl implements MapperService {
                 .gender(user.getGender().toString())
                 .email(user.getEmail())
                 .phone(user.getPhone())
-                .dob(user.getDob())
+                .dob(DateUtil.date2String(user.getDob(), AppConstant.LOCAL_DATE_FORMAT))
                 .avatarUrl(user.getAvatarUrl())
                 .coverUrl(user.getCoverUrl())
                 .credentialDto(this.mapToCredentialDto(user.getCredential()))

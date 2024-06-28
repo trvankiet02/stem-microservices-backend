@@ -44,7 +44,7 @@ public interface GroupService {
 
     SimpleGroupDto getSimpleGroupDto(String userId, String groupId);
 
-    ResponseEntity<GenericResponse> getAllGroupsForAdmin(String token, Integer page, Integer size);
+    ResponseEntity<GenericResponse> getAllGroupsForAdmin(String token, Integer page, Integer size, String search);
 
     ResponseEntity<GenericResponse> getMyClasses(String userId);
 
