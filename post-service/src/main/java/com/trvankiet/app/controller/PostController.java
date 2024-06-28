@@ -7,6 +7,7 @@ import com.trvankiet.app.dto.request.CommentPostRequest;
 import com.trvankiet.app.dto.request.PostCreateRequest;
 import com.trvankiet.app.dto.request.UpdatePostRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
+import com.trvankiet.app.entity.Post;
 import com.trvankiet.app.jwt.service.JwtService;
 import com.trvankiet.app.service.CommentService;
 import com.trvankiet.app.service.PostService;
@@ -54,6 +55,13 @@ public class PostController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return postService.getPostById(userId, postId);
+    }
+
+    @GetMapping("/getGroupId/{postId}")
+    public ResponseEntity<String> getGroupIdFromPostId(
+            @PathVariable("postId") String postId) {
+        log.info("PostController, getPostByGroupManager({})", postId);
+        return postService.getGroupIdFromPostId(postId);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

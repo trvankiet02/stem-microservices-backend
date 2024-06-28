@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
+import com.trvankiet.app.entity.Post;
 
 public interface PostService {
     ResponseEntity<GenericResponse> createPost(String userId, SimpleGroupDto groupDto, List<FileDto> fileDtos, PostCreateRequest postCreateRequest);
@@ -29,4 +30,7 @@ public interface PostService {
     ResponseEntity<GenericResponse> count(String authorizationToken, String groupId);
 
     ResponseEntity<GenericResponse> getHotPosts(String authorizationToken, String groupId, int page, int size);
+
+
+    ResponseEntity<String> getGroupIdFromPostId(String postId);
 }

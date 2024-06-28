@@ -8,6 +8,7 @@ import com.trvankiet.app.exception.wrapper.NotFoundException;
 import com.trvankiet.app.repository.ReportRepository;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.ReportService;
+import com.trvankiet.app.service.client.PostClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,17 +25,28 @@ public class ReportServiceImpl implements ReportService {
 
     private final ReportRepository reportRepository;
     private final MapperService mapperService;
+    private final PostClientService postClientService;
 
     @Override
     public ResponseEntity<GenericResponse> reportPost(String userId, ReportPostRequest reportPostRequest) {
         log.info("ReportServiceImpl, reportPost()");
 
+        ResponseEntity<String> groupIdResponse = postClientService.getGroupId(reportPostRequest.getPostId());
+        if (groupIdResponse.getStatusCode() != HttpStatus.OK) {
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(false)
+                    .statusCode(groupIdResponse.getStatusCode().value())
+                    .message("Post not found")
+                    .build());
+        }
+
         Report report = reportRepository.save(Report.builder()
                 .id(UUID.randomUUID().toString())
                 .authorId(userId)
                 .postId(reportPostRequest.getPostId())
-                .groupId(reportPostRequest.getGroupId())
+                .groupId(groupIdResponse.getBody())
                 .content(reportPostRequest.getReason())
+                .isProcessed(false)
                 .isReportToAdmin(reportPostRequest.getIsReportToAdmin())
                 .isReportToGroupManager(reportPostRequest.getIsReportToGroupManager())
                 .build());

@@ -293,6 +293,16 @@ public class PostServiceImpl implements PostService {
                         .build());
     }
 
+    @Override
+    public ResponseEntity<String> getGroupIdFromPostId(String postId) {
+        log.info("PostServiceImpl, getGroupIdFromPostId");
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
+
+        return ResponseEntity.ok(post.getGroupId());
+    }
+
     public Boolean isUserInGroup(String userId, String groupId) {
         ResponseEntity<GenericResponse> responseEntity = groupClientService.validateUserInGroup(userId, groupId);
         return responseEntity.getStatusCode().equals(HttpStatus.OK);
