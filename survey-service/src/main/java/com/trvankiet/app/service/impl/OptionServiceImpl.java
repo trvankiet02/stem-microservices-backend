@@ -74,6 +74,18 @@ public class OptionServiceImpl implements OptionService {
             throw new NotFoundException("User has already voted for this option");
         }
 
+        // if survey is single choice, delete first choice and add user to new option of survey
+
+        if (!option.getSurvey().getIsMultipleChoice()) {
+            List<Option> options = optionRepository.findAllBySurveyId(option.getSurvey().getId());
+            for (Option o : options) {
+                if (o.getVoteByUsers().contains(userId)) {
+                    o.getVoteByUsers().remove(userId);
+                    optionRepository.save(o);
+                }
+            }
+        }
+
         option.getVoteByUsers().add(userId);
 
         optionRepository.save(option);
