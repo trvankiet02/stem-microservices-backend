@@ -525,12 +525,26 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getAllClassesForAdmin(String token, Integer page, Integer size) {
+    public ResponseEntity<GenericResponse> getAllClassesForAdmin(String token, Integer page, Integer size, String search) {
         log.info("GroupServiceImpl, getAllClassesForAdmin");
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        Page<Group> groups = groupRepository.findAllByIsClass(true, pageable);
+        Page<Group> groups = null;
+
+        if (search != null && !search.isEmpty()) {
+            groups = groupRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClass(search, true, pageable);
+        } else {
+            groups = groupRepository.findAllByIsClass(true, pageable);
+        }
+
+        if (groups.isEmpty()) {
+            return ResponseEntity.ok(GenericResponse.builder()
+                    .success(true)
+                    .message("Không tìm thấy lớp học!")
+                    .statusCode(HttpStatus.OK.value())
+                    .build());
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("groups", groups.stream()
@@ -576,6 +590,8 @@ public class GroupServiceImpl implements GroupService {
 
         groupRepository.delete(group);
 
+        groupMemberRepository.deleteAllByGroupId(group.getId());
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Delete group successfully")
@@ -602,10 +618,83 @@ public class GroupServiceImpl implements GroupService {
 
         group = groupRepository.save(group);
 
+        groupMemberRepository.save(GroupMember.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(adminCreateGroupRequest.getAuthorId())
+                .group(group)
+                .role(GroupMemberRoleType.GROUP_OWNER)
+                .createdAt(now)
+                .build());
+
         return ResponseEntity.ok().body(GenericResponse.builder()
                 .success(true)
                 .statusCode(HttpStatus.OK.value())
                 .message("Create group successful")
+                .result("")
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> adminCreateClass(String token, AdminCreateClassRequest adminCreateClassRequest) {
+        log.info("GroupServiceImpl, adminCreateClass");
+
+        Date now = new Date();
+
+        Group group = Group.builder()
+                .id(UUID.randomUUID().toString())
+                .name(adminCreateClassRequest.getName())
+                .description(adminCreateClassRequest.getDescription())
+                .authorId(adminCreateClassRequest.getAuthorId())
+                .isClass(true)
+                .isPublic(adminCreateClassRequest.getIsPublic())
+                .isAcceptAllRequest(adminCreateClassRequest.getIsAcceptAllRequest())
+                .subject(adminCreateClassRequest.getSubject())
+                .grade(adminCreateClassRequest.getGrade())
+                .yearFrom(adminCreateClassRequest.getYearFrom())
+                .yearTo(adminCreateClassRequest.getYearTo())
+                .createdAt(now)
+                .build();
+
+        group = groupRepository.save(group);
+
+        groupMemberRepository.save(GroupMember.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(adminCreateClassRequest.getAuthorId())
+                .group(group)
+                .role(GroupMemberRoleType.GROUP_OWNER)
+                .createdAt(now)
+                .build());
+
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Create class successful")
+                .result("")
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> adminUpdateClass(String token, AdminUpdateClassRequest adminUpdateClassRequest) {
+        log.info("GroupServiceImpl, adminUpdateClass");
+
+        Group group = groupRepository.findById(adminUpdateClassRequest.getClassId()).orElseThrow(() -> new NotFoundException("Class is not exist"));
+
+        group.setName(adminUpdateClassRequest.getName());
+        group.setDescription(adminUpdateClassRequest.getDescription());
+        group.setIsPublic(adminUpdateClassRequest.getIsPublic());
+        group.setIsAcceptAllRequest(adminUpdateClassRequest.getIsAcceptAllRequest());
+        group.setSubject(adminUpdateClassRequest.getSubject());
+        group.setGrade(adminUpdateClassRequest.getGrade());
+        group.setYearFrom(adminUpdateClassRequest.getYearFrom());
+        group.setYearTo(adminUpdateClassRequest.getYearTo());
+        group.setUpdatedAt(new Date());
+
+        groupRepository.save(group);
+
+        return ResponseEntity.ok().body(GenericResponse.builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Update class successful")
                 .result("")
                 .build());
     }

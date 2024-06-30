@@ -86,12 +86,12 @@ public class User extends AbstractMappedEntity implements Serializable {
     @JoinColumn(name = "child_id")
     @JsonBackReference
     @ToString.Exclude
+    @Builder.Default
     private List<Relationship> relationships = new ArrayList<>();
 
     @Column(name = "grade")
     private Integer grade;
 
-    @Builder.Default
     @ManyToMany(mappedBy = "students")
     @JsonBackReference
     @ToString.Exclude

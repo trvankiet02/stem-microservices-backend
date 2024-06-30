@@ -95,13 +95,6 @@ public class PostController {
         return postService.deletePost(userId, postId);
     }
 
-    @GetMapping("/search")
-    public List<PostDto> searchPost(@RequestParam("query") Optional<String> query
-            , @RequestParam("type") Optional<String> type) {
-        log.info("PostController, searchPost");
-        return postService.searchPost(query, type);
-    }
-
     @GetMapping("/home-posts")
     public ResponseEntity<GenericResponse> getHomePost(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                        @RequestParam(value = "page", defaultValue = "0") int page,

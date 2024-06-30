@@ -34,8 +34,8 @@ public class MapperServiceImpl implements MapperService {
                         null : user.getParents().stream().map(this::mapToAnotherUserDto).toList())
                 .children(user.getStudents().isEmpty() ?
                         null : user.getStudents().stream().map(this::mapToAnotherUserDto).toList())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
+                .createdAt(user.getCreatedAt() == null ? null : user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt() == null ? null : user.getUpdatedAt())
                 .build();
     }
 
@@ -52,8 +52,8 @@ public class MapperServiceImpl implements MapperService {
                 .lockedReason(credential.getLockedReason())
                 .role(credential.getRole().getName())
                 .provider(credential.getProvider().getName())
-                .createdAt(credential.getCreatedAt())
-                .updatedAt(credential.getUpdatedAt())
+                .createdAt(credential.getCreatedAt() == null ? null : credential.getCreatedAt())
+                .updatedAt(credential.getUpdatedAt() == null ? null : credential.getUpdatedAt())
                 .build();
     }
 
@@ -65,8 +65,8 @@ public class MapperServiceImpl implements MapperService {
                 .is_expired(token.getIsExpired())
                 .is_revoked(token.getIsRevoked())
                 .expiredAt(token.getExpiredAt())
-                .createdAt(token.getCreatedAt())
-                .updatedAt(token.getUpdatedAt())
+                .createdAt(token.getCreatedAt() == null ? null : token.getCreatedAt())
+                .updatedAt(token.getUpdatedAt() == null ? null : token.getUpdatedAt())
                 .build();
     }
 
@@ -76,7 +76,7 @@ public class MapperServiceImpl implements MapperService {
                 .id(relationship.getId())
                 .parentDto(this.mapToSimpleUserDto(relationship.getParent()))
                 .studentDto(this.mapToSimpleUserDto(relationship.getChild()))
-                .isAccepted(relationship.getIsAccepted())
+                .isAccepted(relationship.getIsAccepted() != null ? relationship.getIsAccepted() : null)
                 .build();
     }
 
@@ -94,8 +94,8 @@ public class MapperServiceImpl implements MapperService {
                 .avatarUrl(user.getAvatarUrl())
                 .coverUrl(user.getCoverUrl())
                 .credentialDto(this.mapToCredentialDto(user.getCredential()))
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
+                .createdAt(user.getCreatedAt() == null ? null : user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt() == null ? null : user.getUpdatedAt())
                 .build();
     }
 

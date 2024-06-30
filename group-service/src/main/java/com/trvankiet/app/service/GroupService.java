@@ -48,11 +48,15 @@ public interface GroupService {
 
     ResponseEntity<GenericResponse> getMyGroups(String userId);
 
-    ResponseEntity<GenericResponse> getAllClassesForAdmin(String token, Integer page, Integer size);
+    ResponseEntity<GenericResponse> getAllClassesForAdmin(String token, Integer page, Integer size, String search);
 
     ResponseEntity<GenericResponse> adminUpdateGroup(String token, AdminUpdateGroupRequest adminUpdateGroupRequest);
 
     ResponseEntity<GenericResponse> adminDeleteGroup(String token, String groupId);
 
     ResponseEntity<GenericResponse> adminCreateGroup(String token, AdminCreateGroupRequest adminCreateGroupRequest);
+
+    ResponseEntity<GenericResponse> adminCreateClass(String token, AdminCreateClassRequest adminCreateClassRequest);
+
+    ResponseEntity<GenericResponse> adminUpdateClass(String token, AdminUpdateClassRequest adminUpdateClassRequest);
 }

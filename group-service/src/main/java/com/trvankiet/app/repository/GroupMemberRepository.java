@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface GroupMemberRepository extends MongoRepository<GroupMember, String> {
     List<GroupMember> findByUserId(String userId);
+    void deleteAllByGroupId(String groupId);
     List<GroupMember> findAllByUserId(String userId);
     Optional<GroupMember> findByUserIdAndGroupId(String userId, String groupId);
     List<GroupMember> findAllByGroupId(String groupId);

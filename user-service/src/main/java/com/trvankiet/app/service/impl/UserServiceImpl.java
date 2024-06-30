@@ -558,5 +558,21 @@ public class UserServiceImpl implements UserService {
                 .build());
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getTeachers(String authorizationHeader) {
+        log.info("UserServiceImpl, ResponseEntity<GenericResponse>, getTeachers");
+
+        List<User> users = userRepository.findAllByRole(RoleBasedAuthority.TEACHER);
+
+        List<SimpleUserDto> userDtos = users.stream().map(mapperService::mapToSimpleUserDto).toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách giáo viên thành công!")
+                .result(userDtos)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
 
 }

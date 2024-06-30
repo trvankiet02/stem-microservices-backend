@@ -33,7 +33,6 @@ public interface GroupRepository extends MongoRepository<Group, String> {
             "]" +
             "}"
     )
-//            "[{'group_name":{"$regex":"3","$options":"i"}},{"group_description":{"$regex":"3","$options":"i"}}],"isClass":false})
     Page<Group> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClass(String query, Boolean isClass, Pageable pageable);
 
     @Query("{" +

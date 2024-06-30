@@ -38,6 +38,13 @@ public class AdminUserController {
         return userService.getUsers(authorizationHeader);
     }
 
+    @GetMapping("/get-teachers")
+    public ResponseEntity<GenericResponse> getTeachers(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("AdminUserController, getTeachers");
+        return userService.getTeachers(authorizationHeader);
+    }
+
     @PostMapping("/ban-user")
     public ResponseEntity<GenericResponse> banUser(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationHeader,

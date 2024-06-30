@@ -25,7 +25,7 @@ public class SubmissionDetailController {
 
     @PutMapping("/update")
     public ResponseEntity<String> updateSubmissionDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-        , @RequestBody @Valid SubmissionDetailUpdateRequest submissionDetailUpdateRequest) {
+            , @RequestBody @Valid SubmissionDetailUpdateRequest submissionDetailUpdateRequest) {
         log.info("SubmissionDetailController, updateSubmissionDetail");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -34,7 +34,7 @@ public class SubmissionDetailController {
 
     @PutMapping("/delete-answer")
     public ResponseEntity<String> deleteAnswer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-        , @RequestBody @Valid DeleteSubmissionDetailRequest deleteSubmissionDetailRequest) {
+            , @RequestBody @Valid DeleteSubmissionDetailRequest deleteSubmissionDetailRequest) {
         log.info("SubmissionDetailController, deleteAnswer");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -43,7 +43,7 @@ public class SubmissionDetailController {
 
     @GetMapping("/detail/{submissionId}")
     public ResponseEntity<GenericResponse> getSubmissionDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-        , @PathVariable("submissionId") String submissionId) {
+            , @PathVariable("submissionId") String submissionId) {
         log.info("SubmissionDetailController, getSubmissionDetail");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
@@ -52,21 +52,20 @@ public class SubmissionDetailController {
 
     @GetMapping("/{submissionId}")
     public ResponseEntity<GenericResponse> getSubmissionForTeacherMark(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-        , @PathVariable("submissionId") String submissionId) {
+            , @PathVariable("submissionId") String submissionId) {
         log.info("SubmissionDetailController, getSubmission");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return submissionDetailService.getSubmissionForTeacherMark(userId, submissionId);
     }
 
-    @PostMapping("/mark/{submissionDetailId}")
-    public ResponseEntity<GenericResponse> markSubmissionDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
-        , @PathVariable("submissionDetailId") String submissionDetailId,
+    @PostMapping("/mark")
+    public ResponseEntity<GenericResponse> markSubmissionDetail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                                 @RequestBody @Valid SubmissionDetailMarkRequest submissionDetailMarkRequest) {
         log.info("SubmissionDetailController, markSubmissionDetail");
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return submissionDetailService.markSubmissionDetail(userId, submissionDetailId, submissionDetailMarkRequest);
+        return submissionDetailService.markSubmissionDetail(userId, submissionDetailMarkRequest);
     }
 
 

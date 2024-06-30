@@ -45,7 +45,7 @@ public class RelationServiceImpl implements RelationService {
         Relationship relationship = relationRepository.save(Relationship.builder()
                 .parent(parent)
                 .child(student)
-                .isAccepted(false)
+                .isAccepted(null)
                 .build());
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)

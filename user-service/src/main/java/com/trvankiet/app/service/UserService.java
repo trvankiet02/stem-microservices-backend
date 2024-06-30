@@ -68,4 +68,6 @@ public interface UserService {
     ResponseEntity<GenericResponse> resetPassword(String authorizationHeader, AdminResetPasswordRequest adminResetPasswordRequest);
 
     ResponseEntity<GenericResponse> getUsers(String authorizationHeader);
+
+    ResponseEntity<GenericResponse> getTeachers(String authorizationHeader);
 }
