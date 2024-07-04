@@ -187,5 +187,11 @@ public class GroupController {
         return groupService.getMyGroups(userId);
     }
 
+    @GetMapping("/competitions")
+    public ResponseEntity<GenericResponse> getCompetitions() {
+        log.info("AdminGroupController, getCompetitions");
+        return groupService.getCompetitions();
+    }
+
 
 }

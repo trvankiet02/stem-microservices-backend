@@ -728,4 +728,20 @@ public class GroupServiceImpl implements GroupService {
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> getCompetitions() {
+        log.info("GroupServiceImpl, getCompetitions");
+
+        List<Group> competitions = groupRepository.findAllByIsCompetition(true);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách cuộc thi thành công!")
+                .result(competitions.stream()
+                        .map(mapperService::mapToGroupDto)
+                        .toList())
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
 }

@@ -59,4 +59,6 @@ public interface GroupService {
     ResponseEntity<GenericResponse> adminUpdateClass(String token, AdminUpdateClassRequest adminUpdateClassRequest);
 
     ResponseEntity<GenericResponse> createCompetition(String userId, CompetitionCreateRequest competitionCreateRequest);
+
+    ResponseEntity<GenericResponse> getCompetitions();
 }

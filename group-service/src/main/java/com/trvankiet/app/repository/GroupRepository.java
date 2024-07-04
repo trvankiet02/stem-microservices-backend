@@ -74,4 +74,5 @@ public interface GroupRepository extends MongoRepository<Group, String> {
     Page<Group> findAllBySubjectAndIsPublicAndIsCompetition(String subject, Boolean isPublic, Boolean isCompetition, Pageable pageable);
     Page<Group> findAllByGradeAndIsPublic(Integer grade, Boolean isPublic, Pageable pageable);
     Page<Group> findAllByGradeAndIsPublicAndIsCompetition(Integer grade, Boolean isPublic, Boolean isCompetition, Pageable pageable);
+    List<Group> findAllByIsCompetition(Boolean isCompetition);
 }
