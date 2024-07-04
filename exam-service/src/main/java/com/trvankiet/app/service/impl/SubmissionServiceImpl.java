@@ -457,4 +457,23 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .result(submissionDtos)
                 .build());
     }
+
+    @Override
+    public ResponseEntity<GenericResponse> getRankByGroupId(String userId, String groupId) {
+        log.info("SubmissionServiceImpl, getRankingByExamId");
+
+        List<Submission> submissions = submissionRepository.findAllByExamGroupId(groupId);
+
+        List<SubmissionDto> submissionDtos = submissions.stream()
+                .map(mapperService::mapToSubmissionDto)
+                .sorted(Comparator.comparing(SubmissionDto::getScore).reversed())
+                .toList();
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(200)
+                .message("Lấy danh sách bài thi thành công!")
+                .result(submissionDtos)
+                .build());
+    }
 }

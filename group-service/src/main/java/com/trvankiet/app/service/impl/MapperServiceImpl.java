@@ -25,6 +25,7 @@ public class MapperServiceImpl implements MapperService {
                 .description(group.getDescription() == null ?
                         null : group.getDescription())
                 .isClass(group.getIsClass() != null ? group.getIsClass() : false)
+                .isCompetition(group.getIsCompetition() != null ? group.getIsCompetition() : false)
                 .isPublic(group.getIsPublic() != null ? group.getIsPublic() : true)
                 .isAcceptAllRequest(group.getIsAcceptAllRequest() != null ? group.getIsAcceptAllRequest() : true)
                 .yearFrom(group.getYearFrom() == null ? null : group.getYearFrom())

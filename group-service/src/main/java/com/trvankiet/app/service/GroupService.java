@@ -14,8 +14,6 @@ import java.util.Optional;
 public interface GroupService {
     ResponseEntity<GenericResponse> createGroup(String userId, GroupCreateRequest groupCreateRequest);
 
-    ResponseEntity<GenericResponse> getAllGroup();
-
     ResponseEntity<GenericResponse> getGroupById(String userId, String groupId);
 
     ResponseEntity<GenericResponse> getGroupsByUserId(String userId);
@@ -59,4 +57,6 @@ public interface GroupService {
     ResponseEntity<GenericResponse> adminCreateClass(String token, AdminCreateClassRequest adminCreateClassRequest);
 
     ResponseEntity<GenericResponse> adminUpdateClass(String token, AdminUpdateClassRequest adminUpdateClassRequest);
+
+    ResponseEntity<GenericResponse> createCompetition(String userId, CompetitionCreateRequest competitionCreateRequest);
 }

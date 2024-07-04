@@ -2,6 +2,7 @@ package com.trvankiet.app.controller.user;
 
 import com.trvankiet.app.dto.GroupDto;
 import com.trvankiet.app.dto.SimpleGroupDto;
+import com.trvankiet.app.dto.request.CompetitionCreateRequest;
 import com.trvankiet.app.dto.request.GroupConfigRequest;
 import com.trvankiet.app.dto.request.GroupCreateRequest;
 import com.trvankiet.app.dto.request.UpdateDetailRequest;
@@ -30,6 +31,15 @@ public class GroupController {
 
     private final GroupService groupService;
     private final JwtService jwtService;
+
+    @PostMapping("/create-competition")
+    public ResponseEntity<GenericResponse> createCompetition(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+            , @RequestBody @Valid CompetitionCreateRequest competitionCreateRequest) {
+        log.info("GroupController, createCompetition");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.createCompetition(userId, competitionCreateRequest);
+    }
 
     @PostMapping
     public ResponseEntity<GenericResponse> createGroup(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader

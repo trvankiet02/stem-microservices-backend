@@ -31,6 +31,7 @@ public class GroupDto implements Serializable {
     private String avatarUrl;
     private String coverUrl;
     private Boolean isClass;
+    private Boolean isCompetition;
     private Boolean isPublic;
     private Boolean isAcceptAllRequest;
     private Integer yearFrom;

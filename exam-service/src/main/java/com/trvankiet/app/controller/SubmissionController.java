@@ -71,13 +71,13 @@ public class SubmissionController {
         return submissionService.getListSubmissionByExamIdForParent(userId, examId);
     }
 
-    @GetMapping("/rank/{examId}")
-    public ResponseEntity<GenericResponse> getRankingByExamId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
-            , @PathVariable("examId") String examId) {
+    @GetMapping("/rank/{groupId}")
+    public ResponseEntity<GenericResponse> getRankByGroupId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
+            , @PathVariable("groupId") String groupId) {
         log.info("SubmissionController, getRankingByExamId");
         String accessToken = authorizationToken.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return submissionService.getRankingByExamId(userId, examId);
+        return submissionService.getRankByGroupId(userId, groupId);
     }
 
     // Get list of submissions of class for teacher

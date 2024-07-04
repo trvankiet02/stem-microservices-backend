@@ -60,6 +60,7 @@ public class GroupServiceImpl implements GroupService {
                         null : groupCreateRequest.getDescription())
                 .authorId(userId)
                 .isClass(groupCreateRequest.getIsClass())
+                .isCompetition(false)
                 .isPublic(groupCreateRequest.getIsPublic())
                 .isAcceptAllRequest(groupCreateRequest.getIsAcceptAllRequest())
                 .createdAt(now)
@@ -90,17 +91,6 @@ public class GroupServiceImpl implements GroupService {
                 .success(true)
                 .message("Tạo nhóm thành công!")
                 .result(group.getId())
-                .statusCode(HttpStatus.OK.value())
-                .build());
-    }
-
-    @Override
-    public ResponseEntity<GenericResponse> getAllGroup() {
-        log.info("GroupServiceImpl, getAllGroup");
-        return ResponseEntity.ok(GenericResponse.builder()
-                .success(true)
-                .message("Lấy danh sách nhóm thành công!")
-                .result(groupRepository.findAll())
                 .statusCode(HttpStatus.OK.value())
                 .build());
     }
@@ -240,7 +230,10 @@ public class GroupServiceImpl implements GroupService {
         if (!group.getAuthorId().equals(userId)) {
             throw new ForbiddenException("Bạn không có quyền xóa nhóm!");
         }
+
         groupRepository.delete(group);
+        groupMemberRepository.deleteAllByGroupId(groupId);
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .message("Xóa nhóm thành công!")
@@ -322,7 +315,7 @@ public class GroupServiceImpl implements GroupService {
         UserDto userDto = userClientService.getUserDtoByUserId(userId);
         if (userDto.getRole().equals("TEACHER")) {
             userDto.getSubjects().forEach(subject -> {
-                List<Group> groupsBySubject = groupRepository.findAllBySubjectAndIsPublic(subject, true);
+                List<Group> groupsBySubject = groupRepository.findAllBySubjectAndIsPublicAndIsCompetition(subject, true, false);
                 groupsBySubject.forEach(group -> {
                     if (!groupIds.contains(group.getId())) {
                         groupIds.add(group.getId());
@@ -330,14 +323,14 @@ public class GroupServiceImpl implements GroupService {
                 });
             });
         } else if (userDto.getRole().equals("STUDENT")) {
-            List<Group> groupsByGrade = groupRepository.findAllByGradeAndIsPublic(userDto.getGrade(), true);
+            List<Group> groupsByGrade = groupRepository.findAllByGradeAndIsPublicAndIsCompetition(userDto.getGrade(), true, false);
             groupsByGrade.forEach(group -> {
                 if (!groupIds.contains(group.getId())) {
                     groupIds.add(group.getId());
                 }
             });
         }
-        List<Group> suggestGroups = groupRepository.findAllByIsClassAndIsPublic(false, true);
+        List<Group> suggestGroups = groupRepository.findAllByIsClassAndIsPublicAndIsCompetition(false, true, false);
         suggestGroups.forEach(group -> {
             if (!groupIds.contains(group.getId())) {
                 groupIds.add(group.getId());
@@ -356,7 +349,7 @@ public class GroupServiceImpl implements GroupService {
                 .filter(group -> !group.getIsClass())
                 .toList();
 
-        List<Group> suggestGroups = groupRepository.findAllByIsClassAndIsPublic(false, true, pageable).toList();
+        List<Group> suggestGroups = groupRepository.findAllByIsClassAndIsPublicAndIsCompetition(false, true, false, pageable).toList();
 
         List<SuggestGroupResponse> suggestGroupResponses = new ArrayList<>();
 
@@ -402,17 +395,17 @@ public class GroupServiceImpl implements GroupService {
 
         if (userDto.getRole().equals("TEACHER")) {
             userDto.getSubjects().forEach(subject -> {
-                suggestGroups.addAll(groupRepository.findAllBySubjectAndIsPublic(subject, true, pageable).toList());
+                suggestGroups.addAll(groupRepository.findAllBySubjectAndIsPublicAndIsCompetition(subject, true, false, pageable).toList());
             });
         } else if (userDto.getRole().equals("STUDENT")) {
-            suggestGroups.addAll(groupRepository.findAllByGradeAndIsPublic(userDto.getGrade(), true, pageable).toList());
+            suggestGroups.addAll(groupRepository.findAllByGradeAndIsPublicAndIsCompetition(userDto.getGrade(), true, false, pageable).toList());
         } else if (userDto.getRole().equals("PARENT")) {
             if (userDto.getChildren() != null) {
                 userDto.getChildren().forEach(child -> {
                     UserDto childDto = userClientService.getUserDtoByUserId(child.getId());
                     Pageable newPageable = Pageable.ofSize(size).withPage(page / userDto.getChildren().size());
                     if (childDto.getRole().equals("STUDENT")) {
-                        suggestGroups.addAll(groupRepository.findAllByGradeAndIsPublic(childDto.getGrade(), true, newPageable).toList());
+                        suggestGroups.addAll(groupRepository.findAllByGradeAndIsPublicAndIsCompetition(childDto.getGrade(), true, false, newPageable).toList());
                     }
                 });
             }
@@ -469,7 +462,7 @@ public class GroupServiceImpl implements GroupService {
         Page<Group> groups = null;
 
         if (search != null && !search.isEmpty()) {
-            groups = groupRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClass(search, false, pageable);
+            groups = groupRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClassAndIsCompetition(search, false, false, pageable);
         } else {
             groups = groupRepository.findAllByIsClass(false, pageable);
         }
@@ -512,7 +505,7 @@ public class GroupServiceImpl implements GroupService {
         log.info("GroupServiceImpl, getMyGroups");
         List<SimpleGroupDto> groupMembers = groupMemberRepository.findAllByUserId(userId)
                 .stream()
-                .filter(groupMember -> !groupMember.getGroup().getIsClass())
+                .filter(groupMember -> !groupMember.getGroup().getIsClass() && !groupMember.getGroup().getIsCompetition())
                 .map(groupMember -> mapperService.mapToSimpleGroupDto(groupMember.getGroup()))
                 .toList();
 
@@ -533,7 +526,7 @@ public class GroupServiceImpl implements GroupService {
         Page<Group> groups = null;
 
         if (search != null && !search.isEmpty()) {
-            groups = groupRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClass(search, true, pageable);
+            groups = groupRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsClassAndIsCompetition(search, true, false, pageable);
         } else {
             groups = groupRepository.findAllByIsClass(true, pageable);
         }
@@ -696,6 +689,43 @@ public class GroupServiceImpl implements GroupService {
                 .statusCode(HttpStatus.OK.value())
                 .message("Update class successful")
                 .result("")
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> createCompetition(String userId, CompetitionCreateRequest competitionCreateRequest) {
+        log.info("GroupServiceImpl, createCompetition");
+
+        Date now = new Date();
+
+        Group group = Group.builder()
+                .id(UUID.randomUUID().toString())
+                .name(competitionCreateRequest.getName())
+                .description(competitionCreateRequest.getDescription())
+                .authorId(userId)
+                .isClass(false)
+                .isCompetition(true)
+                .isPublic(true)
+                .subject(competitionCreateRequest.getSubject())
+                .isAcceptAllRequest(true)
+                .createdAt(now)
+                .build();
+
+        group = groupRepository.save(group);
+
+        groupMemberRepository.save(GroupMember.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(userId)
+                .group(group)
+                .role(GroupMemberRoleType.GROUP_OWNER)
+                .createdAt(now)
+                .build());
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Tạo cuộc thi thành công!")
+                .result(group.getId())
+                .statusCode(HttpStatus.OK.value())
                 .build());
     }
 }
