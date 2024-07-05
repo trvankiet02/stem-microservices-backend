@@ -28,4 +28,8 @@ public interface GroupMemberService {
     String getGroupMemberRoleByGroupIdAndUserId(String groupId, String userId);
 
     ResponseEntity<GenericResponse> getAllGroupMembers(String authorizationHeader, String groupId, Integer page, Integer size);
+
+    ResponseEntity<GenericResponse> deleteGroupMemberByAdmin(String authorizationHeader, String groupMemberId);
+
+    ResponseEntity<GenericResponse> addGroupMemberByAdmin(String authorizationHeader, AddGroupMemberRequest addGroupMemberRequest);
 }

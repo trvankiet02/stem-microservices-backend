@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/reaction/admin")
+@RequestMapping("/api/v1/reactions/admin")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminReactionController {

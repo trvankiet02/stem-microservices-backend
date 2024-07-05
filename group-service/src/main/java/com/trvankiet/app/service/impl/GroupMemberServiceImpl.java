@@ -324,4 +324,50 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 					.message("Lấy danh sách thành viên thành công!").result(result).build());
 		}
 	}
+
+	@Override
+	public ResponseEntity<GenericResponse> deleteGroupMemberByAdmin(String authorizationHeader, String groupMemberId) {
+		log.info("GroupMemberServiceImpl, deleteGroupMemberByAdmin");
+
+		GroupMember groupMember = groupMemberRepository.findById(groupMemberId)
+				.orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
+
+		groupMemberRepository.delete(groupMember);
+		return ResponseEntity.ok(GenericResponse.builder().success(true).statusCode(200)
+				.message("Xóa thành viên thành công").result(null).build());
+	}
+
+	@Override
+	public ResponseEntity<GenericResponse> addGroupMemberByAdmin(String authorizationHeader, AddGroupMemberRequest addGroupMemberRequest) {
+		log.info("GroupMemberServiceImpl, addGroupMemberByAdmin");
+
+		Group group = groupRepository.findById(addGroupMemberRequest.getGroupId())
+				.orElseThrow(() -> new NotFoundException("Nhóm không tồn tại"));
+		Optional<GroupMember> newOptionalGroupMember = groupMemberRepository
+				.findByUserIdAndGroupId(addGroupMemberRequest.getUserId(), group.getId());
+		if (newOptionalGroupMember.isPresent()) {
+			throw new BadRequestException("Thành viên đã tồn tại trong nhóm");
+		}
+		// check if group still have Group Owner and request code is group owner
+
+		Optional<GroupMember> groupOwner = groupMemberRepository.findByGroupIdAndRole(group.getId(), GroupMemberRoleType.GROUP_OWNER);
+
+		if (groupOwner.isPresent() && addGroupMemberRequest.getRoleCode().equals(GroupMemberRoleType.GROUP_OWNER.getCode())) {
+			throw new BadRequestException("Nhóm đã có chủ nhóm");
+		}
+
+		try {
+			GroupMember groupMember = groupMemberRepository.save(
+					GroupMember.builder().id(UUID.randomUUID().toString()).userId(addGroupMemberRequest.getUserId())
+							.group(group).role(GroupMemberRoleType.valueOf(addGroupMemberRequest.getRoleCode()))
+							.createdAt(new Date()).build());
+			return ResponseEntity.ok(GenericResponse.builder().success(true).statusCode(200)
+					.message("Thêm thành viên vào nhóm thành công")
+					.result(mapperService.mapToGroupMemberResponse(groupMember)).build());
+		} catch (IllegalArgumentException e) {
+			throw new BadRequestException("Quyền thành viên không hợp lệ");
+		} catch (Exception e) {
+			throw new BadRequestException(e.getMessage());
+		}
+	}
 }
