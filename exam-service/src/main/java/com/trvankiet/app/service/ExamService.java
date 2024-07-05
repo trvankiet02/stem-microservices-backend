@@ -31,4 +31,6 @@ public interface ExamService {
     ResponseEntity<GenericResponse> findAllExams(String userId, String groupId);
 
     ResponseEntity<GenericResponse> importFromExcelOrXlsx(String userId, CreateExamByExcelRequest createExamByExcelRequest);
+
+    ResponseEntity<GenericResponse> getTop5Exam();
 }

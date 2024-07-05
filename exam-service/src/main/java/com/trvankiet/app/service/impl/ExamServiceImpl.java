@@ -1,7 +1,11 @@
 package com.trvankiet.app.service.impl;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.trvankiet.app.constant.AppConstant;
 import com.trvankiet.app.constant.QuestionTypeEnum;
+import com.trvankiet.app.dto.ExamCountDTO;
 import com.trvankiet.app.dto.ExamDto;
 import com.trvankiet.app.dto.SubmissionDto;
 import com.trvankiet.app.dto.request.*;
@@ -29,6 +33,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.bson.Document;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +59,7 @@ public class ExamServiceImpl implements ExamService {
     private final MapperService mapperService;
     private final GroupMemberClientService groupMemberClientService;
     private final SubmissionRepository submissionRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public ResponseEntity<GenericResponse> findAllExams() {
@@ -414,6 +424,42 @@ public class ExamServiceImpl implements ExamService {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getTop5Exam() {
+        log.info("ExamServiceImpl, getTop5Exam");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.group("exam_id").count().as("count"),
+                Aggregation.sort(Sort.by(Sort.Order.desc("count"))),
+                Aggregation.limit(5),
+                Aggregation.project("count").and("_id").as("examId")
+        );
+
+        AggregationResults<ExamCountDTO> result = mongoTemplate.aggregate(aggregation, Submission.class, ExamCountDTO.class);
+        List<ExamCountDTO> top5Exams = result.getMappedResults();
+
+        List<Map<String, Object>> examResult = new ArrayList<>();
+
+        for (ExamCountDTO examCountDTO : top5Exams) {
+            Exam exam = examRepository.findById(examCountDTO.getExamId())
+                            .orElse(null);
+            if (exam != null) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("exam", mapperService.mapToExamDto(exam));
+                map.put("count", examCountDTO.getCount());
+                examResult.add(map);
+            }
+        }
+        return ResponseEntity.ok().body(
+                GenericResponse.builder()
+                        .success(true)
+                        .statusCode(200)
+                        .message("Success")
+                        .result(examResult)
+                        .build()
+        );
     }
 
     private static boolean isCorrectAnswer(XWPFParagraph paragraph) {

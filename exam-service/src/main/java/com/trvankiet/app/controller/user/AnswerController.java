@@ -1,4 +1,4 @@
-package com.trvankiet.app.controller;
+package com.trvankiet.app.controller.user;
 
 import com.trvankiet.app.dto.request.UpdateAnswerDetailRequest;
 import com.trvankiet.app.dto.response.GenericResponse;

@@ -1,7 +1,9 @@
 package com.trvankiet.app.repository;
 
+import com.trvankiet.app.entity.Exam;
 import com.trvankiet.app.entity.Submission;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +19,6 @@ public interface SubmissionRepository extends MongoRepository<Submission, String
     List<Submission> findAllByAuthorId(String authorId);
 
     List<Submission> findAllByExamGroupId(String groupId);
+    @Query("[{'$group': {'_id': '$exam', 'count': {'$sum': 1}}}, {'$sort': {'count': -1}}, {'$limit': 5}]")
+    List<Exam> findTop5ExamsBySubmissionCount();
 }
