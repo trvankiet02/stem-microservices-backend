@@ -32,4 +32,6 @@ public interface GroupMemberService {
     ResponseEntity<GenericResponse> deleteGroupMemberByAdmin(String authorizationHeader, String groupMemberId);
 
     ResponseEntity<GenericResponse> addGroupMemberByAdmin(String authorizationHeader, AddGroupMemberRequest addGroupMemberRequest);
+
+    ResponseEntity<GenericResponse> deleteGroupMemberByUserId(String authorizationHeader, DeleteGroupMemberRequest deleteGroupMemberRequest);
 }

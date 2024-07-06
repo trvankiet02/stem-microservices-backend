@@ -18,6 +18,7 @@ import com.trvankiet.app.repository.GroupRepository;
 import com.trvankiet.app.service.GroupService;
 import com.trvankiet.app.service.MapperService;
 import com.trvankiet.app.service.client.FileClientService;
+import com.trvankiet.app.service.client.ReportClientService;
 import com.trvankiet.app.service.client.UserClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,7 @@ public class GroupServiceImpl implements GroupService {
     private final MapperService mapperService;
     private final FileClientService fileClientService;
     private final MongoTemplate mongoTemplate;
+    private final ReportClientService reportClientService;
 
     @Override
     public ResponseEntity<GenericResponse> createGroup(String userId, GroupCreateRequest groupCreateRequest) {
@@ -739,6 +741,24 @@ public class GroupServiceImpl implements GroupService {
                 .success(true)
                 .message("Lấy danh sách cuộc thi thành công!")
                 .result(competitions.stream()
+                        .map(mapperService::mapToGroupDto)
+                        .toList())
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> getFilteredGroups(String token) {
+        log.info("GroupServiceImpl, getFilteredGroups");
+
+        List<String> groupIds = reportClientService.getFilteredGroups();
+
+        List<Group> groups = groupRepository.findAllByIdIn(groupIds);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .message("Lấy danh sách nhóm thành công!")
+                .result(groups.stream()
                         .map(mapperService::mapToGroupDto)
                         .toList())
                 .statusCode(HttpStatus.OK.value())

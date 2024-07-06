@@ -29,5 +29,11 @@ public class AdminPostController {
         return postService.getHotPosts(authorizationToken, groupId, page, size);
     }
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<GenericResponse> getPostById(@RequestHeader("Authorization") String authorizationToken,
+                                                       @PathVariable("postId") String postId) {
+        return postService.getAdminPostById(authorizationToken, postId);
+    }
+
 
 }

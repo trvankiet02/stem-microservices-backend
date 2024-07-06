@@ -1,6 +1,7 @@
 package com.trvankiet.app.controller.admin;
 
 import com.trvankiet.app.dto.request.AddGroupMemberRequest;
+import com.trvankiet.app.dto.request.DeleteGroupMemberRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
 import com.trvankiet.app.service.GroupMemberService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,13 @@ public class AdminGroupMemberController {
                                                              @PathVariable String groupMemberId) {
         log.info("AdminGroupMemberController, deleteGroupMember");
         return groupMemberService.deleteGroupMemberByAdmin(authorizationHeader, groupMemberId);
+    }
+
+    @DeleteMapping("/delete-group-member-by-user-id")
+    public ResponseEntity<GenericResponse> deleteGroupMemberByUserId(@RequestHeader("Authorization") String authorizationHeader,
+                                                             @RequestBody DeleteGroupMemberRequest deleteGroupMemberRequest) {
+        log.info("AdminGroupMemberController, deleteGroupMember");
+        return groupMemberService.deleteGroupMemberByUserId(authorizationHeader, deleteGroupMemberRequest);
     }
 
     @PostMapping("/add-group-member")

@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/reports")
 @RequiredArgsConstructor
@@ -43,12 +45,14 @@ public class ReportController {
         return reportService.getGroupReport(userId, groupId);
     }
 
-    @GetMapping("/adminReport/{groupId}")
+    @GetMapping("/adminReport")
     public ResponseEntity<GenericResponse> getAdminReport(@RequestHeader("Authorization") String authorizationHeader,
-                                                          @PathVariable String groupId) {
+                                                          @RequestParam(required = false) String groupId,
+                                                          @RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                          @RequestParam(value = "size", defaultValue = "10") Integer size) {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
-        return reportService.getAdminReport(userId, groupId);
+        return reportService.getAdminReport(userId, groupId, page - 1, size);
     }
 
     @GetMapping("/{reportId}")
@@ -57,6 +61,19 @@ public class ReportController {
         String accessToken = authorizationHeader.substring(7);
         String userId = jwtService.extractUserId(accessToken);
         return reportService.getReport(userId, reportId);
+    }
+
+    @GetMapping("/get-filtered-groups")
+    public List<String> getFilteredGroups() {
+        return reportService.getFilteredGroups();
+    }
+
+    @PutMapping("/{reportId}/markAsProcessed")
+    public ResponseEntity<GenericResponse> markAsProcessed(@RequestHeader("Authorization") String authorizationHeader,
+                                                           @PathVariable String reportId) {
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return reportService.markAsProcessed(userId, reportId);
     }
 
 

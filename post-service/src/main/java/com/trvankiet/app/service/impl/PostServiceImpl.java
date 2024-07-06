@@ -303,6 +303,22 @@ public class PostServiceImpl implements PostService {
         return ResponseEntity.ok(post.getGroupId());
     }
 
+    @Override
+    public ResponseEntity<GenericResponse> getAdminPostById(String authorizationToken, String postId) {
+        log.info("PostServiceImpl, getAdminPostById");
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy bài viết!"));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(GenericResponse.builder()
+                        .success(true)
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Lấy bài viết thành công!")
+                        .result(post.getContent())
+                        .build());
+    }
+
     public Boolean isUserInGroup(String userId, String groupId) {
         ResponseEntity<GenericResponse> responseEntity = groupClientService.validateUserInGroup(userId, groupId);
         return responseEntity.getStatusCode().equals(HttpStatus.OK);

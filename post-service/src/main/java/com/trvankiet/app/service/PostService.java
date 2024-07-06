@@ -33,4 +33,6 @@ public interface PostService {
 
 
     ResponseEntity<String> getGroupIdFromPostId(String postId);
+
+    ResponseEntity<GenericResponse> getAdminPostById(String authorizationToken, String postId);
 }

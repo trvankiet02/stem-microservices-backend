@@ -370,4 +370,17 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 			throw new BadRequestException(e.getMessage());
 		}
 	}
+
+	@Override
+	public ResponseEntity<GenericResponse> deleteGroupMemberByUserId(String authorizationHeader, DeleteGroupMemberRequest deleteGroupMemberRequest) {
+		log.info("GroupMemberServiceImpl, deleteGroupMemberByUserId");
+
+		GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(deleteGroupMemberRequest.getUserId(), deleteGroupMemberRequest.getGroupId())
+				.orElseThrow(() -> new NotFoundException("Thành viên không tồn tại"));
+
+		groupMemberRepository.delete(groupMember);
+
+		return ResponseEntity.ok(GenericResponse.builder().success(true).statusCode(200)
+				.message("Xóa thành viên thành công").result(null).build());
+	}
 }

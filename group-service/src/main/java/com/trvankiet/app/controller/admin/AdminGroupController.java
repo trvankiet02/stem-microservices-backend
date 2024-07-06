@@ -71,4 +71,11 @@ public class AdminGroupController {
         log.info("AdminGroupController, createClass");
         return groupService.adminCreateClass(token, adminCreateClassRequest);
     }
+
+    @GetMapping("/get-filtered-groups")
+    public ResponseEntity<GenericResponse> getFilteredGroups(@RequestHeader("Authorization") String token) {
+        log.info("AdminGroupController, getFilteredGroups");
+        return groupService.getFilteredGroups(token);
+    }
+
 }

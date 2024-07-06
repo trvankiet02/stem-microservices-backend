@@ -1,5 +1,6 @@
 package com.trvankiet.app.service.impl;
 
+import com.trvankiet.app.dto.GroupIdDTO;
 import com.trvankiet.app.dto.ReportDto;
 import com.trvankiet.app.dto.request.ReportPostRequest;
 import com.trvankiet.app.dto.response.GenericResponse;
@@ -11,11 +12,19 @@ import com.trvankiet.app.service.ReportService;
 import com.trvankiet.app.service.client.PostClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -26,6 +35,7 @@ public class ReportServiceImpl implements ReportService {
     private final ReportRepository reportRepository;
     private final MapperService mapperService;
     private final PostClientService postClientService;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public ResponseEntity<GenericResponse> reportPost(String userId, ReportPostRequest reportPostRequest) {
@@ -94,21 +104,32 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getAdminReport(String userId, String groupId) {
+    public ResponseEntity<GenericResponse> getAdminReport(String userId, String groupId, Integer page, Integer size) {
         log.info("ReportServiceImpl, getAdminReport()");
 
-        List<Report> reports = reportRepository.findAllByGroupIdAndIsReportToAdmin(groupId, true);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
+        Page<Report> reports = null;
+        if (groupId == null) {
+            reports = reportRepository.findAllByIsReportToAdmin(true, pageRequest);
+        }
+        else {
+            reports = reportRepository.findAllByGroupIdAndIsReportToAdmin(groupId, true, pageRequest);
+        }
 
-        List<ReportDto> reportDtos = reports.stream()
-                .map(mapperService::mapToReportDto)
-                .toList();
+        Map<String, Object> results = Map.of(
+                "reports", reports.getContent().stream().map(mapperService::mapToReportDto).toList(),
+                "totalPages", reports.getTotalPages(),
+                "totalElements", reports.getTotalElements(),
+                "currentPage", reports.getNumber() + 1,
+                "currentElements", reports.getNumberOfElements()
+        );
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(HttpStatus.OK.value())
                 .message("Get admin report successfully")
-                .result(reportDtos)
+                .result(results)
                 .build());
     }
 
@@ -123,6 +144,39 @@ public class ReportServiceImpl implements ReportService {
                 .statusCode(HttpStatus.OK.value())
                 .message("Get report successfully")
                 .result(mapperService.mapToReportDto(report))
+                .build());
+    }
+
+    @Override
+    public List<String> getFilteredGroups() {
+        log.info("ReportServiceImpl, getFilteredGroups()");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.group("groupId").first("groupId").as("groupId"),
+                Aggregation.project("groupId")
+        );
+
+        AggregationResults<GroupIdDTO> result = mongoTemplate.aggregate(aggregation, Report.class, GroupIdDTO.class);
+        List<GroupIdDTO> groupIds = result.getMappedResults();
+
+        return groupIds.stream()
+                .map(GroupIdDTO::getGroupId)
+                .toList();
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> markAsProcessed(String userId, String reportId) {
+        log.info("ReportServiceImpl, markAsProcessed()");
+
+        Report report = reportRepository.findById(reportId).orElseThrow(() -> new NotFoundException("Report not found"));
+
+        report.setIsProcessed(true);
+
+        return ResponseEntity.ok(GenericResponse.builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Marked as processed successfully")
+                .result(mapperService.mapToReportDto(reportRepository.save(report)))
                 .build());
     }
 }
