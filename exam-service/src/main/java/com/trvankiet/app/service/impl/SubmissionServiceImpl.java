@@ -462,18 +462,39 @@ public class SubmissionServiceImpl implements SubmissionService {
     public ResponseEntity<GenericResponse> getRankByGroupId(String userId, String groupId) {
         log.info("SubmissionServiceImpl, getRankingByExamId");
 
-        List<Submission> submissions = submissionRepository.findAllByExamGroupId(groupId);
+        List<Exam> exams = examRepository.findAllByGroupId(groupId);
 
-        List<SubmissionDto> submissionDtos = submissions.stream()
-                .map(mapperService::mapToSubmissionDto)
-                .sorted(Comparator.comparing(SubmissionDto::getScore).reversed())
-                .toList();
+        // Get all submissions of all exams in the group and groupBy AuthorId, return authorId, sum score, number of submission
+
+        List<Submission> submissions = new ArrayList<>();
+
+        exams.forEach(exam -> {
+            List<Submission> examSubmissions = submissionRepository.findAllByExamId(exam.getId());
+            submissions.addAll(examSubmissions);
+        });
+
+        Map<String, List<Submission>> submissionMap = submissions.stream()
+                .collect(Collectors.groupingBy(Submission::getAuthorId));
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        submissionMap.forEach((authorId, authorSubmissions) -> {
+            int totalScore = authorSubmissions.stream().mapToInt(s -> s.getScore() != null ? s.getScore() : 0).sum();
+            int totalSubmission = authorSubmissions.size();
+            Map<String, Object> map = new HashMap<>();
+            map.put("author", userClientService.getSimpleUserDtoByUserId(authorId));
+            map.put("totalScore", totalScore);
+            map.put("totalSubmission", totalSubmission);
+            result.add(map);
+        });
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)
                 .message("Lấy danh sách bài thi thành công!")
-                .result(submissionDtos)
+                .result(result)
                 .build());
+
+
     }
 }

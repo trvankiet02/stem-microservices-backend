@@ -13,6 +13,6 @@ public class RelationshipDto {
     private SimpleUserDto parentDto;
     @JsonProperty("student")
     private SimpleUserDto studentDto;
-    private boolean isAccepted;
+    private Boolean isAccepted;
 
 }

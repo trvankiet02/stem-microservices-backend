@@ -76,7 +76,7 @@ public class MapperServiceImpl implements MapperService {
                 .id(relationship.getId())
                 .parentDto(this.mapToSimpleUserDto(relationship.getParent()))
                 .studentDto(this.mapToSimpleUserDto(relationship.getChild()))
-                .isAccepted(relationship.getIsAccepted() != null ? relationship.getIsAccepted() : null)
+                .isAccepted(relationship.getIsAccepted())
                 .build();
     }
 

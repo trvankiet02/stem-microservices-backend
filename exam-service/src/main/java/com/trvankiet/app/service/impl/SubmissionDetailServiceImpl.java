@@ -164,7 +164,7 @@ public class SubmissionDetailServiceImpl implements SubmissionDetailService {
 
         //set score for submission
         List<SubmissionDetail> submissionDetails = submissionDetailRepository.findAllBySubmissionId(submission.getId());
-        int score = submissionDetails.stream().mapToInt(SubmissionDetail::getScore).sum();
+        int score = submissionDetails.stream().mapToInt(sd -> sd.getScore() != null ? sd.getScore() : 0).sum();
 
         submission.setScore(score);
         submission.setUpdatedAt(now);

@@ -22,10 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +56,7 @@ public class ReportServiceImpl implements ReportService {
                 .isProcessed(false)
                 .isReportToAdmin(reportPostRequest.getIsReportToAdmin())
                 .isReportToGroupManager(reportPostRequest.getIsReportToGroupManager())
+                .createdAt(new Date())
                 .build());
 
         return ResponseEntity.ok(GenericResponse.builder()
@@ -76,6 +74,7 @@ public class ReportServiceImpl implements ReportService {
         Report report = reportRepository.findById(reportId).orElseThrow(() -> new NotFoundException("Report not found"));
 
         report.setIsProcessed(true);
+        report.setUpdatedAt(new Date());
 
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
