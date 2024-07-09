@@ -21,7 +21,7 @@ public interface AddressService {
 
     ResponseEntity<GenericResponse> deleteProvince(String token, Integer id);
 
-    ResponseEntity<GenericResponse> getDistrictsForAdmin(String token, Integer provinceId);
+    ResponseEntity<GenericResponse> getDistrictsForAdmin(String token, Integer provinceId, Integer page, Integer size);
 
     ResponseEntity<GenericResponse> addDistrict(String token, DistrictRequest addressRequest);
 
@@ -29,7 +29,7 @@ public interface AddressService {
 
     ResponseEntity<GenericResponse> deleteDistrict(String token, Integer id);
 
-    ResponseEntity<GenericResponse> getSchoolsForAdmin(String token, Integer districtId);
+    ResponseEntity<GenericResponse> getSchoolsForAdmin(String token, Integer districtId, Integer page, Integer size);
 
     ResponseEntity<GenericResponse> addSchool(String token, SchoolRequest addressRequest);
 

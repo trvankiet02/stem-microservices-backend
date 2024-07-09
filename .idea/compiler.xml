@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="cloud-config" />
+        <module name="group-service" />
+        <module name="post-service" />
+        <module name="conversation-service" />
+        <module name="survey-service" />
+        <module name="friend-service" />
+        <module name="media-service" />
+        <module name="api-gateway" />
+        <module name="report-service" />
+        <module name="user-service" />
+        <module name="exam-service" />
+        <module name="service-discovery" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="competition-service" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="-parameters" />
+      <module name="cloud-config" options="-parameters" />
+      <module name="competition-service" options="-parameters" />
+      <module name="conversation-service" options="-parameters" />
+      <module name="exam-service" options="-parameters" />
+      <module name="friend-service" options="-parameters" />
+      <module name="group-service" options="-parameters" />
+      <module name="media-service" options="-parameters" />
+      <module name="post-service" options="-parameters" />
+      <module name="report-service" options="-parameters" />
+      <module name="service-discovery" options="-parameters" />
+      <module name="survey-service" options="-parameters" />
+      <module name="user-service" options="-parameters" />
+    </option>
+  </component>
+</project>

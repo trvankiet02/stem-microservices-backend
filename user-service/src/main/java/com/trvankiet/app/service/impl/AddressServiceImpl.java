@@ -174,17 +174,24 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getDistrictsForAdmin(String token, Integer provinceId) {
+    public ResponseEntity<GenericResponse> getDistrictsForAdmin(String token, Integer provinceId, Integer page, Integer size) {
         log.info("AddressServiceImpl, getDistrictsForAdmin");
-        List<AddressDto> districtResponses = districtRepository.findAllByProvinceId(provinceId)
-                .stream()
-                .map(mapperService::mapToAddressDto)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").descending());
+        Page<District> districtResponses = districtRepository.findAllByProvinceId(provinceId, pageable);
+
+        Map<String, Object> result = new HashMap();
+
+        result.put("totalPage", districtResponses.getTotalPages());
+        result.put("totalElements", districtResponses.getTotalElements());
+        result.put("currentElements", districtResponses.getNumberOfElements());
+        result.put("currentPage", districtResponses.getNumber());
+        result.put("districts", districtResponses.getContent().stream().map(mapperService::mapToAddressDto).toList());
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)
                 .message("Get all districts successfully")
-                .result(districtResponses)
+                .result(result)
                 .build());
     }
 
@@ -256,17 +263,24 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public ResponseEntity<GenericResponse> getSchoolsForAdmin(String token, Integer districtId) {
+    public ResponseEntity<GenericResponse> getSchoolsForAdmin(String token, Integer districtId, Integer page, Integer size) {
         log.info("AddressServiceImpl, getSchoolsForAdmin");
-        List<AddressDto> schoolResponses = schoolRepository.findAllByDistrictId(districtId)
-                .stream()
-                .map(mapperService::mapToAddressDto)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").descending());
+        Page<School> schoolResponses = schoolRepository.findAllByDistrictId(districtId, pageable);
+
+        Map<String, Object> result = new HashMap();
+
+        result.put("totalPage", schoolResponses.getTotalPages());
+        result.put("totalElements", schoolResponses.getTotalElements());
+        result.put("currentElements", schoolResponses.getNumberOfElements());
+        result.put("currentPage", schoolResponses.getNumber());
+        result.put("schools", schoolResponses.getContent().stream().map(mapperService::mapToAddressDto).toList());
+
         return ResponseEntity.ok(GenericResponse.builder()
                 .success(true)
                 .statusCode(200)
                 .message("Get all schools successfully")
-                .result(schoolResponses)
+                .result(result)
                 .build());
     }
 

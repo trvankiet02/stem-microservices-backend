@@ -20,20 +20,20 @@ public class AdminAddressController {
 
     @GetMapping("/provinces")
     public ResponseEntity<GenericResponse> getAllProvinces(@RequestHeader("Authorization") String token,
-                                                           @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                           @RequestParam(value = "size", defaultValue = "10") Integer size) {
+                                                           @RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                           @RequestParam(value = "size", defaultValue = "5") Integer size) {
         log.info("AdminAddressController, getAllProvinces");
-        return addressService.getAllProvincesForAdmin(token, page, size);
+        return addressService.getAllProvincesForAdmin(token, page - 1, size);
     }
 
-    @PostMapping("/add-province")
+    @PostMapping("/provinces")
     public ResponseEntity<GenericResponse> addProvince(@RequestHeader("Authorization") String token,
                                                        @RequestBody AddressRequest addressRequest) {
         log.info("AdminAddressController, addProvince");
         return addressService.addProvince(token, addressRequest);
     }
 
-    @PutMapping("/update-province/{id}")
+    @PutMapping("/provinces/{id}")
     public ResponseEntity<GenericResponse> updateProvince(@RequestHeader("Authorization") String token,
                                                           @PathVariable("id") Integer id,
                                                           @RequestBody AddressRequest addressRequest) {
@@ -41,7 +41,7 @@ public class AdminAddressController {
         return addressService.updateProvince(token, id, addressRequest);
     }
 
-    @DeleteMapping("/delete-province/{id}")
+    @DeleteMapping("/provinces/{id}")
     public ResponseEntity<GenericResponse> deleteProvince(@RequestHeader("Authorization") String token,
                                                           @PathVariable("id") Integer id) {
         log.info("AdminAddressController, deleteProvince");
@@ -50,19 +50,21 @@ public class AdminAddressController {
 
     @GetMapping("/districtsByProvince")
     public ResponseEntity<GenericResponse> districtsByProvince(@RequestHeader("Authorization") String token,
-                                                               @RequestParam("pId") Integer provinceId) {
+                                                               @RequestParam("pId") Integer provinceId,
+                                                               @RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                               @RequestParam(value = "size", defaultValue = "5") Integer size) {
         log.info("AdminAddressController, districtsByProvince");
-        return addressService.getDistrictsForAdmin(token, provinceId);
+        return addressService.getDistrictsForAdmin(token, provinceId, page - 1, size);
     }
 
-    @PostMapping("/add-district")
+    @PostMapping("/districts")
     public ResponseEntity<GenericResponse> addDistrict(@RequestHeader("Authorization") String token,
                                                        @RequestBody DistrictRequest addressRequest) {
         log.info("AdminAddressController, addDistrict");
         return addressService.addDistrict(token, addressRequest);
     }
 
-    @PutMapping("/update-district/{id}")
+    @PutMapping("/districts/{id}")
     public ResponseEntity<GenericResponse> updateDistrict(@RequestHeader("Authorization") String token,
                                                           @PathVariable("id") Integer id,
                                                           @RequestBody DistrictRequest addressRequest) {
@@ -70,7 +72,7 @@ public class AdminAddressController {
         return addressService.updateDistrict(token, id, addressRequest);
     }
 
-    @DeleteMapping("/delete-district/{id}")
+    @DeleteMapping("/districts/{id}")
     public ResponseEntity<GenericResponse> deleteDistrict(@RequestHeader("Authorization") String token,
                                                           @PathVariable("id") Integer id) {
         log.info("AdminAddressController, deleteDistrict");
@@ -79,19 +81,21 @@ public class AdminAddressController {
 
     @GetMapping("/schoolsByDistrict")
     public ResponseEntity<GenericResponse> schoolsByDistrict(@RequestHeader("Authorization") String token,
-                                                             @RequestParam("dId") Integer districtId) {
+                                                             @RequestParam("dId") Integer districtId,
+                                                             @RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                             @RequestParam(value = "size", defaultValue = "5") Integer size ) {
         log.info("AdminAddressController, schoolsByDistrict");
-        return addressService.getSchoolsForAdmin(token, districtId);
+        return addressService.getSchoolsForAdmin(token, districtId, page - 1, size);
     }
 
-    @PostMapping("/add-school")
+    @PostMapping("/schools")
     public ResponseEntity<GenericResponse> addSchool(@RequestHeader("Authorization") String token,
                                                      @RequestBody SchoolRequest addressRequest) {
         log.info("AdminAddressController, addSchool");
         return addressService.addSchool(token, addressRequest);
     }
 
-    @PutMapping("/update-school/{id}")
+    @PutMapping("/schools/{id}")
     public ResponseEntity<GenericResponse> updateSchool(@RequestHeader("Authorization") String token,
                                                         @PathVariable("id") Integer id,
                                                         @RequestBody SchoolRequest addressRequest) {
@@ -99,7 +103,7 @@ public class AdminAddressController {
         return addressService.updateSchool(token, id, addressRequest);
     }
 
-    @DeleteMapping("/delete-school/{id}")
+    @DeleteMapping("/schools/{id}")
     public ResponseEntity<GenericResponse> deleteSchool(@RequestHeader("Authorization") String token,
                                                         @PathVariable("id") Integer id) {
         log.info("AdminAddressController, deleteSchool");

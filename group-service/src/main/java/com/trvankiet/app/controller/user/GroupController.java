@@ -193,5 +193,13 @@ public class GroupController {
         return groupService.getCompetitions();
     }
 
+    @GetMapping("/get-my-competitions")
+    public ResponseEntity<GenericResponse> getMyCompetitions(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        log.info("AdminGroupController, getMyCompetitions");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtService.extractUserId(accessToken);
+        return groupService.getMyCompetitions(userId);
+    }
+
 
 }

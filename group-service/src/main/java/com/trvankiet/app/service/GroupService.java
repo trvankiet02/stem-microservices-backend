@@ -63,4 +63,6 @@ public interface GroupService {
     ResponseEntity<GenericResponse> getCompetitions();
 
     ResponseEntity<GenericResponse> getFilteredGroups(String token);
+
+    ResponseEntity<GenericResponse> getMyCompetitions(String userId);
 }

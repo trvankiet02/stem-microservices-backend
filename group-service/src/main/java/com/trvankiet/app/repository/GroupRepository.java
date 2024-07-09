@@ -77,4 +77,5 @@ public interface GroupRepository extends MongoRepository<Group, String> {
     List<Group> findAllByIsCompetition(Boolean isCompetition);
 
     List<Group> findAllByIdIn(List<String> groupIds);
+    List<Group> findAllByAuthorIdAndIsCompetition(String authorId, Boolean isCompetition);
 }

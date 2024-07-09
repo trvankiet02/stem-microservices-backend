@@ -1,0 +1,15 @@
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\service\impl\ValidateServiceImpl.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\jwt\service\JwtService.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\service\client\UserClientService.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\service\ValidateService.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\config\AuthFilterConfig.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\jwt\service\impl\JwtServiceImpl.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\ApiGatewayApplication.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\config\AdminAuthFilter.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\dto\CredentialDto.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\config\FeignConfig.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\config\RouteConfig.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\constant\AppConstant.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\config\AuthFilter.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\jwt\util\JwtUtil.java
+D:\HK8\stem-microservices-backend\api-gateway\src\main\java\com\trvanket\app\jwt\util\impl\JwtUtilImpl.java
