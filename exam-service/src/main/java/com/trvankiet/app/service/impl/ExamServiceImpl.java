@@ -397,9 +397,9 @@ public class ExamServiceImpl implements ExamService {
             if (correctAnswerCount == 0) {
                 questionRequest.setTypeCode(QuestionTypeEnum.ESSAY.getCode());
             } else if (correctAnswerCount == 1) {
-                questionRequest.setTypeCode(QuestionTypeEnum.MULTIPLE_CHOICE.getCode());
-            } else {
                 questionRequest.setTypeCode(QuestionTypeEnum.SINGLE_CHOICE.getCode());
+            } else {
+                questionRequest.setTypeCode(QuestionTypeEnum.MULTIPLE_CHOICE.getCode());
             }
             questionRequests.add(questionRequest);
             maxScore += questionRequest.getScore();

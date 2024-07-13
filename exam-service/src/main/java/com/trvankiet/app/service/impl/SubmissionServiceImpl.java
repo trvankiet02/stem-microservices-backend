@@ -52,7 +52,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
 
         try {
-                String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
+            String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
         } catch (Exception e) {
             throw new BadRequestException("Bạn không có quyền thực hiện hành động này!");
         }
@@ -190,7 +190,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
 
-    private int updateScoreAndSubmissionDetail(int score, boolean checkedValue, SubmissionDetail submissionDetail){
+    private int updateScoreAndSubmissionDetail(int score, boolean checkedValue, SubmissionDetail submissionDetail) {
         if (checkedValue) {
             score += submissionDetail.getQuestion().getScore();
             submissionDetail.setScore(submissionDetail.getQuestion().getScore());
@@ -221,13 +221,23 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .questionSubmissionResponses(new ArrayList<>())
                 .build();
         submissionDetails.forEach(submissionDetail -> {
-            List<AnswerSubmissionResponse> answers = answerRepository.findAllByQuestionId(submissionDetail.getQuestion().getId())
-                    .stream()
-                    .map(answer -> AnswerSubmissionResponse.builder()
-                            .answer(answer.getContent())
-                            .isChecked(submissionDetail.getAnswer() != null && submissionDetail.getAnswer().contains(answer.getContent()))
-                            .build())
-                    .toList();
+            List<AnswerSubmissionResponse> answers = new ArrayList<>();
+            if (QuestionTypeEnum.ESSAY.getCode().equals(submissionDetail.getQuestion().getType().getCode())) {
+                AnswerSubmissionResponse userAnswer = AnswerSubmissionResponse.builder()
+                        .isChecked(submissionDetail.getAnswer() != null && !submissionDetail.getAnswer().isBlank())
+                        .answer(submissionDetail.getAnswer() != null && !submissionDetail.getAnswer().isBlank() ? submissionDetail.getAnswer() : "")
+                        .build();
+
+                answers.add(userAnswer);
+            } else {
+                answers = answerRepository.findAllByQuestionId(submissionDetail.getQuestion().getId())
+                        .stream()
+                        .map(answer -> AnswerSubmissionResponse.builder()
+                                .answer(answer.getContent())
+                                .isChecked(submissionDetail.getAnswer() != null && submissionDetail.getAnswer().contains(answer.getContent()))
+                                .build())
+                        .toList();
+            }
             QuestionSubmissionResponse questionSubmissionResponse = QuestionSubmissionResponse.builder()
                     .submissionDetailId(submissionDetail.getId())
                     .content(submissionDetail.getQuestion().getContent())

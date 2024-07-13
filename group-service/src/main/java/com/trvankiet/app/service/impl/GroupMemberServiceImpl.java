@@ -352,7 +352,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
 		Optional<GroupMember> groupOwner = groupMemberRepository.findByGroupIdAndRole(group.getId(), GroupMemberRoleType.GROUP_OWNER);
 
-		if (groupOwner.isPresent() && addGroupMemberRequest.getRoleCode().equals(GroupMemberRoleType.GROUP_OWNER.getCode())) {
+		if (groupOwner.isPresent() && addGroupMemberRequest.getRoleCode().equals(GroupMemberRoleType.GROUP_OWNER.name())) {
 			throw new BadRequestException("Nhóm đã có chủ nhóm");
 		}
 
