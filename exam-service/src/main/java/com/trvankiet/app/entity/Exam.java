@@ -55,9 +55,6 @@ public class Exam implements Serializable {
     @Field("exam_max_score")
     private Integer maxScore;
 
-    @Field("exam_isAutoMark")
-    private Boolean isAutoMark;
-
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Field(name = "created_at")

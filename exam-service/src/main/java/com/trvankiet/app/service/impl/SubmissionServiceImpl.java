@@ -126,23 +126,14 @@ public class SubmissionServiceImpl implements SubmissionService {
         Date now = new Date();
         submission.setEndedAt(now);
 
-        if (submission.getExam().getIsAutoMark() == null || !submission.getExam().getIsAutoMark()) {
-            submission.setUpdatedAt(now);
-            submissionRepository.save(submission);
-            return ResponseEntity.ok(GenericResponse.builder()
-                    .success(true)
-                    .statusCode(200)
-                    .message("Nộp bài thi thành công!")
-                    .result(mapperService.mapToSubmissionDto(submission))
-                    .build());
-        }
-
         Set<String> correctAnswerContents = new HashSet<>();
         List<SubmissionDetail> submissionDetails = submissionDetailRepository.findAllBySubmissionId(submissionId);
         int score = 0;
 
         for (SubmissionDetail submissionDetail : submissionDetails) {
             // Skip question if user not answer
+            if (submissionDetail.getQuestion().getType().getCode().equals(QuestionTypeEnum.ESSAY.getCode())) continue;
+
             if (submissionDetail.getAnswer() == null) continue;
 
             Question question = submissionDetail.getQuestion();
