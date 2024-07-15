@@ -19,8 +19,6 @@ public class UpdateExamDetailRequest {
     private Boolean isEnabled;
     @NotNull
     private Integer numberOfQuestion;
-    @NotNull
-    private Boolean isAutoMark;
     private String level;
     @NotNull
     private Integer maxScore;

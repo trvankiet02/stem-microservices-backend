@@ -22,8 +22,6 @@ public class CreateExamByExcelRequest {
     private String endedAt;
     @NotNull
     private Boolean isEnabled;
-    @NotNull
-    private Boolean isAutoMark;
     private String level;
     @NotNull
     private MultipartFile multipartFile;

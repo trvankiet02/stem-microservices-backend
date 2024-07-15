@@ -89,7 +89,6 @@ public class ExamServiceImpl implements ExamService {
                             .endedAt(DateUtil.string2Date(createExamRequest.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                             .isEnabled(createExamRequest.getIsEnabled())
                             .numberOfQuestion(createExamRequest.getNumberOfQuestion())
-                            .isAutoMark(createExamRequest.getIsAutoMark())
                             .level(createExamRequest.getLevel())
                             .maxScore(createExamRequest.getMaxScore())
                             .createdAt(new Date())
@@ -243,7 +242,6 @@ public class ExamServiceImpl implements ExamService {
             exam.setEndedAt(DateUtil.string2Date(updateExamDetailRequest.getEndedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT));
             exam.setIsEnabled(updateExamDetailRequest.getIsEnabled());
             exam.setNumberOfQuestion(updateExamDetailRequest.getNumberOfQuestion());
-            exam.setIsAutoMark(updateExamDetailRequest.getIsAutoMark());
             exam.setLevel(updateExamDetailRequest.getLevel());
             exam.setMaxScore(updateExamDetailRequest.getMaxScore());
             exam.setUpdatedAt(new Date());
@@ -413,7 +411,6 @@ public class ExamServiceImpl implements ExamService {
                 .endedAt(createExamByExcelRequest.getEndedAt())
                 .isEnabled(createExamByExcelRequest.getIsEnabled())
                 .numberOfQuestion(questionRequests.size())
-                .isAutoMark(createExamByExcelRequest.getIsAutoMark())
                 .level(createExamByExcelRequest.getLevel())
                 .maxScore(maxScore)
                 .questions(questionRequests)
