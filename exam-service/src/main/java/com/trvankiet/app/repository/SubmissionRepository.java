@@ -21,4 +21,5 @@ public interface SubmissionRepository extends MongoRepository<Submission, String
     List<Submission> findAllByExamGroupId(String groupId);
     @Query("[{'$group': {'_id': '$exam', 'count': {'$sum': 1}}}, {'$sort': {'count': -1}}, {'$limit': 5}]")
     List<Exam> findTop5ExamsBySubmissionCount();
+    void deleteAllByExamId(String examId);
 }

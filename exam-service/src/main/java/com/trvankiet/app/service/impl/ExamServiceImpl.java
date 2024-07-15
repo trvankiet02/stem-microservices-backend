@@ -267,6 +267,7 @@ public class ExamServiceImpl implements ExamService {
         String role = groupMemberClientService.getRoleByGroupIdAndUserId(exam.getGroupId(), userId);
         if (role.equals("GROUP_OWNER")) {
             examRepository.deleteById(examId);
+            submissionRepository.deleteAllByExamId(examId);
             return ResponseEntity.ok().body(
                     GenericResponse.builder()
                             .result(true)
