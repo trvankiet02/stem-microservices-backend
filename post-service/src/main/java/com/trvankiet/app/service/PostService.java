@@ -25,7 +25,7 @@ public interface PostService {
 
     List<PostDto> searchPost(Optional<String> query, Optional<String> type);
 
-    ResponseEntity<GenericResponse> getHomePost(String userId, List<String> groupIds, int page, int size);
+    ResponseEntity<GenericResponse> getHomePost(String authorizationHeader, String userId, List<String> groupIds, int page, int size);
 
     ResponseEntity<GenericResponse> count(String authorizationToken, String groupId);
 

@@ -30,6 +30,7 @@ public class PostDto implements Serializable {
         private long totalComments;
         @JsonProperty("comments")
         private List<CommentDto> commentDtos;
+        private List<ReactionDto> reactionDtos;
         private String createdAt;
         private String updatedAt;
 

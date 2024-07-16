@@ -38,6 +38,7 @@ public class MapperServiceImpl implements MapperService {
         Page<Comment> pageComment = commentRepository.findAllByPostId(post.getId(), pageable);
         List<Comment> comments = pageComment.getContent();
         SimpleUserDto simpleUserDto = userClientService.getSimpleUserDto(post.getAuthorId());
+        List<Reaction> reactions = reactionRepository.findAllByPostId(post.getId());
 
         return PostDto.builder()
                 .id(post.getId())
@@ -54,6 +55,8 @@ public class MapperServiceImpl implements MapperService {
                 .totalComments(pageComment.getTotalElements())
                 .commentDtos(comments.isEmpty() ?
                         null : comments.stream().map(this::mapToCommentDto).toList())
+                .reactionDtos(reactions.isEmpty() ?
+                        null : reactions.stream().map(this::mapToReactionDto).toList())
                 .createdAt(post.getCreatedAt() == null ?
                         null : DateUtil.date2String(post.getCreatedAt(), AppConstant.LOCAL_DATE_TIME_FORMAT))
                 .updatedAt(post.getUpdatedAt() == null ?

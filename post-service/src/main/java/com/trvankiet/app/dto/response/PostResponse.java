@@ -3,6 +3,7 @@ package com.trvankiet.app.dto.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.trvankiet.app.dto.PostDto;
 import com.trvankiet.app.dto.ReactionDto;
+import com.trvankiet.app.dto.SimpleGroupDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,4 +16,7 @@ public class PostResponse {
 
     @JsonProperty("reaction")
     private ReactionDto reactionDto;
+
+    @JsonProperty("group")
+    private SimpleGroupDto groupDto;
 }
