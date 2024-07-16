@@ -33,10 +33,7 @@ public class MapperServiceImpl implements MapperService {
 
     @Override
     public PostDto mapToPostDto(Post post) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable pageable = PageRequest.of(0, 5, sort);
-        Page<Comment> pageComment = commentRepository.findAllByPostId(post.getId(), pageable);
-        List<Comment> comments = pageComment.getContent();
+        List<Comment> comments = commentRepository.findAllByPostId(post.getId());
         SimpleUserDto simpleUserDto = userClientService.getSimpleUserDto(post.getAuthorId());
         List<Reaction> reactions = reactionRepository.findAllByPostId(post.getId());
 
@@ -52,7 +49,7 @@ public class MapperServiceImpl implements MapperService {
                 .refUrls(post.getRefUrls().isEmpty() ?
                         null : post.getRefUrls())
                 .totalReactions(reactionRepository.countByPostId(post.getId()))
-                .totalComments(pageComment.getTotalElements())
+                .totalComments(comments.size())
                 .commentDtos(comments.isEmpty() ?
                         null : comments.stream().map(this::mapToCommentDto).toList())
                 .reactionDtos(reactions.isEmpty() ?
